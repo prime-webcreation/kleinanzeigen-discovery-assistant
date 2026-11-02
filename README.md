@@ -23,7 +23,7 @@ Käufer:innen beschreiben in eigenen Worten, was sie suchen. Der Assistent schl�
 
 ## Lokal starten
 
-Keine Installation nötig. Es ist eine einzelne Datei.
+Keine Installation nötig. Die Schrift Inter liegt lokal im Projekt (assets/fonts/inter.woff2, Lizenz in assets/fonts/OFL-Inter.txt), es werden keine Anfragen an Google gesendet.
 
 ```bash
 # Variante 1: direkt im Browser öffnen
@@ -55,7 +55,7 @@ Für Testpersonen den Link **ohne** `#mod` verwenden.
 
 ## Veröffentlichen mit GitHub Pages
 
-Der Workflow `.github/workflows/pages.yml` veröffentlicht `index.html` bei jedem Push auf `main`.
+Der Workflow `.github/workflows/pages.yml` veröffentlicht `index.html` sowie die Ordner `src/` und `assets/` bei jedem Push auf `main`.
 
 1. Repository auf GitHub anlegen und pushen
 2. Auf GitHub: **Settings, Pages, Source: GitHub Actions**
@@ -68,10 +68,17 @@ Achtung: Pages ist öffentlich. Bei privaten Repositories braucht Pages einen be
 
 ```
 .
-├── index.html                  Prototyp (HTML, CSS, JS in einer Datei)
-├── README.md                   Diese Datei
+├── index.html                  Prototyp (Markup)
+├── src/
+│   ├── styles.css              Gestaltung
+│   └── app.js                  Verhalten und Zustände
+├── assets/
+│   └── fonts/
+│       ├── inter.woff2         Schrift Inter (lokal eingebunden)
+│       └── OFL-Inter.txt       Lizenz der Schrift (SIL Open Font License)
 ├── docs/
 │   └── PROJECT.md              Experiment-Plan (Lesson 7)
+├── README.md                   Diese Datei
 └── .github/workflows/
     └── pages.yml               Deployment auf GitHub Pages
 ```
