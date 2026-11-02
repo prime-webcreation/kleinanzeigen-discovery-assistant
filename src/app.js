@@ -2,7 +2,7 @@
    Zustand (S), Inhalte, Render-Funktionen, Events. Kein echtes Modell. */
 (function(){
 var $=function(s){return document.querySelector(s)};
-var S={view:'cold',ki:true,q:'',cat:'Möbel & Wohnen',catPick:null,prev:null,chips:[],t:[],scenario:'auto',retry:false,sheet:false,toast:'',radius:'',delivery:'',cond:'',refine:{},open:'',draft:{},fbDone:false,showCancel:false,selOpen:false};
+var S={view:'cold',ki:true,q:'',cat:'Möbel & Wohnen',catPick:null,prev:null,chips:[],t:[],scenario:'auto',retry:false,sheet:false,toast:'',radius:'',delivery:'',cond:'',refine:{},open:'',draft:{},fbDone:false,showCancel:false,selOpen:false,edit:''};
 var RADII=[5,10,20,50,100];
 var CHIPS=['2-Sitzer','< 180cm','kleines Sofa','Ecksofa','< 200 €','Couch','Kompakter 3-Sitzer'];
 var CATS=['Möbel & Wohnen','Haus & Garten','Elektronik','Mode & Beauty'];
@@ -25,6 +25,7 @@ function ensureRoom(){if(!S.ki||AIV.indexOf(S.view)<0)return;var sc=$('.scr');if
 function anchorKI(){ensureRoom();var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;window.scrollTo({top:anchorY(),behavior:rm?'auto':'smooth'})}
 function go(v){clearT();if(v==='cold'){S.prev=(S.view!=='cold'&&S.view!=='waiting')?S.view:null}else{S.prev=null}S.view=v;S.sheet=false;render();if(v==='high'||v==='low'||v==='none'||v==='fail')anchorKI();else window.scrollTo(0,0)}
 function toast(m){S.toast=m;render();setTimeout(function(){S.toast='';render()},2200)}
+var RELOAD='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></svg>';
 var SPARK='<svg viewBox="0 0 26 26" fill="none" stroke="#339E29" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l6 6M8.5 11h5M11 8.5v5"/><path d="M20 3v4M18 5h4" stroke="#8FCB7F"/></svg>';
 var KISP='<svg viewBox="0 0 26 26" fill="none" stroke="#339E29" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="12" r="5.5"/><path d="M15.5 16.5l5 5"/><path class="star s1" d="M20 3v5M17.5 5.5h5" stroke="#8FCB7F"/><path class="star s2" d="M5 19v3M3.5 20.5h3" stroke="#8FCB7F" stroke-width="1.8"/></svg>';
 var WARN='<svg class="warn" viewBox="0 0 44 44" fill="none" stroke="#339E29" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 6L40 38H4z"/><path d="M22 17v12M22 33v1"/></svg>';
@@ -142,14 +143,14 @@ function high(){
   }
   var tail=none?'<div class="msg"><h3>Keine Anzeige erfüllt alle deine Kriterien</h3><p>Die normalen Suchergebnisse bleiben sichtbar.</p></div>':'';
   var mid=none?'':secFound('Gefundene Ergebnisse')+hits+fb+'<div class="msg" style="padding:14px 18px 0"><p class="mb">Die normalen Suchergebnisse bleiben sichtbar.</p></div>';
-  return header()+cnt('312 Ergebnisse - “'+esc(qline())+'”')+sponsored()+kirow()+tail+(none?selBox():'')+r+'<div class="hact"><button data-a="edit">Suche anpassen</button><button data-a="newsearch">Neu suchen</button></div>'+mid+secNormal()+listing('e')+listing('f')+listing('g')+(none?fb:'')+foot()+fab();
+  return header()+cnt('312 Ergebnisse - “'+esc(qline())+'”')+sponsored()+kirow()+tail+(none?selBox():'')+r+'<div class="hact">'+(none?'':'<button data-a="edit">Suche anpassen</button>')+'<button data-a="newsearch">'+RELOAD+'Neu suchen</button></div>'+mid+secNormal()+listing('e')+listing('f')+listing('g')+(none?fb:'')+foot()+fab();
 }
 var RF=[
   {k:'mass',label:'Maße',title:'Breite des Sofas',quick:[160,180,200],field:'Eigene Breite',unit:'cm',max:400,fmt:function(d){return 'Breite < '+d.n+' cm'}},
   {k:'price',label:'Preis',title:'Preis',quick:[{v:50,o:'<'},{v:100,o:'<'},{v:200,o:'<'},{v:300,o:'<'},{v:500,o:'<'}],nolabel:1,field:'Eigener Betrag',unit:'€',max:99999,fmt:function(d){return (d.o==='>'?'> ':'< ')+d.n+' €'}},
   {k:'color',label:'Farbe',title:'Farbe des Sofas',quick:['Weiß','Schwarz','Grau','Beige','Braun','Grün','Blau'],choice:1,err:'Bitte wähle eine Farbe.',fmt:function(d){return 'Farbe '+d.n}}
 ];
-function resetRefine(){S.refine={};S.open='';S.draft={};S.selOpen=false}
+function resetRefine(){S.refine={};S.open='';S.draft={};S.selOpen=false;S.edit=''}
 function rfOf(k){return RF.filter(function(r){return r.k===k})[0]}
 function rpanel(r){
   var d=S.draft[r.k]||{n:''},id='rp-'+r.k;
@@ -161,14 +162,29 @@ function rpanel(r){
   h+='<div class="ract">'+(r.choice?clr:'<button class="rbtn" data-a="rapply" data-k="'+r.k+'">Übernehmen</button>')+'</div></div>';
   return h;
 }
-function selBox(){
-  var shown=S.chips.map(function(c){return {t:c,k:'chip',v:c}});
-  if(S.radius)shown.push({t:'Umkreis + '+S.radius+' km',k:'radius'});
-  if(S.delivery)shown.push({t:S.delivery,k:'delivery'});
-  if(S.cond)shown.push({t:S.cond==='egal'?'Zustand egal':S.cond,k:'cond'});
-  Object.keys(S.refine).forEach(function(k){shown.push({t:S.refine[k].text,k:'refine',v:k})});
-  if(!shown.length)S.selOpen=false;
-  return (shown.length?'<div class="pad selbox"><div class="selhead"><b class="sl">Von dir gewählt:</b>'+(S.selOpen?'<button class="selmore" data-a="selless">Fertig</button>':'<button class="selmore" data-a="selmore" aria-controls="selchips" hidden>… ändern</button>')+'</div><div class="selchips'+(S.selOpen?' open':'')+'" id="selchips">'+shown.map(function(c){return '<button class="chip" aria-pressed="true" data-a="unsel" data-k="'+c.k+'" data-v="'+esc(c.v||'')+'" aria-label="'+esc(c.t)+', Auswahl entfernen">'+esc(c.t)+(S.selOpen?'<span class="x" aria-hidden="true">×</span>':'')+'</button>'}).join('')+'</div></div>':'');
+var EDOPT={radius:{t:'Umkreis',o:RADII.map(function(v){return [String(v),'+ '+v+' km']})},delivery:{t:'Lieferung',o:[['Abholung','Abholung'],['Versand','Versand']]},cond:{t:'Zustand',o:[['Neu','Neu'],['Gebraucht','Gebraucht'],['egal','egal']]}};
+function hasSel(){return !!(S.chips.length||S.radius||S.delivery||S.cond||Object.keys(S.refine).length)}
+function selBox(o){
+  o=o||{};
+  var shown=S.chips.map(function(c){return {t:c,k:'chip',v:c,ed:c==='< 200 €'?'refine:price':c==='< 180cm'?'refine:mass':''}});
+  if(S.radius)shown.push({t:'Umkreis + '+S.radius+' km',k:'radius',ed:'radius'});
+  if(S.delivery)shown.push({t:S.delivery,k:'delivery',ed:'delivery'});
+  if(S.cond)shown.push({t:S.cond==='egal'?'Zustand egal':S.cond,k:'cond',ed:'cond'});
+  Object.keys(S.refine).forEach(function(k){shown.push({t:S.refine[k].text,k:'refine',v:k,ed:'refine:'+k})});
+  if(!shown.length){S.selOpen=false;S.edit=''}
+  if(!shown.length)return '';
+  var h='<div class="pad selbox"><div class="selhead"><b class="sl">Von dir gewählt:</b>'+(S.selOpen?'<button class="selmore" data-a="selless">Fertig</button>':(o.noMore?'':'<button class="selmore" data-a="selmore" aria-controls="selchips">… anpassen</button>'))+'</div><div class="selchips'+(S.selOpen?' open':'')+'" id="selchips">';
+  h+=shown.map(function(c){
+    var rm='data-a="unsel" data-k="'+c.k+'" data-v="'+esc(c.v||'')+'"';
+    if(!S.selOpen)return '<button class="chip" aria-pressed="true" '+rm+' aria-label="'+esc(c.t)+', Auswahl entfernen">'+esc(c.t)+'<span class="x" aria-hidden="true">×</span></button>';
+    if(!c.ed)return '<button class="chip" aria-pressed="true" '+rm+' aria-label="'+esc(c.t)+', Auswahl entfernen">'+esc(c.t)+'<span class="x" aria-hidden="true">×</span></button>';
+    return '<span class="chip sp'+(S.edit===c.ed?' act':'')+'"><button class="cl" data-a="selpick" data-e="'+c.ed+'" aria-expanded="'+(S.edit===c.ed)+'" aria-label="'+esc(c.t)+', ändern">'+esc(c.t)+'</button><button class="cx" '+rm+' aria-label="'+esc(c.t)+', Auswahl entfernen"><span aria-hidden="true">×</span></button></span>';
+  }).join('')+'</div>';
+  if(S.selOpen&&S.edit){
+    if(S.edit.indexOf('refine:')===0)h+=rpanel(rfOf(S.edit.slice(7)));
+    else{var d=EDOPT[S.edit];h+='<div class="rpanel"><label class="rt" for="seled">'+d.t+'</label><select id="seled" class="sel" data-e="'+S.edit+'">'+d.o.map(function(x){return '<option value="'+x[0]+'"'+(S[S.edit]===x[0]?' selected':'')+'>'+x[1]+'</option>'}).join('')+'</select></div>'}
+  }
+  return h+'</div>';
 }
 function low(){
   var keys=Object.keys(S.refine),n=[312,148,61,22][Math.min(keys.length+[S.radius,S.delivery,S.cond==='egal'?'':S.cond].filter(Boolean).length,3)];
@@ -182,9 +198,10 @@ function low(){
 function none(){
   return header()+cnt('Keine KI-Treffer - “'+esc(S.q)+'”')+sponsored()+kirow()+
   '<div class="msg"><h3>Keine passenden Ergebnisse gefunden</h3><p>Es wurde nichts gefunden, das sicher zu deiner Suche passt.</p></div>'+
-  selBox()+
+  selBox({noMore:1})+
   '<div class="cat"><b>Kategorieempfehlung:</b><button data-a="catrec">Sofas &amp; Sitzgarnituren</button></div>'+
   '<div class="aibox" style="padding:14px 14px 4px"><p class="h3" style="margin:0 0 8px;font-size:13px;color:#4B5E52">Versuche es mit einem anderen Suchbegriff</p><p style="font-size:12px;margin:0">oder Tippe auf einen Vorschlag, um neu zu suchen.</p><div class="chips" style="gap:10px;margin-top:14px">'+['sofa klein','Kleines Schlafsofa','2-Sitzer-Sofa','Kompaktsofa'].map(function(c){return '<button class="chip" data-a="term" data-c="'+c+'">'+c+'</button>'}).join('')+'</div></div>'+
+  '<div class="hact two">'+(hasSel()&&!S.selOpen?'<button data-a="selmore">… anpassen</button>':'<span></span>')+'<button data-a="newsearch">'+RELOAD+'Neu suchen</button></div>'+
   secNormal()+listing('e')+listing('f')+listing('g')+foot()+fab();
 }
 function fail(){
@@ -195,16 +212,14 @@ function fail(){
 function plain(){
   return header()+cnt('312 Ergebnisse - “'+esc(S.q)+'”')+sponsored()+kirow()+secNormal()+listing('d')+listing('e')+listing('f')+listing('g')+foot()+fab();
 }
-function fitSel(){var c=$('#selchips'),m=$('.selmore[data-a="selmore"]');if(c&&m)m.hidden=!(c.scrollHeight>c.clientHeight+1)}
 function render(){
   var v={cold:cold,waiting:waiting,high:high,low:low,none:none,fail:fail,plain:plain}[S.view]();
-  $('#phone').innerHTML='<div class="scr">'+v+'</div>'+sheet()+(S.toast?'<div class="toast" role="status">'+esc(S.toast)+'</div>':'');ensureRoom();fitSel();
+  $('#phone').innerHTML='<div class="scr">'+v+'</div>'+sheet()+(S.toast?'<div class="toast" role="status">'+esc(S.toast)+'</div>':'');ensureRoom();
   var q=$('#q');if(q){q.addEventListener('input',function(){S.q=q.value;var has=!!q.value.trim(),chips=wantCat(q.value);if(!has)S.catPick=null;var sw=$('#chipwrap'),pw=$('#promptwrap');if(sw)sw.hidden=!chips;if(pw)pw.hidden=chips;var cs=$('#cat');if(cs){cs.value=catShown();cs.classList.toggle('sug',showKiTag())}var kt=$('#catwrap .ki');if(kt)kt.hidden=!showKiTag();var lv=$('#catlive');if(lv)lv.textContent=showKiTag()?'KI schlägt die Kategorie Möbel und Wohnen vor':''})}
   [['#rad','radius'],['#del','delivery']].forEach(function(f){var e=$(f[0]);if(e)e.addEventListener('change',function(){S[f[1]]=e.value})});
   var c=$('#cat');if(c){c.addEventListener('change',function(){S.cat=c.value;S.catPick=c.value;c.classList.remove('sug');var kt=$('#catwrap .ki');if(kt)kt.hidden=true})}
 }
 
-window.addEventListener('resize',fitSel);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitSel);
 var CUTOFF=0.7; // Annahme laut docs/PROJECT.md, mit Figma und PRD abgleichen
 function confidence(q){return (S.chips.indexOf('< 180cm')>-1||S.chips.indexOf('2-Sitzer')>-1||/2-sitzer|180/.test(q))?0.82:0.55}
 function outcome(){
@@ -235,11 +250,12 @@ function search(){
   startAI();
 }
 
+function dropChip(c){var i=S.chips.indexOf(c);if(i>-1)S.chips.splice(i,1)}
 function applyRefine(k){
   var r=rfOf(k),d=S.draft[k],v=r.choice?d.n:parseInt(d.n,10);
   if(r.choice?!v:!(v>0&&v<=r.max)){d.err=true;render();var f=$('#rp-'+k+'-n')||$('#rp-'+k+' .chip');if(f)f.focus();return}
   d.n=String(v);d.err=false;
-  S.refine[k]={n:d.n,o:d.o||'',text:r.fmt(d)};S.open='';render();
+  S.refine[k]={n:d.n,o:d.o||'',text:r.fmt(d)};S.open='';S.edit='';if(k==='price')dropChip('< 200 €');if(k==='mass')dropChip('< 180cm');render();
   var tb=$('[data-a="refine"][data-k="'+k+'"]');if(tb)tb.focus();
 }
 document.addEventListener('input',function(e){
@@ -249,6 +265,7 @@ document.addEventListener('input',function(e){
   var p=$('#rp-'+k),er=$('#rp-'+k+'-e');if(er)er.remove();t.removeAttribute('aria-invalid');
   if(p)p.querySelectorAll('.rq .chip').forEach(function(c){c.setAttribute('aria-pressed',c.dataset.v===d.n&&(c.dataset.o||'')===(k==='price'?'<':''))});
 });
+document.addEventListener('change',function(e){var t=e.target;if(t.id!=='seled')return;S[t.dataset.e]=t.value;S.edit='';render()});
 document.addEventListener('keydown',function(e){
   var t=e.target;if(e.key==='Enter'&&t.dataset&&t.dataset.rk){e.preventDefault();applyRefine(t.dataset.rk)}
 });
@@ -270,13 +287,14 @@ document.addEventListener('click',function(e){
   else if(a==='newsearch'){S.q='';S.chips=[];S.radius='';S.delivery='';S.cond='';S.catPick=null;S.scenario='auto';resetRefine();go('cold')}
   else if(a==='cancel'){clearT();go('plain');toast('Suche abgebrochen. Normale Ergebnisse angezeigt.')}
   else if(a==='retry'){S.retry=true;if(S.scenario==='fail'||S.scenario==='slow')S.scenario='high';startAI()}
-  else if(a==='unsel'){var uk=el.dataset.k,uv=el.dataset.v;if(uk==='chip'){var ui=S.chips.indexOf(uv);if(ui>-1)S.chips.splice(ui,1)}else if(uk==='refine'){delete S.refine[uv];if(S.open===uv)S.open=''}else S[uk]='';render()}
-  else if(a==='refine'){var rk=el.dataset.k;if(S.open===rk){S.open=''}else{S.open=rk;var ap=S.refine[rk];S.draft[rk]={n:ap?ap.n:'',o:ap?ap.o:''}}render();var tb=$('[data-a="refine"][data-k="'+rk+'"]');if(tb)tb.focus()}
-  else if(a==='rq'){var qk=el.dataset.k,qv=el.dataset.v,qo=el.dataset.o||'',qa=S.refine[qk];if(qa&&qa.n===qv&&(qa.o||'')===qo){delete S.refine[qk];S.open=''}else{S.draft[qk]={n:qv,o:qo};applyRefine(qk);return}render();var qb=$('[data-a="refine"][data-k="'+qk+'"]');if(qb)qb.focus()}
+  else if(a==='unsel'){S.edit='';var uk=el.dataset.k,uv=el.dataset.v;if(uk==='chip'){var ui=S.chips.indexOf(uv);if(ui>-1)S.chips.splice(ui,1)}else if(uk==='refine'){delete S.refine[uv];if(S.open===uv)S.open=''}else S[uk]='';render()}
+  else if(a==='refine'){var rk=el.dataset.k;S.edit='';if(S.open===rk){S.open=''}else{S.open=rk;var ap=S.refine[rk];S.draft[rk]={n:ap?ap.n:'',o:ap?ap.o:''}}render();var tb=$('[data-a="refine"][data-k="'+rk+'"]');if(tb)tb.focus()}
+  else if(a==='rq'){var qk=el.dataset.k,qv=el.dataset.v,qo=el.dataset.o||'',qa=S.refine[qk];if(qa&&qa.n===qv&&(qa.o||'')===qo){delete S.refine[qk];S.open='';S.edit=''}else{S.draft[qk]={n:qv,o:qo};applyRefine(qk);return}render();var qb=$('[data-a="refine"][data-k="'+qk+'"]');if(qb)qb.focus()}
+  else if(a==='selpick'){var se=el.dataset.e;if(S.edit===se){S.edit=''}else{S.edit=se;S.open='';if(se.indexOf('refine:')===0){var sk=se.slice(7),sa=S.refine[sk];S.draft[sk]=sa?{n:sa.n,o:sa.o}:(sk==='price'&&S.chips.indexOf('< 200 €')>-1?{n:'200',o:'<'}:(sk==='mass'&&S.chips.indexOf('< 180cm')>-1?{n:'180',o:''}:{n:'',o:''}))}}render()}
   else if(a==='selmore'){S.selOpen=true;render();var sf=$('[data-a="selless"]');if(sf)sf.focus()}
-  else if(a==='selless'){S.selOpen=false;render();var sm=$('[data-a="selmore"]');if(sm)sm.focus()}
+  else if(a==='selless'){S.selOpen=false;S.edit='';render();var sm=$('[data-a="selmore"]');if(sm)sm.focus()}
   else if(a==='rapply')applyRefine(el.dataset.k)
-  else if(a==='rclear'){delete S.refine[el.dataset.k];S.open='';render();var cb=$('[data-a="refine"][data-k="'+el.dataset.k+'"]');if(cb)cb.focus()}
+  else if(a==='rclear'){delete S.refine[el.dataset.k];S.open='';S.edit='';render();var cb=$('[data-a="refine"][data-k="'+el.dataset.k+'"]');if(cb)cb.focus()}
   else if(a==='term'){S.q=el.dataset.c;S.chips=[];S.scenario='auto';startAI()}
   else if(a==='catrec'){S.cat='Sofas & Sitzgarnituren';toast('Kategorie übernommen. Tippe auf einen Begriff, um neu zu suchen.')}
   else if(a==='fb'){if(el.dataset.v==='nein'){S.fbDone=true;render()}else toast('Danke. Das Feedback wurde gezählt.')}
