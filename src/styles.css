@@ -110,7 +110,7 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
     text-align:center;
     .tr{text-align:center;margin:0 0 12px}
     .fb{
-      justify-content:center;gap:0;margin-top:2px;margin-bottom:-6px;
+      justify-content:right;gap:0;margin-top:2px;margin-bottom:-6px;
       & span{margin-right:6px}
       & button.th{width:36px;margin:-6px -2px}
     }
@@ -126,11 +126,28 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
     &::before{content:"\2713\00a0";color:var(--limeInk);font-weight:700}
   }
   &.static{cursor:default}
+  &[data-a="refine"]::after{content:"\25BE";margin-left:6px;font-size:10px}
+  &[aria-expanded="true"]{border-color:var(--green);box-shadow:0 0 0 1px var(--green);&::after{content:"\25B4"}}
+}
+
+/* Eingrenzen (Low Confidence) */
+.rpanel{
+  background:var(--white);border:1px solid var(--line);border-radius:12px;padding:14px;margin:12px 0 10px;
+  .rt{margin:0 0 12px;font-size:14px;font-weight:700}
+  .rl{display:block;font-size:12px;color:var(--ink2);margin:14px 0 6px}
+  .rf{display:flex;align-items:center;gap:8px}
+  .rin{flex:1;min-width:0;min-height:48px;border:1px solid var(--line2);border-radius:10px;padding:0 12px;font:inherit;font-size:16px;background:var(--white);color:var(--ink)}
+  .ru{min-width:24px;font-size:14px;color:var(--ink2)}
+  .rerr{margin:6px 0 0;font-size:12px;color:#B3261E}
+  .chips{gap:8px;margin:0}
+  .ract{display:flex;align-items:center;gap:12px;margin-top:16px}
+  .rbtn{flex:1;min-height:48px;border-radius:24px;background:var(--limeBtn);color:var(--limeInk);font-weight:700;font-size:15px}
+  .rclr{min-height:48px;padding:0 10px;font-size:14px;color:var(--greenText);text-decoration:underline}
 }
 
 /* Anzeigen */
 .sec{padding:18px 18px 10px;font-size:15px;font-weight:700}
-.sec-ki{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sec-ki{display:flex;align-items:center;flex-wrap:wrap}
 .pill{font-size:11px;font-weight:700;color:var(--aiTag);background:var(--aiBadge);border-radius:10px;padding:2px 8px}
 .sec-n{margin-top:18px;border-top:1px solid var(--line);padding-top:20px}
 .sub{display:block;font-size:12px;font-weight:400;color:var(--ink2);margin-top:2px}

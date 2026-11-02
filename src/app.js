@@ -2,7 +2,7 @@
    Zustand (S), Inhalte, Render-Funktionen, Events. Kein echtes Modell. */
 (function(){
 var $=function(s){return document.querySelector(s)};
-var S={view:'cold',ki:true,q:'',cat:'Möbel & Wohnen',catPick:null,prev:null,chips:[],t:[],scenario:'auto',retry:false,sheet:false,toast:'',refine:[],fbDone:false,showCancel:false};
+var S={view:'cold',ki:true,q:'',cat:'Möbel & Wohnen',catPick:null,prev:null,chips:[],t:[],scenario:'auto',retry:false,sheet:false,toast:'',refine:{},open:'',draft:{},fbDone:false,showCancel:false};
 var CHIPS=['2-Sitzer','< 180cm','kleines Sofa','Ecksofa','Sitzgarnituren','Couch','Versand','Kompakter 3-Sitzer'];
 var CATS=['Möbel & Wohnen','Haus & Garten','Elektronik','Mode & Beauty'];
 var L={
@@ -90,13 +90,32 @@ function high(){
   else r='<div class="aibox hc"><div class="tr">Angaben aus dem Anzeigentext – bitte prüfen.</div><p class="ln">✓ Passt zu <b>'+esc(S.chips.length?S.chips.slice(0,3).join(', '):'kleines Sofa, 2-Sitzer, < 180cm')+'</b></p><p class="ln">✓ <b>Versand</b> laut Anzeige möglich</p><div class="fb"><span>Passt der Hinweis?</span><button class="th" data-a="fb" data-v="ja" aria-label="Daumen hoch: Hinweis passt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 11v9H4v-9zM7 11l4-8a2 2 0 0 1 2 2v4h6a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 17.8 20H7"/></svg></button><button class="th" data-a="fb" data-v="nein" aria-label="Daumen runter: Hinweis passt nicht"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="transform:rotate(180deg)"><path d="M7 11v9H4v-9zM7 11l4-8a2 2 0 0 1 2 2v4h6a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 17.8 20H7"/></svg></button></div></div>';
   return header()+cnt('312 Ergebnisse - “'+esc(qline())+'”')+sponsored()+kirow()+r+secFound('Gefundene Ergebnisse')+listing('a',{facts:1,kitag:1})+listing('b',{facts:1,kitag:1})+secNormal()+listing('e')+listing('f')+listing('g')+foot()+fab();
 }
+var RF=[
+  {k:'mass',label:'Maße auswählen',title:'Breite des Sofas',quick:[160,180,200],field:'oder eigene Breite',unit:'cm',max:400,fmt:function(d){return 'Breite bis '+d.n+' cm'}},
+  {k:'dist',label:'Entfernung festlegen',title:'Entfernung zu deinem Ort',quick:[5,10,20,50,100],field:'PLZ oder Ort',unit:'km',max:500,plz:true,fmt:function(d){return 'bis '+d.n+' km'+(d.plz?' um '+d.plz:'')}},
+  {k:'price',label:'Preis festlegen',title:'Höchstpreis',quick:[50,100,200],field:'oder eigener Betrag',unit:'€',max:99999,fmt:function(d){return 'bis '+d.n+' €'}}
+];
+function resetRefine(){S.refine={};S.open='';S.draft={}}
+function rfOf(k){return RF.filter(function(r){return r.k===k})[0]}
+function rpanel(r){
+  var d=S.draft[r.k]||{n:'',plz:''},id='rp-'+r.k;
+  var h='<div class="rpanel" id="'+id+'" role="group" aria-labelledby="'+id+'-t"><p class="rt" id="'+id+'-t">'+r.title+'</p>';
+  if(r.plz)h+='<label class="rl" for="'+id+'-plz">PLZ oder Ort</label><div class="rf"><input class="rin" id="'+id+'-plz" data-rk="'+r.k+'" data-rf="plz" type="text" autocomplete="postal-code" placeholder="z. B. 10115 Berlin" value="'+esc(d.plz)+'"></div>';
+  h+='<p class="rl" style="margin-bottom:8px">'+(r.plz?'Umkreis':'Schnellauswahl')+'</p><div class="chips rq">'+r.quick.map(function(v){return '<button class="chip" aria-pressed="'+(d.n===String(v))+'" data-a="rq" data-k="'+r.k+'" data-v="'+v+'">bis '+v+' '+r.unit+'</button>'}).join('')+'</div>';
+  h+='<label class="rl" for="'+id+'-n">'+(r.plz?'oder eigener Umkreis':r.field)+'</label><div class="rf"><input class="rin" id="'+id+'-n" data-rk="'+r.k+'" data-rf="n" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5" placeholder="z. B. '+r.quick[1]+'" value="'+esc(d.n)+'"'+(d.err?' aria-invalid="true" aria-describedby="'+id+'-e"':'')+'><span class="ru">'+r.unit+'</span></div>';
+  if(d.err)h+='<p class="rerr" id="'+id+'-e" role="alert">Bitte gib eine Zahl zwischen 1 und '+r.max+' ein.</p>';
+  h+='<div class="ract"><button class="rbtn" data-a="rapply" data-k="'+r.k+'">Übernehmen</button><button class="rclr" data-a="rclear" data-k="'+r.k+'">'+(S.refine[r.k]?'Entfernen':'Abbrechen')+'</button></div></div>';
+  return h;
+}
 function low(){
-  var n=[312,148,61,22][Math.min(S.refine.length,3)];
+  var keys=Object.keys(S.refine),n=[312,148,61,22][Math.min(keys.length,3)];
   var chosen=S.chips.length?S.chips:['kleines Sofa','Versand'];
+  var shown=chosen.concat(keys.map(function(k){return S.refine[k].text}));
+  var open=S.open?rfOf(S.open):null;
   return header()+cnt(n+' Ergebnisse - “'+esc(chosen.join(', '))+'”')+sponsored()+kirow()+
   '<div class="msg"><h3>Keine verlässlich begründete KI-Empfehlung</h3><p class="mb">Die normalen Suchergebnisse bleiben sichtbar.</p></div>'+
-  '<div class="pad" style="margin-top:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><b style="font-size:12px">Von dir gewählt:</b>'+chosen.map(function(c){return '<span class="chip static" aria-pressed="true">'+esc(c)+'</span>'}).join('')+'</div>'+
-  '<div class="aibox" style="padding:14px 14px 4px"><p class="ln" style="color:#5E6B66">Maße oder Zustand konnten nicht eindeutig überprüft werden. Bitte prüfe die Details in der Anzeige.</p><p class="h3" style="margin:6px 0">Grenze deine Suche weiter ein</p><div class="chips" style="gap:10px">'+['Maße auswählen','Entfernung festlegen','Preis festlegen'].map(function(c){return '<button class="chip" aria-pressed="'+(S.refine.indexOf(c)>-1)+'" data-a="refine" data-c="'+c+'">'+c+'</button>'}).join('')+'</div></div>'+
+  '<div class="pad" style="margin-top:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><b style="font-size:12px">Von dir gewählt:</b>'+shown.map(function(c){return '<span class="chip static" aria-pressed="true">'+esc(c)+'</span>'}).join('')+'</div>'+
+  '<div class="aibox" style="padding:14px 14px 4px"><p class="ln" style="color:#5E6B66">Maße oder Zustand konnten nicht eindeutig überprüft werden. Bitte prüfe die Details in der Anzeige.</p><p class="h3" style="margin:6px 0">Grenze deine Suche weiter ein</p><div class="chips" style="gap:10px">'+RF.map(function(r){var a=S.refine[r.k];return '<button class="chip" aria-pressed="'+!!a+'" aria-expanded="'+(S.open===r.k)+'" aria-controls="rp-'+r.k+'" data-a="refine" data-k="'+r.k+'">'+esc(a?a.text:r.label)+'</button>'}).join('')+'</div>'+(open?rpanel(open):'')+'</div>'+
   secFound('Mögliche Ergebnisse')+listing('c',{miss:1})+listing('b')+secNormal()+listing('d')+listing('f')+listing('g')+foot()+fab();
 }
 function none(){
@@ -133,7 +152,7 @@ function outcome(){
   return sc;
 }
 function startAI(){
-  clearT();S.view='waiting';S.showCancel=false;S.fbDone=false;S.refine=[];render();anchorKI();
+  clearT();S.view='waiting';S.showCancel=false;S.fbDone=false;resetRefine();render();anchorKI();
   var o=outcome();
   if(o==='slow'){
     S.t.push(setTimeout(function(){S.showCancel=true;render()},6000));
@@ -149,6 +168,24 @@ function search(){
   startAI();
 }
 
+function applyRefine(k){
+  var r=rfOf(k),d=S.draft[k],v=parseInt(d.n,10);
+  if(!(v>0&&v<=r.max)){d.err=true;render();var f=$('#rp-'+k+'-n');if(f)f.focus();return}
+  d.n=String(v);d.plz=(d.plz||'').trim();d.err=false;
+  S.refine[k]={n:d.n,plz:d.plz,text:r.fmt(d)};S.open='';render();
+  var tb=$('[data-a="refine"][data-k="'+k+'"]');if(tb)tb.focus();
+}
+document.addEventListener('input',function(e){
+  var t=e.target,k=t.dataset&&t.dataset.rk;if(!k)return;
+  var d=S.draft[k];if(!d)return;
+  if(t.dataset.rf==='plz'){d.plz=t.value;return}
+  t.value=t.value.replace(/\D/g,'');d.n=t.value;d.err=false;
+  var p=$('#rp-'+k),er=$('#rp-'+k+'-e');if(er)er.remove();t.removeAttribute('aria-invalid');
+  if(p)p.querySelectorAll('.rq .chip').forEach(function(c){c.setAttribute('aria-pressed',c.dataset.v===d.n)});
+});
+document.addEventListener('keydown',function(e){
+  var t=e.target;if(e.key==='Enter'&&t.dataset&&t.dataset.rk){e.preventDefault();applyRefine(t.dataset.rk)}
+});
 document.addEventListener('click',function(e){
   var el=e.target.closest('[data-a]');
   if(!el)return;
@@ -165,7 +202,10 @@ document.addEventListener('click',function(e){
   else if(a==='edit'){go('cold')}
   else if(a==='cancel'){clearT();go('plain');toast('Suche abgebrochen. Normale Ergebnisse angezeigt.')}
   else if(a==='retry'){S.retry=true;if(S.scenario==='fail'||S.scenario==='slow')S.scenario='high';startAI()}
-  else if(a==='refine'){var c2=el.dataset.c,j=S.refine.indexOf(c2);if(j>-1)S.refine.splice(j,1);else S.refine.push(c2);render()}
+  else if(a==='refine'){var rk=el.dataset.k;if(S.open===rk){S.open=''}else{S.open=rk;var ap=S.refine[rk];S.draft[rk]=ap?{n:ap.n,plz:ap.plz||''}:{n:'',plz:''}}render();var tb=$('[data-a="refine"][data-k="'+rk+'"]');if(tb)tb.focus()}
+  else if(a==='rq'){var qd=S.draft[el.dataset.k];qd.n=qd.n===el.dataset.v?'':el.dataset.v;qd.err=false;render();var qb=$('[data-a="rq"][data-k="'+el.dataset.k+'"][data-v="'+el.dataset.v+'"]');if(qb)qb.focus()}
+  else if(a==='rapply')applyRefine(el.dataset.k)
+  else if(a==='rclear'){delete S.refine[el.dataset.k];S.open='';render();var cb=$('[data-a="refine"][data-k="'+el.dataset.k+'"]');if(cb)cb.focus()}
   else if(a==='term'){S.q=el.dataset.c;S.chips=[];S.scenario='auto';startAI()}
   else if(a==='catrec'){S.cat='Sofas & Sitzgarnituren';toast('Kategorie übernommen. Tippe auf einen Begriff, um neu zu suchen.')}
   else if(a==='fb'){if(el.dataset.v==='nein'){S.fbDone=true;render()}else toast('Danke. Das Feedback wurde gezählt.')}
@@ -175,7 +215,7 @@ document.addEventListener('click',function(e){
 var J=[['Cold Start (KI an)','cold-on'],['Cold Start (KI aus)','cold-off'],['Waiting','wait'],['High','high'],['Low','low'],['No Result','none'],['Failure','fail']];
 $('#jump').innerHTML=J.map(function(j){return '<button class="chip" data-j="'+j[1]+'">'+j[0]+'</button>'}).join('');
 $('#jump').addEventListener('click',function(e){
-  var k=e.target.dataset.j;if(!k)return;clearT();S.retry=false;S.fbDone=false;S.refine=[];
+  var k=e.target.dataset.j;if(!k)return;clearT();S.retry=false;S.fbDone=false;resetRefine();
   if(k==='cold-on'){S.ki=true;S.chips=[];S.q='';S.catPick=null;S.view='cold';go('cold')}
   else if(k==='cold-off'){S.ki=false;S.chips=[];S.view='cold';go('cold')}
   else if(k==='wait'){S.ki=true;S.view='waiting';S.showCancel=false;render();anchorKI();S.t.push(setTimeout(function(){S.showCancel=true;render()},6000));S.t.push(setTimeout(function(){go('fail')},15000))}
