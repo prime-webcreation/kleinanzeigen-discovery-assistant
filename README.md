@@ -12,14 +12,98 @@ Käufer:innen beschreiben in eigenen Worten, was sie suchen. Der Assistent schl�
 
 ## Zustände des Prototyps
 
-| Zustand | Was passiert |
+| Zustand | Was der Prototyp zeigt |
 |---|---|
-| Cold Start | Sucheingabe, Kategorie-Vorschlag, Chips, KI-Schalter |
-| Waiting | Ladezustand, nach 6 s "Suche abbrechen" |
-| High Confidence | Treffer mit Hinweisen (Angaben aus dem Anzeigentext), Daumen-Feedback |
-| Low Confidence | Keine sicher begründete Empfehlung, Suche per Chips eingrenzen |
-| No Result | Kategorieempfehlung und alternative Suchbegriffe |
-| Failure | Fehlermeldung, normale Ergebnisse bleiben sichtbar |
+| Cold Start | Sucheingabe, Kategorie, Umkreis, Lieferung, Vorschlags-Chips, Zustand, KI-Schalter |
+| Waiting | Ladezustand "KI sucht passende Anzeigen...", nach 6 s "Suche abbrechen" |
+| High Confidence | Nur Karten, bei denen alle gewählten Kriterien passen, mit Begründung und Daumen-Feedback |
+| Low Confidence | Keine sicher begründete Empfehlung, Eingrenzen mit Maße, Preis, Farbe |
+| No Result | Kategorieempfehlung, alternative Suchbegriffe, Anzeige der gewählten Angaben |
+| Failure (Error) | Fehlermeldung "Deine Suche konnte nicht geladen werden", "Erneut versuchen" |
+| Normale Suche | Erscheint, wenn die KI ausgeschaltet ist, nur normale Ergebnisse |
+
+## So kommst du in jeden Zustand
+
+### Über die Suche (so testen auch Testpersonen in Maze)
+
+Der Zustand hängt vom **Suchtext** und den gewählten **Chips** ab. Die Prüfung läuft in dieser Reihenfolge, der erste Treffer gewinnt:
+
+| Reihenfolge | Bedingung | Zustand | Beispiel |
+|---|---|---|---|
+| 1 | Es folgt ein "Erneut versuchen" nach einem Fehler | High | Klick auf "Erneut versuchen" |
+| 2 | Suchtext enthält weder "Sofa" noch "Couch", oder das Wort "Sof" (Tippfehler) | **No Result** | "Fahrrad", "kleines Sof" |
+| 3 | Suchtext enthält "Schlaffunktion", "Schlafsofa", "Bettkasten" oder "ausziehbar" | **Failure** | "Schlafsofa für kleine Wohnung" |
+| 4 | Confidence mindestens 0,7 | **High** | "Sofa" plus Chip "2-Sitzer" |
+| 5 | Confidence unter 0,7 | **Low** | "kleines Sofa" ohne weitere Angabe |
+
+Nach dem Tipp auf "Suchen" läuft immer erst **Waiting**: 2,6 s bis zum Ergebnis, bei Failure 1,5 s. Der Suchtext wird dabei klein geschrieben geprüft. Ist das Suchfeld leer, wird "kleines Sofa für meine Wohnung" eingesetzt.
+
+Wichtig für Failure: Das Wort muss im **Suchfeld** stehen. Ein Chip allein löst es nicht aus.
+
+### Über die Moderationsleiste (für Team und Pilot)
+
+Hänge `#mod` an die URL, zum Beispiel `http://localhost:8000/#mod`. Unter dem Telefon erscheint die Leiste "Moderation":
+
+| Button | Springt zu | Suchtext, der dabei gesetzt wird |
+|---|---|---|
+| Cold Start (KI an) | Cold Start, alles zurückgesetzt | leer |
+| Cold Start (KI aus) | Cold Start mit ausgeschalteter KI | leer |
+| Waiting | Ladezustand mit Abbrechen nach 6 s und Fehler nach 15 s | (aktuell) |
+| High | High Confidence | "kleines Sofa, 2-Sitzer, <180cm, Versand" |
+| Low | Low Confidence | "kleines Sofa, Versand" |
+| No Result | No Result | "kleines Sof für meine Wohnung" |
+| Failure | Fehlerzustand | "kleines Sofa" |
+
+Jeder Sprung setzt Chips, Umkreis, Lieferung, Zustand und Eingrenzungen zurück.
+
+Das Dropdown **Nächstes KI-Ergebnis** erzwingt das Ergebnis der nächsten Suche, unabhängig vom Suchtext: Automatisch, High, Low, No Result, Failure (sofort) oder Langsam. "Langsam" zeigt nach 6 s "Suche abbrechen" und nach 15 s den Fehler.
+
+Für Testpersonen den Link **ohne** `#mod` verwenden.
+
+### Beispiel-Szenario "Umzug in eine kleine Wohnung"
+
+1. Cold Start: "Sofa" tippen, Chip "kleines Sofa" wählen, Suchen. Ergebnis ist **Low Confidence**.
+2. In der Suche zu "Schlafsofa für kleine Wohnung" ändern. Ergebnis ist der **Error**.
+3. "Erneut versuchen" führt zu **High Confidence**.
+
+## Schwellenwerte und Regeln
+
+Alle Zahlen sind **Annahmen**, es gibt keine echten Baseline-Werte (siehe [docs/PROJECT.md](docs/PROJECT.md)).
+
+| Was | Wert | Wo im Code |
+|---|---|---|
+| Cut-off Confidence | **0,7**, ab 0,7 High, darunter Low | `CUTOFF` in `src/app.js` |
+| Confidence hoch (0,82) | Chip "2-Sitzer" oder "< 180cm" gewählt, oder "2-sitzer" bzw. "180" im Suchtext | `confidence()` |
+| Confidence niedrig (0,55) | alles andere | `confidence()` |
+| Waiting bis Ergebnis | 2,6 s | `startAI()` |
+| Waiting bis Failure | 1,5 s | `startAI()` |
+| Langsam: "Suche abbrechen" | nach 6 s | `startAI()` |
+| Langsam: Fehler | nach 15 s | `startAI()` |
+
+Die Confidence ist eine einfache Regel und keine Modellausgabe. Sie dient nur dazu, den Wechsel zwischen High und Low zu zeigen.
+
+### Eingaben in den Eingrenzen-Feldern (Low)
+
+| Feld | Schnellauswahl | Eigener Wert |
+|---|---|---|
+| Maße (Breite) | < 160, < 180, < 200 cm | 1 bis 400 cm |
+| Preis | < 50, < 100, < 200, < 300, < 500 € | 1 bis 99999 € |
+| Farbe | Weiß, Schwarz, Grau, Beige, Braun, Grün, Blau | keine |
+| Umkreis (Cold Start) | + 5, 10, 20, 50, 100 km | keine |
+| Lieferung | Abholung, Versand | keine |
+| Zustand | Neu, Gebraucht, egal | keine |
+
+"Zustand egal" filtert nichts. Maße, Preis und Farbe können nach dem Tipp auf den Chip direkt gewählt werden, ein Tipp auf einen Schnellwert übernimmt ihn sofort.
+
+## Verhalten der Auswahl
+
+- **Chip antippen** wählt aus, **nochmal antippen** entfernt die Auswahl, in jedem Zustand. Ausgewählte Chips zeigen ein kleines **×**.
+- **"Von dir gewählt"** zeigt höchstens zwei Reihen. "… anpassen" öffnet alle Chips, ein Tipp auf den Text öffnet das Auswahlfeld zum Umschalten, das × entfernt.
+- **KI-Schalter aus und wieder an** setzt alle Auswahlen zurück (Chips, Umkreis, Lieferung, Zustand, Eingrenzungen). Suchtext und Kategorie bleiben.
+- **Low Confidence** zeigt die Zahl der Ergebnisse je nach Anzahl der Auswahlen: 312, 148, 61, dann 22.
+- **High Confidence** zeigt höchstens 2 Karten, bei aktiven Filtern höchstens 3. Gibt es keine Karte, die **alle** Kriterien erfüllt, steht dort "Keine Anzeige erfüllt alle deine Kriterien". Das Feedback "Passt der Hinweis?" steht dann ganz unten.
+- **Daumen runter** blendet den grünen Hinweis aus und zeigt "Danke für dein Feedback".
+- Karten sind erfunden: Preis, Breite, Entfernung, Versand, Zustand und Farbe stehen im Code im Objekt `L` in `src/app.js`.
 
 ## Lokal starten
 
@@ -36,15 +120,6 @@ python3 -m http.server 8000
 ```
 
 In VS Code geht es auch mit der Erweiterung **Live Server** (Rechtsklick auf `index.html`, "Open with Live Server").
-
-## Moderationsmodus (für Tests)
-
-Hänge `#mod` an die URL, dann erscheint unter dem Telefon die Leiste "Moderation":
-
-- direkt in jeden Zustand springen
-- das nächste KI-Ergebnis festlegen (High, Low, No Result, Failure, Langsam)
-
-Für Testpersonen den Link **ohne** `#mod` verwenden.
 
 ## Test in Maze
 
@@ -93,9 +168,9 @@ Achtung: Pages ist öffentlich. Bei privaten Repositories braucht Pages einen be
 | Status | Punkt |
 |---|---|
 | 🔴 MUST | PRD-Link in README und docs/PROJECT.md eintragen |
-| 🟡 CHECK | Schwellenwerte mit den Zielen im PRD abgleichen |
+| 🟡 CHECK | Cut-off 0,7 mit dem Wert in Figma und den Zielen im PRD abgleichen |
 | 🔵 ASK | Wird in Maze ein Pflicht-Pilot vom Kurs verlangt? |
-| 🟢 DONE | Prototyp mit 6 Zuständen und Moderationsleiste |
+| 🟢 DONE | Prototyp mit 6 Zuständen, Eingrenzen, Szenarien und Moderationsleiste |
 
 ## Autorin
 

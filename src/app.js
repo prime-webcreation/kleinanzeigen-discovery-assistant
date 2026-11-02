@@ -97,7 +97,7 @@ function listing(k,o){
   h+='<span class="pr">'+x.p+'</span></span>'+(x.top?'<span class="top">TOP</span>':'')+'</button>';
   return h;
 }
-function secFound(l,wait){return (wait?'':'<div class="sec sec-ki">'+l+'<span class="pill">KI-gestützt</span></div>')+(wait?'<div class="dots" aria-hidden="true"><span class="row"><i></i><i></i><i></i></span><span>Ergebnisse werden geladen</span></div>':'')}
+function secFound(l){return '<div class="sec sec-ki">'+l+'<span class="pill">KI-gestützt</span></div>'}
 function secNormal(){return '<div class="sec sec-n">Suchergebnisse<span class="sub"></span></div>'}
 function fab(){return '<div class="fabwrap"><button class="fab" data-a="edit">Filter anpassen</button></div>'}
 function foot(){return '<div class="foot">Alle Anzeigen bleiben sichtbar und auswählbar. TOP und Gesponsert sind bezahlt und nicht Teil der KI-Auswahl.</div>'}
@@ -130,7 +130,7 @@ function waiting(){
   var cancel=S.showCancel?'<br><button class="ulink" data-a="cancel">Suche abbrechen</button>':'';
   return header()+cnt('0 Ergebnisse - “'+esc(S.q)+'”')+sponsored()+kirow()+
   '<div class="waitbox center" role="status" aria-live="polite">'+KISP+'KI sucht passende Anzeigen...'+cancel+'</div>'+
-  secFound('Gefundene Ergebnisse',true)+'<div class="msg" style="padding:14px 18px 0"><p class="mb">Die normalen Suchergebnisse bleiben sichtbar.</p></div>'+secNormal()+listing('d')+listing('g')+fab();
+  '<div class="msg" style="padding:14px 18px 0"><p class="mb">Die normalen Suchergebnisse bleiben sichtbar.</p></div>'+secNormal()+listing('d')+listing('g')+fab();
 }
 function high(){
   var r,f=curFlt(),hits=POOL.filter(function(k){return passes(adapt(k),f)}).slice(0,fltActive(f)?3:2).map(function(k){return listing(k,{facts:1,kitag:1,flt:f})}).join('');
@@ -150,6 +150,7 @@ var RF=[
   {k:'price',label:'Preis',title:'Preis',quick:[{v:50,o:'<'},{v:100,o:'<'},{v:200,o:'<'},{v:300,o:'<'},{v:500,o:'<'}],nolabel:1,field:'Eigener Betrag',unit:'€',max:99999,fmt:function(d){return (d.o==='>'?'> ':'< ')+d.n+' €'}},
   {k:'color',label:'Farbe',title:'Farbe des Sofas',quick:['Weiß','Schwarz','Grau','Beige','Braun','Grün','Blau'],choice:1,err:'Bitte wähle eine Farbe.',fmt:function(d){return 'Farbe '+d.n}}
 ];
+function clearSel(){S.chips=[];S.radius='';S.delivery='';S.cond='';resetRefine()}
 function resetRefine(){S.refine={};S.open='';S.draft={};S.selOpen=false;S.edit=''}
 function rfOf(k){return RF.filter(function(r){return r.k===k})[0]}
 function rpanel(r){
@@ -274,8 +275,8 @@ document.addEventListener('click',function(e){
   if(!el)return;
   if(el.dataset.a==='closesheet'&&e.target.closest('[data-stop]')&&!e.target.closest('button'))return;
   var a=el.dataset.a;
-  if(a==='ki'){S.ki=!S.ki;if(!S.ki)S.chips=[];render()}
-  else if(a==='kitoggle'){if(S.ki){S.ki=false;clearT();go('plain')}else{S.ki=true;startAI()}}
+  if(a==='ki'){S.ki=!S.ki;clearSel();render()}
+  else if(a==='kitoggle'){clearSel();if(S.ki){S.ki=false;clearT();go('plain')}else{S.ki=true;startAI()}}
   else if(a==='chip'){var c=el.dataset.c,i=S.chips.indexOf(c);if(i>-1)S.chips.splice(i,1);else S.chips.push(c);render();var n=document.querySelectorAll('.chip');for(var k=0;k<n.length;k++){if(n[k].dataset.c===c){n[k].focus()}}}
   else if(a==='cond'){var cv=el.dataset.c;S.cond=S.cond===cv?'':cv;render();var cb2=$('[data-a="cond"][data-c="'+cv+'"]');if(cb2)cb2.focus()}
   else if(a==='search')search();
