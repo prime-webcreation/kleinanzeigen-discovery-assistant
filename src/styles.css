@@ -120,7 +120,7 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
 /* Chips */
 .chips{display:flex;flex-wrap:wrap;gap:12px;margin:12px 0}
 .chip{
-  min-height:36px;padding:0 15px;border-radius:18px;border:1px solid var(--line);background:var(--white);font-size:12px;color:var(--ink);
+  display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 15px;border-radius:18px;border:1px solid var(--line);background:var(--white);font-size:12px;color:var(--ink);
   &[aria-pressed="true"]{
     background:var(--aiBox);border-color:var(--green);
     &::before{content:"\2713\00a0";color:var(--limeInk);font-weight:700}
@@ -171,6 +171,7 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
 }
 .facts{
   font-size:11px;font-weight:700;color:var(--aiTag);display:flex;flex-direction:column;gap:1px;
+  &.nf{color:#5D5D5D}
   & small{font-weight:400;font-size:10px;color:var(--ink3)}
 }
 .dots{
@@ -222,7 +223,12 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
     & u{font-weight:400;font-size:12px;color:var(--ink2);margin-left:6px}
   }
   .nt{font-size:12px;color:#616666;margin:6px 0 0}
-  .sg{font-size:16px;color:#2B3836;margin:20px 0 0 3px}
+  .sg{font-size:14px;color:#2B3836;margin:20px 0 0 3px}
+  .zrow{
+    display:flex;align-items:center;flex-wrap:wrap;gap:8px 14px;margin-top:22px;
+    .sg{margin:0 0 0 3px;font-size:14px}
+    .chips{margin:0;gap:10px}
+  }
 }
 .fld{
   display:flex;align-items:center;gap:20px;border-bottom:1px solid var(--line2);min-height:46px;font-size:17px;margin-top:14px;
@@ -242,6 +248,14 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
     &.sug{color:var(--aiTag);font-weight:600}
   }
   .ki{position:absolute;right:0;font-size:11px;font-weight:700;color:var(--aiTag);background:var(--aiBadge);padding:4px 10px;border-radius:12px}
+}
+.selrow{
+  display:grid;grid-template-columns:1fr 1.15fr;gap:16px;margin-top:20px;
+  .catl{display:block;margin:0}
+  .catf{
+    &::after{content:"\25BE";position:absolute;right:2px;font-size:11px;color:var(--ink2);pointer-events:none}
+    & select{padding-right:18px;font-size:14px;text-overflow:ellipsis}
+  }
 }
 .backrow{display:flex;align-items:center;gap:6px;min-height:44px;margin:-10px 0 6px -10px;padding:0 10px;font-size:14px;font-weight:600;color:var(--ink)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
