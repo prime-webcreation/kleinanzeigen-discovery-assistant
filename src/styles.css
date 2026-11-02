@@ -98,22 +98,24 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
     & b{font-weight:400;color:var(--greenText)}
   }
   .tr{font-size:11px;color:#5E6B66;text-align:right;margin-top:6px}
-  .fb{
-    display:flex;gap:8px;align-items:center;margin-top:10px;font-size:12px;color:#5E6B66;
-    & button.th{
-      width:44px;height:44px;margin:-6px 0;display:grid;place-items:center;color:#5E6B66;border:0;background:none;border-radius:50%;
-      &:hover{color:var(--limeInk)}
-      & svg{width:18px;height:18px;fill:currentColor}
-    }
-  }
   &.hc{
     text-align:center;
-    .tr{text-align:center;margin:0 0 12px}
-    .fb{
-      justify-content:right;gap:0;margin-top:2px;margin-bottom:-6px;
-      & span{margin-right:6px}
-      & button.th{width:36px;margin:-6px -2px}
-    }
+    .tr{text-align:center;margin:0}
+    .ln:last-of-type{margin-bottom:12px}
+  }
+}
+
+/* Feedback unter den KI-Ergebnissen */
+.fb{
+  display:flex;justify-content:right;align-items:center;gap:0;margin:6px 12px 0;font-size:12px;color:#5E6B66;
+  & span{margin-right:6px}
+  & button.th{
+    width:44px;height:44px;margin:-6px -2px;display:grid;place-items:center;color:#5E6B66;border:0;background:none;border-radius:50%;
+    &:hover{color:var(--limeInk)}
+    & svg{width:18px;height:18px;fill:currentColor}
+  }
+  &.done{display:block;margin:12px 12px 0;line-height:1.4;
+    b{display:block;font-weight:700;color:var(--ink);font-size:13px}
   }
 }
 
@@ -250,7 +252,7 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
   .ki{position:absolute;right:0;font-size:11px;font-weight:700;color:var(--aiTag);background:var(--aiBadge);padding:4px 10px;border-radius:12px}
 }
 .selrow{
-  display:grid;grid-template-columns:1fr 1.15fr;gap:16px;margin-top:20px;
+  display:grid;grid-template-columns:.7fr 1.3fr;gap:16px;margin-top:20px;
   .catl{display:block;margin:0}
   .catf{
     &::after{content:"\25BE";position:absolute;right:2px;font-size:11px;color:var(--ink2);pointer-events:none}
@@ -259,7 +261,7 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
 }
 .backrow{display:flex;align-items:center;gap:6px;min-height:44px;margin:-10px 0 6px -10px;padding:0 10px;font-size:14px;font-weight:600;color:var(--ink)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.more{color:var(--green);font-size:12px;min-height:44px;display:block;margin-top:6px}
+.more{color:var(--green);font-size:12px;min-height:44px;display:block;margin:6px 0 15px}
 .btn{width:100%;min-height:54px;border-radius:27px;background:var(--limeBtn);color:var(--limeInk);font-weight:700;font-size:17px}
 .flink{display:block;text-align:center;font-size:11px;color:#5D5D5D;min-height:44px;width:100%;margin-top:14px}
 
