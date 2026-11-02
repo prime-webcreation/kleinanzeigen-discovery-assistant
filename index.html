@@ -1,0 +1,387 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Discovery Assistant Prototyp</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: ein Telefon-Rahmen (max. 390 px), Stil nach den Figma-Wireframes (hellgrau, Limegrün, dunkles Grün, Inter). Moderations-Leiste darunter. Nur helles Design. */
+:root{
+  color-scheme:light;
+  --page:#E9EBE7; --bg:#F7F7F7; --white:#FFFFFF; --ink:#2A2A2A; --ink2:#616666; --ink3:#757575;
+  --green:#339E29; --greenDark:#245914; --greenText:#326916; --price:#38701F; --lime:#B5E941; --limeBtn:#BFE75F; --limeInk:#294A10;
+  --aiBox:#E8F2D4; --aiTag:#0D8759; --aiBadge:#E0F5EB; --line:#D9E0DB; --line2:#9E9E99; --paid:#5A33AE;
+  --img:#D7D7D7; --imgSofa:#AEAEAE; --imgSofa2:#BCBCBC; --imgCar:#E8E8E3; --focus:#1B6FE0;
+  --font:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box}
+body{background:var(--page);color:var(--ink);font-family:var(--font);margin:0;font-size:14px;line-height:1.35;
+  padding-block:16px 32px;padding-left:max(0px,env(safe-area-inset-left,0px));padding-right:max(0px,env(safe-area-inset-right,0px))}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;padding:0}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.wrap{max-width:390px;margin:0 auto}
+.phone{background:var(--bg);border:1px solid var(--line);border-radius:22px;overflow:hidden;min-height:820px;position:relative;display:flex;flex-direction:column}
+@media(max-width:430px){.phone{border-radius:0;border-left:0;border-right:0}body{padding-block:0 24px}}
+.scr{flex:1;padding-bottom:84px;display:flex;flex-direction:column}
+.scr>.cs{flex:1;display:flex;flex-direction:column;padding-bottom:16px}
+.cs .bottom{margin-top:auto;padding-top:24px}
+.scr:has(>.cs){padding-bottom:0}
+/* Kopfzeile */
+.hdr{background:var(--white);display:flex;align-items:center;min-height:60px;padding:0 4px 0 6px}
+.hbtn{width:44px;height:44px;display:grid;place-items:center;flex:none}
+.logo{width:48px;text-align:center;color:var(--greenDark);font-weight:500;font-size:24px;flex:none}
+.sep{width:1px;height:38px;background:#ADADAD;flex:none}
+.hsearch{flex:1;min-width:0;display:flex;align-items:center;gap:14px;padding:6px 12px 6px 22px;text-align:left;min-height:48px}
+.hsearch span{font-size:14px;color:var(--ink)}
+.stripe{height:5px;background:var(--lime)}
+.cnt{padding:10px 18px;font-size:12px;color:var(--greenText);border-bottom:1px solid var(--lime)}
+/* Sponsor */
+.sp-h{padding:16px 18px 10px;font-size:15px}
+.sp-h b{font-weight:700}
+.scroller{display:flex;gap:14px;overflow-x:auto;padding:2px 16px 12px}
+.scard{flex:none;width:310px;height:142px;background:var(--white);border:1px solid #D4D4D4;border-radius:12px;display:flex;overflow:hidden;position:relative}
+.scard .pi{width:142px;background:var(--imgCar);flex:none}
+.scard .tx{padding:18px 10px;display:flex;flex-direction:column;justify-content:space-between;min-width:0}
+.scard .pr{font-weight:700;font-size:17px;color:var(--price)}
+.scard .dis{font-size:10px;font-weight:700;color:var(--ink2)}
+.top{position:absolute;right:0;top:0;background:var(--paid);color:#fff;font-weight:700;font-size:14px;padding:2px 12px;line-height:17px}
+.hr{height:1px;background:#C7C7C7;margin:2px 16px 0}
+/* KI-Zeile */
+.kirow{padding:16px 16px 0;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.kirow h2{margin:0;font-size:16px;font-weight:700;color:#212E2B}
+.kirow h2 u{font-weight:400;font-size:12px;color:var(--ink2);margin-left:6px}
+.sw{position:relative;width:47px;height:24px;border-radius:14px;background:#C9CCC8;flex:none}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .15s}
+.sw[aria-checked="true"]{background:var(--green)}
+.sw[aria-checked="true"]::after{transform:translateX(23px)}
+.sw-hit{width:56px;height:44px;display:grid;place-items:center;margin:-10px -4px -10px 0;flex:none}
+.kinote{padding:6px 16px 0;font-size:12px;color:#666B6B}
+.pad{padding:0 16px}
+.h3{font-weight:700;font-size:15px;color:var(--ink);margin:0}
+.mb{font-size:13px}
+/* Boxen */
+.aibox{background:var(--aiBox);border-radius:12px;margin:14px 12px 0;padding:18px 20px 16px}
+.aibox .ln{font-size:13px;margin:0 0 14px;color:var(--ink)}
+.aibox .ln b{font-weight:400;color:var(--greenText)}
+.aibox .tr{font-size:11px;color:#5E6B66;text-align:right;margin-top:6px}
+.aibox .fb{display:flex;gap:8px;align-items:center;margin-top:10px;font-size:12px;color:#5E6B66}
+.aibox .fb button.th{width:44px;height:44px;margin:-6px 0;display:grid;place-items:center;color:#5E6B66;border:0;background:none;border-radius:50%}
+.aibox .fb button.th svg{width:18px;height:18px}
+.aibox .fb button.th:hover{color:var(--limeInk)}
+.aibox .fb button.th svg{fill:currentColor}
+.aibox.hc{text-align:center}
+.aibox.hc .tr{text-align:center;margin:0 0 12px}
+.aibox.hc .fb{justify-content:center;gap:0;margin-top:2px;margin-bottom:-6px}
+.aibox.hc .fb span{margin-right:6px}
+.aibox.hc .fb button.th{width:36px;margin:-6px -2px}
+/* Chips */
+.chips{display:flex;flex-wrap:wrap;gap:12px;margin:12px 0}
+.chip{min-height:36px;padding:0 15px;border-radius:18px;border:1px solid var(--line);background:var(--white);font-size:12px;color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--aiBox);border-color:var(--green)}
+.chip[aria-pressed="true"]::before{content:"\2713\00a0";color:var(--limeInk);font-weight:700}
+.chip.static{cursor:default}
+/* Anzeigen */
+.sec{padding:18px 18px 10px;font-size:15px;font-weight:700}
+.sec-ki{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pill{font-size:11px;font-weight:700;color:var(--aiTag);background:var(--aiBadge);border-radius:10px;padding:2px 8px}
+.sec-n{margin-top:18px;border-top:1px solid var(--line);padding-top:20px}
+.sub{display:block;font-size:12px;font-weight:400;color:var(--ink2);margin-top:2px}
+.lst{display:flex;background:var(--white);border-top:1px solid var(--line);border-bottom:1px solid var(--line);min-height:148px;position:relative;margin-bottom:-1px;cursor:pointer;text-align:left;width:100%}
+.lst .im{width:140px;background:var(--img);flex:none;position:relative}
+.lst .im i{position:absolute;left:20px;top:32px;width:84px;height:37px;border-radius:9px;background:var(--imgSofa2)}
+.lst .im i+i{left:16px;top:55px;width:92px;height:40px;background:var(--imgSofa)}
+.lst .ct{flex:1;min-width:0;padding:13px 12px 14px 13px;display:flex;flex-direction:column;gap:6px;position:relative}
+.lst .ort{font-size:11px;color:#6E7573}
+.lst .ti{font-weight:700;font-size:14px;overflow-wrap:anywhere;padding-right:4px}
+.lst .pr{font-weight:700;font-size:17px;color:var(--greenText);margin-top:auto}
+.kitag{position:absolute;right:12px;top:8px;display:flex;align-items:center;gap:3px;color:var(--aiTag);font-weight:700;font-size:12px}
+.kitag svg{width:20px;height:20px}
+.facts{font-size:11px;font-weight:700;color:var(--aiTag);display:flex;flex-direction:column;gap:1px}
+.dots{display:flex;flex-direction:column;align-items:center;gap:10px;padding:20px 16px 24px;font-size:13px;color:var(--ink2)}
+.dots .row{display:flex;gap:8px}
+.dots i{width:10px;height:10px;border-radius:50%;background:var(--green);animation:dotp 1.2s ease-in-out infinite}
+.dots i:nth-child(2){animation-delay:.2s}
+.dots i:nth-child(3){animation-delay:.4s}
+@keyframes dotp{0%,80%,100%{opacity:.2;transform:scale(.7)}40%{opacity:1;transform:scale(1)}}
+.facts small{font-weight:400;font-size:10px;color:var(--ink3)}
+.kib{color:var(--aiTag);font-weight:700;font-size:12px}
+.miss{font-size:11px;font-weight:700;color:#5D5D5D}
+.dis{font-size:10px;font-weight:700;color:var(--ink2)}
+.foot{padding:16px 18px;font-size:12px;color:var(--ink3)}
+/* Zustände */
+.center{display:flex;flex-direction:column;align-items:center;text-align:center}
+.waitbox{background:var(--aiBox);border-radius:20px;margin:16px 44px 0;padding:20px 12px 18px;font-size:15px;color:#2A2A2A}
+.waitbox svg{width:26px;height:26px;margin-bottom:12px}
+.ulink{font-weight:700;text-decoration:underline;color:#2A2A2A;display:inline-block;min-height:44px;padding:10px 6px;font-size:13px}
+.msg{padding:14px 20px 0}
+.msg h3{margin:0 0 8px;font-size:15px;font-weight:700}
+.msg p{margin:0;font-size:14px;color:var(--ink2)}
+.glink{color:var(--greenText);font-size:15px;min-height:44px;padding:10px 0;text-align:left}
+.cat{padding:18px 20px 0;font-size:13px}
+.cat b{font-weight:700}
+.cat button{color:var(--greenText);font-size:15px;margin-left:8px;min-height:44px}
+.warn{width:44px;height:44px;margin:14px auto 0;display:block}
+/* Sticky Button */
+.fabwrap{position:sticky;bottom:18px;display:flex;justify-content:center;pointer-events:none;height:0;z-index:3}
+.fab{pointer-events:auto;position:absolute;bottom:0;background:var(--lime);color:var(--limeInk);font-weight:700;font-size:14px;min-height:48px;min-width:186px;border-radius:24px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+/* Kaltstart */
+.cs{padding:22px 18px 0}
+.fld{display:flex;align-items:center;gap:20px;border-bottom:1px solid var(--line2);min-height:46px;font-size:17px;margin-top:14px}
+.fld input{flex:1;min-width:0;border:0;background:none;font:inherit;color:var(--ink);padding:10px 0;outline-offset:4px}
+.fld input::placeholder{color:#707070;opacity:1}
+.lupe{flex:none;margin:0 3px 0 0}
+.ico-l{width:15px;height:15px;border:2px solid var(--line2);border-radius:50%;flex:none;margin-left:2px;margin-right:6px}
+.ico-p{width:12px;height:12px;border:2px solid var(--line2);border-radius:50%;flex:none;margin:0 8px 0 3px}
+.catl{font-weight:700;font-size:14px;margin:28px 0 0}
+.catf{position:relative;border-bottom:1px solid var(--line2);min-height:46px;display:flex;align-items:center}
+.catf select{appearance:none;-webkit-appearance:none;border:0;background:none;font:inherit;font-size:15px;color:#5D5D5D;width:100%;padding:12px 118px 12px 0;min-height:44px}
+.catf .ki{position:absolute;right:0;font-size:11px;font-weight:700;color:var(--aiTag);background:var(--aiBadge);padding:4px 10px;border-radius:12px}
+.backrow{display:flex;align-items:center;gap:6px;min-height:44px;margin:-10px 0 6px -10px;padding:0 10px;font-size:14px;font-weight:600;color:var(--ink)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.cs .tgl{display:flex;align-items:center;justify-content:space-between;margin-top:84px}
+.cs .tgl h2{margin:0;font-size:16px;font-weight:700}
+.cs .tgl u{font-weight:400;font-size:12px;color:var(--ink2);margin-left:6px}
+.cs .nt{font-size:12px;color:#616666;margin:6px 0 0}
+.cs .sg{font-size:16px;color:#2B3836;margin:20px 0 0 3px}
+.more{color:var(--green);font-size:12px;min-height:44px;display:block;margin-top:6px}
+.btn{width:100%;min-height:54px;border-radius:27px;background:var(--limeBtn);color:var(--limeInk);font-weight:700;font-size:17px}
+.flink{display:block;text-align:center;font-size:11px;color:#5D5D5D;min-height:44px;width:100%;margin-top:14px}
+/* Sheet */
+.sheet-bg{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:10;display:flex;align-items:flex-end}
+.sheet{background:var(--white);border-radius:20px 20px 0 0;padding:18px 18px 24px;width:100%}
+.sheet h3{margin:0 0 8px;font-size:16px}
+.sheet li{margin:6px 0;font-size:14px}
+.sheet .btn{margin-top:10px}
+.toast{position:absolute;left:16px;right:16px;bottom:78px;background:#2A2A2A;color:#fff;border-radius:12px;padding:10px 14px;font-size:13px;z-index:12}
+/* Moderation */
+.mod{display:none;max-width:390px;margin:14px auto 0;padding:0 16px}
+.mod.on{display:block}
+.mod summary{cursor:pointer;color:var(--ink2);font-size:12px;opacity:.7;min-height:44px;display:flex;align-items:center}
+.modbox{border:1px dashed var(--line2);border-radius:12px;padding:12px;font-size:13px;background:var(--white)}
+.modbox .chips{gap:8px}
+.modbox .chip{font-size:12px;min-height:34px;padding:0 10px}
+.modbox select{min-height:40px;border-radius:10px;border:1px solid var(--line);background:var(--white);color:var(--ink);padding:0 8px;font:inherit;width:100%}
+.modbox label span{display:block;font-size:12px;color:var(--ink2);margin:8px 0 4px}
+.sk{height:12px;border-radius:6px;background:linear-gradient(90deg,#DCEBC4,#EEF6E0,#DCEBC4);background-size:200% 100%;animation:sh 1.2s linear infinite;margin:8px 20px}
+@keyframes sh{to{background-position:-200% 0}}
+.star{transform-box:fill-box;transform-origin:center;animation:twinkle 1.4s ease-in-out infinite}
+.star.s2{animation-delay:.7s}
+@keyframes twinkle{0%,100%{opacity:.1;transform:scale(.6)}50%{opacity:1;transform:scale(1.15)}}
+@media(prefers-reduced-motion:reduce){.sk,.star{animation:none}.sw::after{transition:none}.dots i{animation:none;opacity:.7}}
+</style>
+
+<div class="wrap">
+  <div class="phone" id="phone"></div>
+  <details class="mod" id="mod">
+    <summary>Moderation</summary>
+    <div class="modbox">
+      <div>Nur für die Testleitung. Springt direkt in einen Zustand.</div>
+      <div class="chips" id="jump"></div>
+      <label><span>Nächstes KI-Ergebnis</span>
+        <select id="scenario">
+          <option value="auto">Automatisch (nach Suchtext)</option>
+          <option value="high">High Confidence</option>
+          <option value="low">Low Confidence</option>
+          <option value="none">No Result</option>
+          <option value="fail">Failure (sofort)</option>
+          <option value="slow">Langsam: Abbrechen nach 6 s, Fehler nach 15 s</option>
+        </select>
+      </label>
+      <p class="muted" style="font-size:12px;color:var(--ink2)">Prototyp mit erfundenen Daten. Es läuft kein echtes Modell. Getestet wird die Oberfläche um das Modell.</p>
+    </div>
+  </details>
+</div>
+
+<script>
+(function(){
+var $=function(s){return document.querySelector(s)};
+var S={view:'cold',ki:true,q:'',cat:'Möbel & Wohnen',catPick:null,prev:null,chips:[],t:[],scenario:'auto',retry:false,sheet:false,toast:'',refine:[],fbDone:false,showCancel:false};
+var CHIPS=['2-Sitzer','< 180cm','kleines Sofa','Ecksofa','Sitzgarnituren','Couch','Versand','Kompakter 3-Sitzer'];
+var CATS=['Möbel & Wohnen','Haus & Garten','Elektronik','Mode & Beauty'];
+var EX=['2-Sitzer Couch bis 180 cm','kleines Sofa für meine Wohnung','Sofa mit Schlaffunktion','kleines Sof für meine Wohnung'];
+var L={
+ a:{t:'Kleines grünes Sofa',p:'140 €',f:['140x120cm','2-Sitzer'],ort:'Berlin'},
+ b:{t:'Gut erhaltene Couch',p:'140 €',f:['140x120cm'],ort:'Gelsenkirchen'},
+ c:{t:'Sofa aus Stoff (in echt kleiner)',p:'75 € VB',miss:'Größe nicht angegeben',ort:'Ort'},
+ d:{t:'Graues Stoffsofa',p:'140 €',top:1,ort:'Ort'},
+ e:{t:'Kleines Stoffsofa, 2-Sitzer',p:'140 €',top:1,ort:'Ort'},
+ f:{t:'Schlafsofa, gut erhalten',p:'110 € VB',ort:'Ort'},
+ g:{t:'Sofa aus Stoff',p:'75 € VB',ort:'Ort'}
+};
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function clearT(){S.t.forEach(clearTimeout);S.t=[]}
+var AIV=['waiting','high','low','none','fail'];
+function anchorY(){var el=$('.kirow');return el?Math.max(0,el.getBoundingClientRect().top+window.pageYOffset-8):0}
+function ensureRoom(){if(!S.ki||AIV.indexOf(S.view)<0)return;var sc=$('.scr');if(!sc)return;var need=anchorY()+window.innerHeight-document.documentElement.scrollHeight;if(need>0)sc.style.paddingBottom=(84+need)+'px'}
+function anchorKI(){ensureRoom();var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;window.scrollTo({top:anchorY(),behavior:rm?'auto':'smooth'})}
+function go(v){clearT();if(v==='cold'){S.prev=(S.view!=='cold'&&S.view!=='waiting')?S.view:null}else{S.prev=null}S.view=v;S.sheet=false;render();if(v==='high'||v==='low'||v==='none'||v==='fail')anchorKI();else window.scrollTo(0,0)}
+function toast(m){S.toast=m;render();setTimeout(function(){S.toast='';render()},2200)}
+var SPARK='<svg viewBox="0 0 26 26" fill="none" stroke="#339E29" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l6 6M8.5 11h5M11 8.5v5"/><path d="M20 3v4M18 5h4" stroke="#8FCB7F"/></svg>';
+var KISP='<svg viewBox="0 0 26 26" fill="none" stroke="#339E29" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="12" r="5.5"/><path d="M15.5 16.5l5 5"/><path class="star s1" d="M20 3v5M17.5 5.5h5" stroke="#8FCB7F"/><path class="star s2" d="M5 19v3M3.5 20.5h3" stroke="#8FCB7F" stroke-width="1.8"/></svg>';
+var WARN='<svg class="warn" viewBox="0 0 44 44" fill="none" stroke="#339E29" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 6L40 38H4z"/><path d="M22 17v12M22 33v1"/></svg>';
+
+function header(){
+  var txt=S.view==='cold'?'':esc(S.q);
+  return '<div class="hdr"><button class="hbtn" data-a="back" aria-label="Zurück zur Sucheingabe"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#2A2A2A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3L6 11l8 8"/></svg></button><span class="logo" aria-hidden="true">k</span><span class="sep"></span>'+
+  '<button class="hsearch" data-a="edit" aria-label="Suche ändern"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#5D5D5D" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="7.5" cy="7.5" r="5"/><path d="M11.5 11.5l5 5"/></svg><span>'+txt+'</span></button></div><div class="stripe"></div>';
+}
+function cnt(t){return '<div class="cnt">'+t+'</div>'}
+function sponsored(){
+  return '<div class="sp-h"><b>Gesponsert</b> · Ähnliche Produkte &nbsp;›</div><div class="scroller">'+
+  '<div class="scard"><div class="pi"></div><div class="tx"><div>Sofa 2-Sitzer</div><div><span class="pr">79,00 €</span></div></div><span class="top">TOP</span></div>'+
+  '<div class="scard"><div class="pi"></div><div class="tx"><div>Kompaktes Sofa</div><div><span class="pr">129,00 €</span></div></div></div></div><div class="hr"></div>';
+}
+function kirow(){
+  var on=S.ki;
+  return '<div class="kirow"><h2>KI-Suchhilfe<u>(optional)</u></h2><button class="sw-hit" data-a="kitoggle" role="switch" aria-checked="'+on+'" aria-label="KI-Suchhilfe"><span class="sw" aria-checked="'+on+'"></span></button></div><div class="kinote">ⓘ Vorschläge und Trefferhinweise sind KI-gestützt.</div>';
+}
+function listing(k,o){
+  var x=L[k];o=o||{};var h='<button class="lst" data-a="open"><span class="im"><i></i><i></i></span><span class="ct"><span class="ort">'+x.ort+' · Heute</span>';
+  if(o.kitag)h+='<span class="kitag" role="img" aria-label="KI-Vorschlag">'+SPARK+'</span>';
+  h+='<span class="ti">'+esc(x.t)+'</span>';
+  if(o.facts&&x.f){h+='<span class="facts">'+x.f.map(function(f){return '<span>✓ '+esc(f)+'</span>'}).join('')+'<small>laut Beschreibung*</small></span>'}
+  if(o.kib)h+='<span><span class="kib">✓ KI-Vorschlag</span> <small style="color:#aeaeae;font-size:10px">'+esc(x.f[0])+'</small></span>';
+  if(x.miss&&o.miss)h+='<span class="miss">ⓘ '+esc(x.miss)+'</span>';
+  if(x.top)h+='<span class="dis">Gesponsert</span>';
+  h+='<span class="pr">'+x.p+'</span></span>'+(x.top?'<span class="top">TOP</span>':'')+'</button>';
+  return h;
+}
+function secFound(l,wait){return '<div class="sec sec-ki">'+l+'<span class="pill">KI-gestützt</span></div>'+(wait?'<div class="dots" aria-hidden="true"><span class="row"><i></i><i></i><i></i></span><span>Ergebnisse werden geladen</span></div>':'')}
+function secNormal(){return '<div class="sec sec-n">Suchergebnisse<span class="sub">inkl. bezahlter Anzeigen (TOP)</span></div>'}
+function fab(){return '<div class="fabwrap"><button class="fab" data-a="edit">Filter anpassen</button></div>'}
+function foot(){return '<div class="foot">Alle Anzeigen bleiben sichtbar und auswählbar. TOP und Gesponsert sind bezahlt und nicht Teil der KI-Auswahl.</div>'}
+function sheet(){
+  if(!S.sheet)return'';
+  return '<div class="sheet-bg" data-a="closesheet"><div class="sheet" role="dialog" aria-modal="true" aria-label="Über die KI-Suche" data-stop="1"><h3>Über die KI-Suche</h3><ul><li>Sie schlägt Kategorie und Suchbegriffe vor. Du entscheidest.</li><li>Trefferhinweise stammen nur aus dem Anzeigentext. Bitte prüfe die Anzeige.</li><li>Bezahlte Anzeigen (TOP, Gesponsert) sind getrennt und beeinflussen die KI-Auswahl nicht.</li><li>Du kannst die KI-Suche jederzeit ausschalten. Die normale Suche bleibt gleich.</li></ul><button class="btn" data-a="closesheet">Verstanden</button></div></div>';
+}
+
+function cold(){
+  var h='<div class="cs">'+(S.prev?'<button class="backrow" data-a="back" aria-label="Zurück zu den Ergebnissen"><svg width="20" height="20" viewBox="0 0 22 22" fill="none" stroke="#2A2A2A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3L6 11l8 8"/></svg>Zurück</button>':'')+'<div class="fld"><svg class="lupe" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#5D5D5D" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.8"/><path d="M13 13l5 5"/></svg><input id="q" value="'+esc(S.q)+'" placeholder="'+(S.ki?'Beschreibe, wonach du suchst...':'Wonach suchst du?')+'" aria-label="Suchbegriff"></div>';
+  h+='<div class="fld"><span class="ico-p"></span><input value="Deutschland" disabled aria-label="Ort"></div>';
+  if(S.ki){
+    h+='<div id="catwrap"><p class="catl">Kategorie auswählen</p><div class="catf"><select id="cat" aria-label="Kategorie">'+['Alle Kategorien'].concat(CATS).map(function(c){return '<option'+(c===catShown()?' selected':'')+'>'+esc(c)+'</option>'}).join('')+'</select><span class="ki"'+(showKiTag()?'':' hidden')+'>✦ KI-Vorschlag</span></div><span id="catlive" class="sr" role="status"></span></div>';
+  }
+  h+='<div class="tgl"><h2>KI-Suchvorschläge<u>(optional)</u></h2><button class="sw-hit" data-a="ki" role="switch" aria-checked="'+S.ki+'" aria-label="KI-Suchvorschläge"><span class="sw" aria-checked="'+S.ki+'"></span></button></div>';
+  if(S.ki){
+    h+='<p class="nt">ⓘ Ergebnisse und Trefferhinweise sind KI-gestützt.</p><div id="promptwrap"'+(S.q.trim()?' hidden':'')+'><p class="nt" style="margin-top:18px">ⓘ Sobald du etwas eingibst, zeigt dir die KI passende Suchbegriffe zur Auswahl.</p><p class="sg" style="font-size:14px;margin-top:22px">Zum Ausprobieren</p><div class="chips">'+EX.map(function(c){return '<button class="chip" data-a="example" data-c="'+esc(c)+'">'+esc(c)+'</button>'}).join('')+'</div></div><div id="chipwrap"'+(S.q.trim()?'':' hidden')+'><p class="sg">Wähle aus Vorschlägen</p><div class="chips">'+CHIPS.map(function(c){return '<button class="chip" aria-pressed="'+(S.chips.indexOf(c)>-1)+'" data-a="chip" data-c="'+esc(c)+'">'+esc(c)+'</button>'}).join('')+'</div></div>';
+  }
+  h+='<div class="bottom"><button class="more" data-a="more">Weitere Filter anzeigen</button><button class="btn" data-a="search">Suchen</button><button class="flink" data-a="info">Mehr über die KI-Suche erfahren</button></div></div>';
+  return h;
+}
+function wantCat(q){return /sofa|couch/i.test(q||'')}
+function showKiTag(){return S.ki&&!S.catPick&&wantCat(S.q)}
+function catShown(){return S.catPick||((S.ki&&wantCat(S.q))?'Möbel & Wohnen':'Alle Kategorien')}
+function qline(){return S.chips.length?S.chips.join(', '):S.q}
+function waiting(){
+  var cancel=S.showCancel?'<br><button class="ulink" data-a="cancel">Suche abbrechen</button>':'';
+  return header()+cnt('0 Ergebnisse - “'+esc(S.q)+'”')+sponsored()+kirow()+
+  '<div class="waitbox center" role="status" aria-live="polite">'+KISP+'KI sucht passende Anzeigen...'+cancel+'</div>'+
+  secFound('Gefundene Ergebnisse',true)+secNormal()+listing('d')+listing('g')+fab();
+}
+function high(){
+  var r;
+  if(S.fbDone)r='<div class="aibox"><p class="ln" style="margin:0"><b style="color:var(--ink);font-weight:700">Danke für dein Feedback.</b></p><div class="tr" style="text-align:left">Wir blenden den Hinweis für diese Suche aus. Alle Ergebnisse bleiben sichtbar.</div></div>';
+  else r='<div class="aibox hc"><div class="tr">Angaben aus dem Anzeigentext – bitte prüfen.</div><p class="ln">✓ Passt zu <b>'+esc(S.chips.length?S.chips.slice(0,3).join(', '):'kleines Sofa, 2-Sitzer, < 180cm')+'</b></p><p class="ln">✓ <b>Versand</b> laut Anzeige möglich</p><div class="fb"><span>Passt der Hinweis?</span><button class="th" data-a="fb" data-v="ja" aria-label="Daumen hoch: Hinweis passt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 11v9H4v-9zM7 11l4-8a2 2 0 0 1 2 2v4h6a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 17.8 20H7"/></svg></button><button class="th" data-a="fb" data-v="nein" aria-label="Daumen runter: Hinweis passt nicht"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="transform:rotate(180deg)"><path d="M7 11v9H4v-9zM7 11l4-8a2 2 0 0 1 2 2v4h6a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 17.8 20H7"/></svg></button></div></div>';
+  return header()+cnt('312 Ergebnisse - “'+esc(qline())+'”')+sponsored()+kirow()+r+secFound('Gefundene Ergebnisse')+listing('a',{facts:1,kitag:1})+listing('b',{facts:1,kitag:1})+secNormal()+listing('e')+listing('f')+listing('g')+foot()+fab();
+}
+function low(){
+  var n=[312,148,61,22][Math.min(S.refine.length,3)];
+  var chosen=S.chips.length?S.chips:['kleines Sofa','Versand'];
+  return header()+cnt(n+' Ergebnisse - “'+esc(chosen.join(', '))+'”')+sponsored()+kirow()+
+  '<div class="msg"><h3>Keine verlässlich begründete KI-Empfehlung</h3><p class="mb">Die normalen Suchergebnisse bleiben sichtbar.</p></div>'+
+  '<div class="pad" style="margin-top:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><b style="font-size:12px">Von dir gewählt:</b>'+chosen.map(function(c){return '<span class="chip static" aria-pressed="true">'+esc(c)+'</span>'}).join('')+'</div>'+
+  '<div class="aibox" style="padding:14px 14px 4px"><p class="ln" style="color:#5E6B66">Maße oder Zustand konnten nicht eindeutig überprüft werden. Bitte prüfe die Details in der Anzeige.</p><p class="h3" style="margin:6px 0">Grenze deine Suche weiter ein</p><div class="chips" style="gap:10px">'+['Maße auswählen','Entfernung festlegen','Preis festlegen'].map(function(c){return '<button class="chip" aria-pressed="'+(S.refine.indexOf(c)>-1)+'" data-a="refine" data-c="'+c+'">'+c+'</button>'}).join('')+'</div></div>'+
+  secFound('Mögliche Ergebnisse')+listing('c',{miss:1})+listing('b')+secNormal()+listing('d')+listing('f')+listing('g')+foot()+fab();
+}
+function none(){
+  return header()+cnt('Keine KI-Treffer - “'+esc(S.q)+'”')+sponsored()+kirow()+
+  '<div class="msg"><h3>Keine passenden Ergebnisse gefunden</h3><p>Es wurde nichts gefunden, das sicher zu deiner Suche passt.</p></div>'+
+  '<div class="cat"><b>Kategorieempfehlung:</b><button data-a="catrec">Sofas &amp; Sitzgarnituren</button></div>'+
+  '<div class="aibox" style="padding:14px 14px 4px"><p class="h3" style="margin:0 0 8px;font-size:13px;color:#4B5E52">Versuche es mit einem anderen Suchbegriff</p><p style="font-size:12px;margin:0">oder Tippe auf einen Vorschlag, um neu zu suchen.</p><div class="chips" style="gap:10px;margin-top:14px">'+['sofa klein','Kleines Schlafsofa','2-Sitzer-Sofa','Kompaktsofa'].map(function(c){return '<button class="chip" data-a="term" data-c="'+c+'">'+c+'</button>'}).join('')+'</div></div>'+
+  secNormal()+listing('e')+listing('f')+listing('g')+foot()+fab();
+}
+function fail(){
+  return header()+cnt('312 Ergebnisse - “'+esc(S.q)+'”')+sponsored()+kirow()+
+  '<div role="alert">'+WARN+'<div class="msg"><h3>Deine Suche konnte nicht geladen werden</h3><p>Du kannst die normalen Suchergebnisse weiterhin ansehen.</p><button class="glink" data-a="retry" style="margin-top:8px">Erneut versuchen</button></div></div>'+
+  secNormal()+listing('e')+listing('f')+listing('g')+foot()+fab();
+}
+function plain(){
+  return header()+cnt('312 Ergebnisse - “'+esc(S.q)+'”')+sponsored()+kirow()+secNormal()+listing('d')+listing('e')+listing('f')+listing('g')+foot()+fab();
+}
+function render(){
+  var v={cold:cold,waiting:waiting,high:high,low:low,none:none,fail:fail,plain:plain}[S.view]();
+  $('#phone').innerHTML='<div class="scr">'+v+'</div>'+sheet()+(S.toast?'<div class="toast" role="status">'+esc(S.toast)+'</div>':'');ensureRoom();
+  var q=$('#q');if(q){q.addEventListener('input',function(){S.q=q.value;var has=!!q.value.trim();if(!has)S.catPick=null;var sw=$('#chipwrap'),pw=$('#promptwrap');if(sw)sw.hidden=!has;if(pw)pw.hidden=has;var cs=$('#cat');if(cs)cs.value=catShown();var kt=$('#catwrap .ki');if(kt)kt.hidden=!showKiTag();var lv=$('#catlive');if(lv)lv.textContent=showKiTag()?'KI schlägt die Kategorie Möbel und Wohnen vor':''})}
+  var c=$('#cat');if(c){c.addEventListener('change',function(){S.cat=c.value;S.catPick=c.value;var kt=$('#catwrap .ki');if(kt)kt.hidden=true})}
+}
+
+function outcome(){
+  var sc=S.scenario;
+  if(sc==='auto'){
+    var q=S.q.toLowerCase();
+    if(S.retry)return 'high';
+    if(!/sofa|couch/.test(q)||/\bsof\b/.test(q))return 'none';
+    if(/schlaffunktion/.test(q))return 'fail';
+    return (S.chips.indexOf('< 180cm')>-1||S.chips.indexOf('2-Sitzer')>-1||/2-sitzer|180/.test(q))?'high':'low';
+  }
+  return sc;
+}
+function startAI(){
+  clearT();S.view='waiting';S.showCancel=false;S.fbDone=false;S.refine=[];render();anchorKI();
+  var o=outcome();
+  if(o==='slow'){
+    S.t.push(setTimeout(function(){S.showCancel=true;render()},6000));
+    S.t.push(setTimeout(function(){S.retry=false;go('fail')},15000));
+    return;
+  }
+  if(o==='fail'){S.t.push(setTimeout(function(){go('fail')},1500));return}
+  S.t.push(setTimeout(function(){S.retry=false;go(o)},2600));
+}
+function search(){
+  if(!S.q.trim()){S.q='kleines Sofa für meine Wohnung'}
+  if(!S.ki){go('plain');return}
+  startAI();
+}
+
+document.addEventListener('click',function(e){
+  var el=e.target.closest('[data-a]');
+  if(!el)return;
+  if(el.dataset.a==='closesheet'&&e.target.closest('[data-stop]')&&!e.target.closest('button'))return;
+  var a=el.dataset.a;
+  if(a==='ki'){S.ki=!S.ki;if(!S.ki)S.chips=[];render()}
+  else if(a==='kitoggle'){if(S.ki){S.ki=false;clearT();go('plain')}else{S.ki=true;startAI()}}
+  else if(a==='chip'){var c=el.dataset.c,i=S.chips.indexOf(c);if(i>-1)S.chips.splice(i,1);else S.chips.push(c);render();var n=document.querySelectorAll('.chip');for(var k=0;k<n.length;k++){if(n[k].dataset.c===c){n[k].focus()}}}
+  else if(a==='example'){S.q=el.dataset.c;render();var qi=$('#q');if(qi)qi.focus()}
+  else if(a==='search')search();
+  else if(a==='info'){S.sheet=true;render()}
+  else if(a==='closesheet'){S.sheet=false;render()}
+  else if(a==='more')toast('Weitere Filter: in diesem Prototyp nicht enthalten');
+  else if(a==='back'){clearT();S.sheet=false;if(S.view==='cold'){var p=S.prev;S.prev=null;if(p)go(p)}else{S.prev=null;S.view='cold';render();window.scrollTo(0,0)}}
+  else if(a==='edit'){go('cold')}
+  else if(a==='cancel'){clearT();go('plain');toast('Suche abgebrochen. Normale Ergebnisse angezeigt.')}
+  else if(a==='retry'){S.retry=true;if(S.scenario==='fail'||S.scenario==='slow')S.scenario='high';startAI()}
+  else if(a==='refine'){var c2=el.dataset.c,j=S.refine.indexOf(c2);if(j>-1)S.refine.splice(j,1);else S.refine.push(c2);render()}
+  else if(a==='term'){S.q=el.dataset.c;S.chips=[];S.scenario='auto';startAI()}
+  else if(a==='catrec'){S.cat='Sofas & Sitzgarnituren';toast('Kategorie übernommen. Tippe auf einen Begriff, um neu zu suchen.')}
+  else if(a==='fb'){if(el.dataset.v==='nein'){S.fbDone=true;render()}else toast('Danke. Das Feedback wurde gezählt.')}
+  else if(a==='open')toast('Anzeige öffnen: nicht Teil des Prototyps')
+});
+
+var J=[['Cold Start (KI an)','cold-on'],['Cold Start (KI aus)','cold-off'],['Waiting','wait'],['High','high'],['Low','low'],['No Result','none'],['Failure','fail']];
+$('#jump').innerHTML=J.map(function(j){return '<button class="chip" data-j="'+j[1]+'">'+j[0]+'</button>'}).join('');
+$('#jump').addEventListener('click',function(e){
+  var k=e.target.dataset.j;if(!k)return;clearT();S.retry=false;S.fbDone=false;S.refine=[];
+  if(k==='cold-on'){S.ki=true;S.chips=[];S.q='';S.catPick=null;S.view='cold';go('cold')}
+  else if(k==='cold-off'){S.ki=false;S.chips=[];S.view='cold';go('cold')}
+  else if(k==='wait'){S.ki=true;S.view='waiting';S.showCancel=false;render();anchorKI();S.t.push(setTimeout(function(){S.showCancel=true;render()},6000));S.t.push(setTimeout(function(){go('fail')},15000))}
+  else if(k==='high'){S.ki=true;S.q='kleines Sofa, 2-Sitzer, <180cm, Versand';S.chips=[];go('high')}
+  else if(k==='low'){S.ki=true;S.q='kleines Sofa, Versand';go('low')}
+  else if(k==='none'){S.ki=true;S.q='kleines Sof für meine Wohnung';go('none')}
+  else if(k==='fail'){S.ki=true;S.q='kleines Sofa';go('fail')}
+});
+$('#scenario').addEventListener('change',function(e){S.scenario=e.target.value});
+function hash(){var on=location.hash==='#mod';$('#mod').classList.toggle('on',on);if(on)$('#mod').open=true}
+window.addEventListener('hashchange',hash);hash();
+render();
+})();
+</script>
+
+</body></html>
