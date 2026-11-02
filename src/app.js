@@ -2,7 +2,7 @@
    Zustand (S), Inhalte, Render-Funktionen, Events. Kein echtes Modell. */
 (function(){
 var $=function(s){return document.querySelector(s)};
-var S={view:'cold',ki:true,q:'',cat:'Möbel & Wohnen',catPick:null,prev:null,chips:[],t:[],scenario:'auto',retry:false,sheet:false,toast:'',radius:'',delivery:'',cond:'',refine:{},open:'',draft:{},fbDone:false,showCancel:false,selOpen:false,edit:''};
+var S={view:'cold',ki:true,q:'',cat:'Möbel & Wohnen',catPick:null,prev:null,chips:[],t:[],scenario:'auto',retry:false,sheet:false,toast:'',radius:'',delivery:'',cond:'',refine:{},open:'',draft:{},fbDone:false,selOpen:false,edit:''};
 var RADII=[5,10,20,50,100];
 var CHIPS=['2-Sitzer','< 180cm','kleines Sofa','Ecksofa','< 200 €','Couch','Kompakter 3-Sitzer'];
 var CATS=['Möbel & Wohnen','Haus & Garten','Elektronik','Mode & Beauty'];
@@ -127,9 +127,8 @@ function showKiTag(){return S.ki&&!S.catPick&&wantCat(S.q)}
 function catShown(){return S.catPick||((S.ki&&wantCat(S.q))?'Möbel & Wohnen':'Alle Kategorien')}
 function qline(){return S.chips.length?S.chips.join(', '):S.q}
 function waiting(){
-  var cancel=S.showCancel?'<br><button class="ulink" data-a="cancel">Suche abbrechen</button>':'';
   return header()+cnt('0 Ergebnisse - “'+esc(S.q)+'”')+sponsored()+kirow()+
-  '<div class="waitbox center" role="status" aria-live="polite">'+KISP+'KI sucht passende Anzeigen...'+cancel+'</div>'+
+  '<div class="waitbox center" role="status" aria-live="polite">'+KISP+'<span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>KI sucht passende Anzeigen...<br><button class="ulink" data-a="cancel">Abbrechen</button></div>'+
   '<div class="msg" style="padding:14px 18px 0"><p class="mb">Die normalen Suchergebnisse bleiben sichtbar.</p></div>'+secNormal()+listing('d')+listing('g')+fab();
 }
 function high(){
@@ -235,10 +234,9 @@ function outcome(){
   return sc;
 }
 function startAI(){
-  clearT();S.view='waiting';S.showCancel=false;S.fbDone=false;resetRefine();render();anchorKI();
+  clearT();S.view='waiting';S.fbDone=false;resetRefine();render();anchorKI();
   var o=outcome();
   if(o==='slow'){
-    S.t.push(setTimeout(function(){S.showCancel=true;render()},6000));
     S.t.push(setTimeout(function(){S.retry=false;go('fail')},15000));
     return;
   }
@@ -308,7 +306,7 @@ $('#jump').addEventListener('click',function(e){
   var k=e.target.dataset.j;if(!k)return;clearT();S.retry=false;S.fbDone=false;resetRefine();S.chips=[];S.radius='';S.delivery='';S.cond='';
   if(k==='cold-on'){S.ki=true;S.chips=[];S.q='';S.radius='';S.delivery='';S.cond='';S.catPick=null;S.view='cold';go('cold')}
   else if(k==='cold-off'){S.ki=false;S.chips=[];S.view='cold';go('cold')}
-  else if(k==='wait'){S.ki=true;S.view='waiting';S.showCancel=false;render();anchorKI();S.t.push(setTimeout(function(){S.showCancel=true;render()},6000));S.t.push(setTimeout(function(){go('fail')},15000))}
+  else if(k==='wait'){S.ki=true;S.view='waiting';render();anchorKI();S.t.push(setTimeout(function(){go('fail')},15000))}
   else if(k==='high'){S.ki=true;S.q='kleines Sofa, 2-Sitzer, <180cm, Versand';S.chips=[];go('high')}
   else if(k==='low'){S.ki=true;S.q='kleines Sofa, Versand';go('low')}
   else if(k==='none'){S.ki=true;S.q='kleines Sof für meine Wohnung';go('none')}
@@ -318,4 +316,7 @@ $('#scenario').addEventListener('change',function(e){S.scenario=e.target.value})
 function hash(){var on=location.hash==='#mod';$('#mod').classList.toggle('on',on);if(on)$('#mod').open=true}
 window.addEventListener('hashchange',hash);hash();
 render();
+var DIRECT={low:'kleines Sofa, Versand',none:'kleines Sof für meine Wohnung'};
+var st=new URLSearchParams(location.search).get('state');
+if(st&&DIRECT[st]){S.ki=true;S.q=DIRECT[st];go(st)}
 })();

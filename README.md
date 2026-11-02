@@ -15,7 +15,7 @@ Käufer:innen beschreiben in eigenen Worten, was sie suchen. Der Assistent schl�
 | Zustand | Was der Prototyp zeigt |
 |---|---|
 | Cold Start | Sucheingabe, Kategorie, Umkreis, Lieferung, Vorschlags-Chips, Zustand, KI-Schalter |
-| Waiting | Ladezustand "KI sucht passende Anzeigen...", nach 6 s "Suche abbrechen" |
+| Waiting | Ladezustand "KI sucht passende Anzeigen..." mit Link "Abbrechen" |
 | High Confidence | Nur Karten, bei denen alle gewählten Kriterien passen, mit Begründung und Daumen-Feedback |
 | Low Confidence | Keine sicher begründete Empfehlung, Eingrenzen mit Maße, Preis, Farbe |
 | No Result | Kategorieempfehlung, alternative Suchbegriffe, Anzeige der gewählten Angaben |
@@ -48,7 +48,7 @@ Hänge `#mod` an die URL, zum Beispiel `http://localhost:8000/#mod`. Unter dem T
 |---|---|---|
 | Cold Start (KI an) | Cold Start, alles zurückgesetzt | leer |
 | Cold Start (KI aus) | Cold Start mit ausgeschalteter KI | leer |
-| Waiting | Ladezustand mit Abbrechen nach 6 s und Fehler nach 15 s | (aktuell) |
+| Waiting | Ladezustand, nach 15 s Fehler | (aktuell) |
 | High | High Confidence | "kleines Sofa, 2-Sitzer, <180cm, Versand" |
 | Low | Low Confidence | "kleines Sofa, Versand" |
 | No Result | No Result | "kleines Sof für meine Wohnung" |
@@ -56,9 +56,20 @@ Hänge `#mod` an die URL, zum Beispiel `http://localhost:8000/#mod`. Unter dem T
 
 Jeder Sprung setzt Chips, Umkreis, Lieferung, Zustand und Eingrenzungen zurück.
 
-Das Dropdown **Nächstes KI-Ergebnis** erzwingt das Ergebnis der nächsten Suche, unabhängig vom Suchtext: Automatisch, High, Low, No Result, Failure (sofort) oder Langsam. "Langsam" zeigt nach 6 s "Suche abbrechen" und nach 15 s den Fehler.
+Das Dropdown **Nächstes KI-Ergebnis** erzwingt das Ergebnis der nächsten Suche, unabhängig vom Suchtext: Automatisch, High, Low, No Result, Failure (sofort) oder Langsam. "Langsam" bleibt im Ladezustand und zeigt nach 15 s den Fehler.
 
 Für Testpersonen den Link **ohne** `#mod` verwenden.
+
+### Direkte Test-Einstiege
+
+Mit einem Parameter öffnet der Prototyp sofort einen Zustand, KI bleibt eingeschaltet, die Moderationsleiste bleibt verborgen:
+
+| Link | Zustand | Suchanfrage |
+|---|---|---|
+| `?state=low` | Low Confidence | "kleines Sofa, Versand" |
+| `?state=none` | No Result | "kleines Sof für meine Wohnung" |
+
+Ohne Parameter (oder bei unbekanntem Wert) startet der Prototyp wie gewohnt im Cold Start.
 
 ### Beispiel-Szenario "Umzug in eine kleine Wohnung"
 
@@ -77,7 +88,6 @@ Alle Zahlen sind **Annahmen**, es gibt keine echten Baseline-Werte (siehe [docs/
 | Confidence niedrig (0,55) | alles andere | `confidence()` |
 | Waiting bis Ergebnis | 2,6 s | `startAI()` |
 | Waiting bis Failure | 1,5 s | `startAI()` |
-| Langsam: "Suche abbrechen" | nach 6 s | `startAI()` |
 | Langsam: Fehler | nach 15 s | `startAI()` |
 
 Die Confidence ist eine einfache Regel und keine Modellausgabe. Sie dient nur dazu, den Wechsel zwischen High und Low zu zeigen.
