@@ -190,8 +190,13 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
 }
 .cs .selbox{
   padding:0;margin:8px 0 16px;
-  .selchips .chip{min-height:44px}
-  .selchips .sp .cl,.selchips .sp .cx{min-height:42px}
+  .selchips{gap:12px;max-height:none}
+  .selchips .chip{min-height:36px;padding:0 15px;border-radius:18px;font-size:12px}
+  .selchips .sp{padding:0}
+  .selchips .sp .cl{min-height:34px;padding:0 15px;font-size:12px}
+  .selchips .sp .cx{min-height:34px;padding:0 15px 0 0;font-size:16px}
+  .selchips .sp:not(.act) .cx{display:none}
+  .selchips .sp.act .cl{padding-right:4px}
 }
 
 .rpanel{
