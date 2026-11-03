@@ -225,7 +225,7 @@ function fail(){
 }
 function plain(){
   return header()+cnt('312 Ergebnisse - “'+esc(S.q)+'”')+sponsored()+kirow()+
-  (S.aborted?'<div class="waitbox center" role="status"><div class="msg" style="padding:0"><h3>Du hast die Suche abgebrochen</h3><p>Die normalen Suchergebnisse bleiben sichtbar.</p></div><button class="glink retry" data-a="again" style="margin-top:6px"><span aria-hidden="true">'+RELOAD+'</span>Erneut suchen</button></div>':'')+
+  (S.aborted?'<div class="waitbox center" role="status"><h3>Du hast die Suche abgebrochen</h3><button class="glink retry" data-a="again"><span aria-hidden="true">'+RELOAD+'</span>Neue Suche</button></div><div class="msg" style="padding:14px 18px 0"><p class="mb">Die normalen Suchergebnisse bleiben sichtbar.</p></div>':'')+
   secNormal()+listing('d')+foot()+fab();
 }
 function render(){

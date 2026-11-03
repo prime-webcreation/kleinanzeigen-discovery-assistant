@@ -254,6 +254,8 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
 .waitbox{
   background:var(--aiBox);border-radius:20px;margin:16px 44px 0;padding:20px 12px 18px;font-size:15px;color:#2A2A2A;
   & svg{width:26px;height:26px;margin-bottom:10px}
+  & h3{margin:0 0 2px;font-size:15px;font-weight:700}
+  .retry svg{width:16px;height:16px;margin:0}
   .dots{
     display:flex;justify-content:center;gap:8px;margin-bottom:12px;
     & i{
