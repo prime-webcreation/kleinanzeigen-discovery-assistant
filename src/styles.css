@@ -30,6 +30,22 @@ body{
 button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;padding:0}
 :focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .wrap{max-width:390px;margin:0 auto}
+/* Direkter Einstieg in die sechs Prototyp-Zustände */
+.statebar{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:20;max-width:760px;margin:0 auto 16px;padding:12px;
+  background:var(--white);border:1px solid var(--line2);border-radius:14px;box-shadow:0 4px 16px #00000012;
+  & p{margin:0 0 8px;font-size:13px;font-weight:700;color:var(--greenDark)}
+  @media(max-width:430px){border-radius:0;margin-bottom:12px}
+}
+.statebuttons{
+  display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;
+  & button{
+    min-height:44px;padding:8px 6px;border:1px solid var(--line2);border-radius:10px;background:var(--bg);font-size:13px;font-weight:600;
+    &:hover{border-color:var(--greenDark);background:var(--aiBox)}
+    &[aria-pressed="true"]{background:var(--greenDark);border-color:var(--greenDark);color:var(--white)}
+  }
+  @media(max-width:600px){grid-template-columns:repeat(3,minmax(0,1fr))}
+}
 .phone{
   background:var(--bg);border:1px solid var(--line);border-radius:22px;overflow:hidden;min-height:820px;position:relative;display:flex;flex-direction:column;
   @media(max-width:430px){border-radius:0;border-left:0;border-right:0}
@@ -73,9 +89,9 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
   padding:16px 16px 0;display:flex;align-items:center;justify-content:space-between;gap:12px;
   & h2{
     margin:0;font-size:16px;font-weight:700;color:#212E2B;
-    & u{font-weight:400;font-size:12px;color:var(--ink2);margin-left:6px}
   }
 }
+.optional-info{display:inline-flex;align-items:center;min-height:44px;margin:-10px 0 -10px 6px;font-weight:400;font-size:12px;color:var(--ink2);text-decoration:underline;text-underline-offset:2px}
 .sw{
   position:relative;width:47px;height:24px;border-radius:14px;background:#C9CCC8;flex:none;
   &::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .15s}
@@ -106,6 +122,15 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
 }
 
 /* Feedback unter den KI-Ergebnissen */
+.high-edit{
+  position:relative;text-align:left;padding:18px 14px 14px;
+  .editclose{position:absolute;top:2px;right:2px;width:44px;height:44px;display:grid;place-items:center;border-radius:10px;font-size:24px;line-height:1;color:var(--ink2)}
+  .editclose:hover{background:var(--white)}
+  .selbox{padding:0;margin:0}
+  .selhead{padding-right:32px;min-height:24px}
+  .selchips .chip{min-height:44px}
+  .selchips .sp .cl,.selchips .sp .cx{min-height:42px}
+}
 .fb{
   display:flex;justify-content:right;align-items:center;gap:0;margin:6px 12px 0;font-size:12px;color:#5E6B66;
   & span{margin-right:6px}
@@ -162,10 +187,17 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
   .sel{width:100%;min-height:48px;border:1px solid var(--line2);border-radius:10px;padding:0 12px;font:inherit;font-size:16px;background:var(--white);color:var(--ink)}
   .selmore{font-size:12px;color:var(--ink2);text-decoration:underline;min-height:44px;padding:0 4px;margin:-14px -4px -14px 0}
 }
+.cs .selbox{
+  padding:0;margin:8px 0 16px;
+  .selchips .chip{min-height:44px}
+  .selchips .sp .cl,.selchips .sp .cx{min-height:42px}
+}
 
 .rpanel{
-  background:var(--white);border:1px solid var(--line);border-radius:12px;padding:14px;margin:12px 0 10px;
-  .rt{display:block;margin:0 0 12px;font-size:14px;font-weight:700}
+  position:relative;background:var(--white);border:1px solid var(--line);border-radius:12px;padding:14px;margin:12px 0 10px;
+  .rt{display:block;margin:0 0 12px;padding-right:34px;font-size:14px;font-weight:700}
+  .rclose{position:absolute;top:2px;right:2px;width:44px;height:44px;display:grid;place-items:center;border-radius:10px;font-size:24px;line-height:1;color:var(--ink2)}
+  .rclose:hover{background:var(--bg);color:var(--ink)}
   .rl{display:block;font-size:12px;color:var(--ink2);margin:14px 0 6px}
   .rf{display:flex;align-items:center;gap:8px}
   .rin{flex:none;width:110px;min-width:0;min-height:48px;border:1px solid var(--line2);border-radius:10px;padding:0 12px;font:inherit;font-size:16px;background:var(--white);color:var(--ink)}
@@ -174,7 +206,6 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
   .chips{gap:8px;margin:0}
   .ract{display:flex;align-items:center;gap:12px;margin-top:16px}
   .rbtn{flex:1;min-height:48px;border-radius:24px;background:var(--limeBtn);color:var(--limeInk);font-weight:700;font-size:15px}
-  .rclr{margin-left:auto;min-height:48px;padding:0 4px 0 10px;font-size:14px;color:var(--greenText);text-decoration:underline}
 }
 
 /* Anzeigen */
@@ -233,6 +264,12 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
   & p{margin:0;font-size:14px;color:var(--ink2)}
 }
 .glink{color:var(--greenText);font-size:15px;min-height:44px;padding:10px 0;text-align:left}
+.ki-end{padding-bottom:4px}
+.category-note{margin:4px 0 0;font-size:12px;line-height:1.5;color:var(--ink2)}
+.ki-end button:disabled{color:var(--ink3);cursor:default;opacity:.6;text-decoration:none}
+.normal-results-note{display:block;margin:14px 18px 0;font-size:14px;line-height:1.5;color:var(--ink2)}
+.glink.retry{display:inline-flex;align-items:center;gap:6px}
+.glink.retry > span{display:inline-flex}
 .cat{
   padding:18px 20px 0;font-size:13px;
   & b{font-weight:700}
@@ -251,7 +288,6 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
   .tgl{
     display:flex;align-items:center;justify-content:space-between;margin-top:84px;
     & h2{margin:0;font-size:16px;font-weight:700}
-    & u{font-weight:400;font-size:12px;color:var(--ink2);margin-left:6px}
   }
   .nt{font-size:12px;color:#616666;margin:6px 0 0}
   .sg{font-size:14px;color:#2B3836;margin:20px 0 0 3px}
@@ -295,10 +331,13 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
 .flink{display:block;text-align:center;font-size:11px;color:#5D5D5D;min-height:44px;width:100%;margin-top:14px}
 
 /* Sheet */
-.sheet-bg{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:10;display:flex;align-items:flex-end}
+.sheet-bg{position:fixed;inset:0;width:calc(100% - 24px);max-width:390px;max-height:calc(100dvh - 32px);margin:auto;padding:0;border:0;border-radius:16px;background:var(--white);color:var(--ink);overflow:auto}
+.sheet-bg::backdrop{background:rgba(0,0,0,.45)}
 .sheet{
-  background:var(--white);border-radius:20px 20px 0 0;padding:18px 18px 24px;width:100%;
+  background:var(--white);padding:18px 18px 24px;width:100%;
   & h3{margin:0 0 8px;font-size:16px}
+  & h4{margin:16px 0 6px;font-size:14px}
+  & p{margin:0 0 10px;font-size:13px;line-height:1.5}
   & li{margin:6px 0;font-size:14px}
   .btn{margin-top:10px}
 }

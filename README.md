@@ -40,6 +40,12 @@ Nach dem Tipp auf "Suchen" läuft immer erst **Waiting**: 2,6 s bis zum Ergebnis
 
 Wichtig für Failure: Das Wort muss im **Suchfeld** stehen. Ein Chip allein löst es nicht aus.
 
+### Über die sichtbaren State-Buttons
+
+Oben in der Prototypansicht stehen immer **Cold Start, Waiting, High, Low, No Result und Failure** bereit. Ein Klick zeigt den Zustand sofort, ohne vorherige Suche. Der aktive Button ist dunkelgrün markiert. Die Leiste bleibt beim Scrollen sichtbar und bricht bei schmalen Ansichten in zwei Reihen um.
+
+Jeder Einstieg setzt Filter, Eingrenzungen, Feedback, offene Dialoge und ein erzwungenes nächstes Ergebnis zurück. Cold Start öffnet eine leere Suche mit eingeschalteter KI. Waiting bleibt beim direkten Einstieg stehen, bis ein anderer Zustand gewählt oder die Suche abgebrochen wird. Bei einer regulären Suche gelten weiterhin die unten dokumentierten Wartezeiten.
+
 ### Über die Moderationsleiste (für Team und Pilot)
 
 Hänge `#mod` an die URL, zum Beispiel `http://localhost:8000/#mod`. Unter dem Telefon erscheint die Leiste "Moderation":
@@ -48,17 +54,17 @@ Hänge `#mod` an die URL, zum Beispiel `http://localhost:8000/#mod`. Unter dem T
 |---|---|---|
 | Cold Start (KI an) | Cold Start, alles zurückgesetzt | leer |
 | Cold Start (KI aus) | Cold Start mit ausgeschalteter KI | leer |
-| Waiting | Ladezustand, nach 15 s Fehler | (aktuell) |
-| High | High Confidence | "kleines Sofa, 2-Sitzer, <180cm, Versand" |
-| Low | Low Confidence | "kleines Sofa, Versand" |
-| No Result | No Result | "kleines Sof für meine Wohnung" |
+| Waiting | Ladezustand, bleibt bis zum nächsten Wechsel | "kleines Sofa" |
+| High | High Confidence mit ausgewählten Chips und Versand | "kleines Sofa" plus Chips "2-Sitzer", "< 180cm" und Lieferung "Versand" |
+| Low | Low Confidence mit vorausgewähltem Versand | "kleines Sofa" plus Lieferung "Versand" |
+| No Result | No Result mit nicht erfüllbaren Beispielkriterien | "kleines Sofa", 2-Sitzer, Versand, Breite < 120 cm, < 50 € |
 | Failure | Fehlerzustand | "kleines Sofa" |
 
 Jeder Sprung setzt Chips, Umkreis, Lieferung, Zustand und Eingrenzungen zurück.
 
 Das Dropdown **Nächstes KI-Ergebnis** erzwingt das Ergebnis der nächsten Suche, unabhängig vom Suchtext: Automatisch, High, Low, No Result, Failure (sofort) oder Langsam. "Langsam" bleibt im Ladezustand und zeigt nach 15 s den Fehler.
 
-Für Testpersonen den Link **ohne** `#mod` verwenden.
+Ohne `#mod` bleibt die zusätzliche Moderationsleiste verborgen; die State-Buttons oben sind weiterhin sichtbar.
 
 ### Direkte Test-Einstiege
 
@@ -66,8 +72,8 @@ Mit einem Parameter öffnet der Prototyp sofort einen Zustand, KI bleibt eingesc
 
 | Link | Zustand | Suchanfrage |
 |---|---|---|
-| `?state=low` | Low Confidence | "kleines Sofa, Versand" |
-| `?state=none` | No Result | "kleines Sof für meine Wohnung" |
+| `?state=low` | Low Confidence | "kleines Sofa" plus Lieferung "Versand" |
+| `?state=none` | No Result | "kleines Sofa", 2-Sitzer, Versand, Breite < 120 cm, < 50 € |
 
 Ohne Parameter (oder bei unbekanntem Wert) startet der Prototyp wie gewohnt im Cold Start.
 
@@ -107,7 +113,18 @@ Die Confidence ist eine einfache Regel und keine Modellausgabe. Sie dient nur da
 
 ## Verhalten der Auswahl
 
+Im Cold Start mit eingeschalteter KI setzt ein Klick in das leere Suchfeld den Beispieltext „kleines Sofa für meine Wohnung“ ein und zeigt passende Vorschläge. Vorhandener Suchtext bleibt erhalten; bei ausgeschalteter KI erfolgt keine automatische Eingabe. Die Suche startet erst über „Suchen“.
+
+Der No-Result-Direkteinstieg zeigt vorausgewählte, entfernbare Kriterien, die keine Beispielanzeige gemeinsam erfüllt. Die Kategorieempfehlung „Sofas & Sitzgarnituren“ startet eine breitere Suche ohne diese Kriterien und zeigt nach Waiting simulierte High-Ergebnisse.
+
+Im No-Result-State wählt ein Klick auf einen alternativen Suchbegriff zunächst nur den Chip aus. Ein weiterer Klick entfernt die Auswahl, ein anderer Chip ersetzt sie. Erst „Neu suchen“ startet die Suche mit dem ausgewählten Begriff; ohne Auswahl ist der Link deaktiviert.
+
+Im Bereich **Suchergebnisse** wird in jedem Ergebniszustand nur eine normale Beispielanzeige gezeigt, damit der Wireframe kompakt bleibt.
+
+**(optional)** neben der KI-Suchhilfe bzw. den KI-Suchvorschlägen öffnet ein Infofenster zur Funktion und zur Datenverarbeitung im Prototyp. Dasselbe Fenster ist über „Mehr über die KI-Suche erfahren“ erreichbar. Es lässt sich mit „Verstanden“, Escape oder einem Klick außerhalb schließen; der Tastaturfokus kehrt zum Auslöser zurück.
+
 - **Chip antippen** wählt aus, **nochmal antippen** entfernt die Auswahl, in jedem Zustand. Ausgewählte Chips zeigen ein kleines **×**.
+- **High → Suche anpassen** bleibt im High State und zeigt Suchtext und gewählte Kriterien direkt im grünen Hinweisfeld als ausgewählte Chips. Begriffe lassen sich antippen und entfernen; Maße, Preis, Farbe, Umkreis, Lieferung und Zustand lassen sich über den Pfeil bearbeiten oder über × entfernen. Das × oben rechts schließt die Bearbeitung und zeigt wieder den aktualisierten Hinweis. Auch die weißen Bearbeitungsfelder lassen sich über ein × schließen. Änderungen bleiben erhalten. Unter den normalen Suchergebnissen bleibt eine Beispielkarte mit TOP.
 - **"Von dir gewählt"** zeigt höchstens zwei Reihen. "… anpassen" öffnet alle Chips, ein Tipp auf den Text öffnet das Auswahlfeld zum Umschalten, das × entfernt.
 - **KI-Schalter aus und wieder an** setzt alle Auswahlen zurück (Chips, Umkreis, Lieferung, Zustand, Eingrenzungen). Suchtext und Kategorie bleiben.
 - **Low Confidence** zeigt die Zahl der Ergebnisse je nach Anzahl der Auswahlen: 312, 148, 61, dann 22.

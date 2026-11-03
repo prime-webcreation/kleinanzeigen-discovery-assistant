@@ -4,9 +4,20 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Discovery Assistant Prototyp</title>
-  <link rel="stylesheet" href="src/styles.css">
+  <link rel="stylesheet" href="src/styles.css?v=20261103-no-result-criteria-5">
 </head>
 <body>
+<nav class="statebar" aria-label="Prototyp-Zustände">
+  <p>Prototyp · Zustand direkt anzeigen</p>
+  <div class="statebuttons" id="states">
+    <button type="button" data-j="cold-on" aria-pressed="true">Cold Start</button>
+    <button type="button" data-j="wait" aria-pressed="false">Waiting</button>
+    <button type="button" data-j="high" aria-pressed="false">High</button>
+    <button type="button" data-j="low" aria-pressed="false">Low</button>
+    <button type="button" data-j="none" aria-pressed="false">No Result</button>
+    <button type="button" data-j="fail" aria-pressed="false">Failure</button>
+  </div>
+</nav>
 <div class="wrap">
   <div class="phone" id="phone"></div>
   <details class="mod" id="mod">
@@ -29,6 +40,6 @@
   </details>
 </div>
 
-  <script src="src/app.js"></script>
+  <script src="src/app.js?v=20261103-cold-search-example-6"></script>
 </body>
 </html>
