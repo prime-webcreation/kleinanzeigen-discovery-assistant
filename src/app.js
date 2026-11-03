@@ -2,7 +2,7 @@
    Zustand (S), Inhalte, Render-Funktionen, Events. Kein echtes Modell. */
 (function(){
 var $=function(s){return document.querySelector(s)};
-var S={view:'cold',ki:true,q:'',cat:'Möbel & Wohnen',catPick:null,prev:null,chips:[],t:[],scenario:'auto',retry:false,sheet:false,toast:'',radius:'',delivery:'',cond:'',refine:{},open:'',draft:{},fbDone:false,selOpen:false,edit:'',highEdit:false,termPick:''};
+var S={view:'cold',ki:true,q:'',cat:'Möbel & Wohnen',catPick:null,prev:null,chips:[],t:[],scenario:'auto',retry:false,sheet:false,toast:'',radius:'',delivery:'',cond:'',refine:{},open:'',draft:{},fbDone:false,selOpen:false,edit:'',highEdit:false,aborted:false,termPick:''};
 var RADII=[5,10,20,50,100];
 var CHIPS=['2-Sitzer','< 180cm','kleines Sofa','Ecksofa','< 200 €','Couch','Kompakter 3-Sitzer'];
 var CATS=['Möbel & Wohnen','Haus & Garten','Elektronik','Mode & Beauty'];
@@ -23,7 +23,7 @@ var AIV=['waiting','high','low','none','fail'];
 function anchorY(){var el=$('.kirow'),bar=$('.statebar'),offset=bar?bar.getBoundingClientRect().bottom:0;return el?Math.max(0,el.getBoundingClientRect().top+window.pageYOffset-Math.max(0,offset)-8):0}
 function ensureRoom(){if(!S.ki||AIV.indexOf(S.view)<0)return;var sc=$('.scr');if(!sc)return;var need=anchorY()+window.innerHeight-document.documentElement.scrollHeight;if(need>0)sc.style.paddingBottom=(84+need)+'px'}
 function anchorKI(){ensureRoom();var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;window.scrollTo({top:anchorY(),behavior:rm?'auto':'smooth'})}
-function go(v){clearT();S.highEdit=false;S.termPick='';if(v==='cold'){S.prev=(S.view!=='cold'&&S.view!=='waiting')?S.view:null}else{S.prev=null}S.view=v;S.sheet=false;render();if(v==='high'||v==='low'||v==='none'||v==='fail')anchorKI();else window.scrollTo(0,0)}
+function go(v){clearT();if(v!=='plain')S.aborted=false;S.highEdit=false;S.termPick='';if(v==='cold'){S.prev=(S.view!=='cold'&&S.view!=='waiting')?S.view:null}else{S.prev=null}S.view=v;S.sheet=false;render();if(v==='high'||v==='low'||v==='none'||v==='fail')anchorKI();else window.scrollTo(0,0)}
 function toast(m){S.toast=m;render();setTimeout(function(){S.toast='';render()},2200)}
 var RELOAD='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></svg>';
 var SPARK='<svg viewBox="0 0 26 26" fill="none" stroke="#339E29" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l6 6M8.5 11h5M11 8.5v5"/><path d="M20 3v4M18 5h4" stroke="#8FCB7F"/></svg>';
@@ -224,7 +224,9 @@ function fail(){
   secNormal()+listing('e')+foot()+fab();
 }
 function plain(){
-  return header()+cnt('312 Ergebnisse - “'+esc(S.q)+'”')+sponsored()+kirow()+secNormal()+listing('d')+foot()+fab();
+  return header()+cnt('312 Ergebnisse - “'+esc(S.q)+'”')+sponsored()+kirow()+
+  (S.aborted?'<div class="waitbox center" role="status"><div class="msg" style="padding:0"><h3>Du hast die Suche abgebrochen</h3><p>Die normalen Suchergebnisse bleiben sichtbar.</p></div><button class="glink retry" data-a="again" style="margin-top:6px"><span aria-hidden="true">'+RELOAD+'</span>Erneut suchen</button></div>':'')+
+  secNormal()+listing('d')+foot()+fab();
 }
 function render(){
   document.querySelectorAll('[data-j]').forEach(function(b){var k=b.dataset.j,on=k==='cold-on'?S.view==='cold'&&S.ki:k==='cold-off'?S.view==='cold'&&!S.ki:(k==='wait'?'waiting':k)===S.view;b.setAttribute('aria-pressed',String(on))});
@@ -291,7 +293,7 @@ document.addEventListener('click',function(e){
   if(el.dataset.a==='closesheet'&&e.target.closest('[data-stop]')&&!e.target.closest('button'))return;
   var a=el.dataset.a;
   if(a==='ki'){S.ki=!S.ki;clearSel();render()}
-  else if(a==='kitoggle'){clearSel();if(S.ki){S.ki=false;clearT();go('plain')}else{S.ki=true;startAI()}}
+  else if(a==='kitoggle'){clearSel();if(S.ki){S.ki=false;clearT();S.aborted=false;go('plain')}else{S.ki=true;startAI()}}
   else if(a==='chip'){var c=el.dataset.c,i=S.chips.indexOf(c);if(i>-1)S.chips.splice(i,1);else S.chips.push(c);render();var n=document.querySelectorAll('.chip');for(var k=0;k<n.length;k++){if(n[k].dataset.c===c){n[k].focus()}}}
   else if(a==='cond'){var cv=el.dataset.c;S.cond=S.cond===cv?'':cv;render();var cb2=$('[data-a="cond"][data-c="'+cv+'"]');if(cb2)cb2.focus()}
   else if(a==='search')search();
@@ -304,7 +306,8 @@ document.addEventListener('click',function(e){
   else if(a==='highclose'){S.highEdit=false;S.edit='';S.open='';render();var he=$('[data-a="highedit"]');if(he)he.focus({preventScroll:true})}
   else if(a==='panelclose'){var pe=S.edit;S.edit='';render();var pb=$('[data-a="selpick"][data-e="'+pe+'"]');if(pb)pb.focus({preventScroll:true})}
   else if(a==='newsearch'){S.q='';S.chips=[];S.radius='';S.delivery='';S.cond='';S.catPick=null;S.scenario='auto';resetRefine();go('cold')}
-  else if(a==='cancel'){clearT();go('plain');toast('Suche abgebrochen. Normale Ergebnisse angezeigt.')}
+  else if(a==='cancel'){clearT();S.aborted=true;go('plain')}
+  else if(a==='again'){S.aborted=false;S.retry=false;startAI()}
   else if(a==='retry'){S.retry=true;if(S.scenario==='fail'||S.scenario==='slow')S.scenario='high';startAI()}
   else if(a==='unsel'){S.edit='';var uk=el.dataset.k,uv=el.dataset.v;if(uk==='chip'){var ui=S.chips.indexOf(uv);if(ui>-1)S.chips.splice(ui,1)}else if(uk==='refine'){delete S.refine[uv];if(S.open===uv)S.open=''}else S[uk]='';render()}
   else if(a==='refine'){var rk=el.dataset.k;S.edit='';if(S.open===rk){S.open=''}else{S.open=rk;var ap=S.refine[rk];S.draft[rk]={n:ap?ap.n:'',o:ap?ap.o:''}}render();var tb=$('[data-a="refine"][data-k="'+rk+'"]');if(tb)tb.focus()}
