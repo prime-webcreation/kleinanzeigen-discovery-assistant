@@ -42,7 +42,7 @@ Wichtig für Failure: Das Wort muss im **Suchfeld** stehen. Ein Chip allein lös
 
 ### Über die sichtbaren State-Buttons
 
-Oben in der Prototypansicht stehen immer **Cold Start, Waiting, High, Low, No Result und Failure** bereit. Ein Klick zeigt den Zustand sofort, ohne vorherige Suche. Der aktive Button ist dunkelgrün markiert. Die Leiste bleibt beim Scrollen sichtbar und bricht bei schmalen Ansichten in zwei Reihen um.
+Oben in der Prototypansicht stehen immer **Cold Start, Waiting, High, Low, No Result und Failure** bereit. Ein Klick zeigt den Zustand sofort, ohne vorherige Suche. Die kompakte, dunkelgraue Leiste markiert den aktiven Button hell. Sie bleibt beim Scrollen sichtbar und bricht auf Mobilgeräten in zwei Reihen um.
 
 Jeder Einstieg setzt Filter, Eingrenzungen, Feedback, offene Dialoge und ein erzwungenes nächstes Ergebnis zurück. Cold Start öffnet eine leere Suche mit eingeschalteter KI. Waiting bleibt beim direkten Einstieg stehen, bis ein anderer Zustand gewählt oder die Suche abgebrochen wird. Bei einer regulären Suche gelten weiterhin die unten dokumentierten Wartezeiten.
 
@@ -56,7 +56,7 @@ Hänge `#mod` an die URL, zum Beispiel `http://localhost:8000/#mod`. Unter dem T
 | Cold Start (KI aus) | Cold Start mit ausgeschalteter KI | leer |
 | Waiting | Ladezustand, bleibt bis zum nächsten Wechsel | "kleines Sofa" |
 | High | High Confidence mit ausgewählten Chips und Versand | "kleines Sofa" plus Chips "2-Sitzer", "< 180cm" und Lieferung "Versand" |
-| Low | Low Confidence mit vorausgewähltem Versand | "kleines Sofa" plus Lieferung "Versand" |
+| Low | Low Confidence mit vorausgewähltem Versand und Breite | "kleines Sofa" plus Lieferung "Versand" und Breite < 180 cm |
 | No Result | No Result mit nicht erfüllbaren Beispielkriterien | "kleines Sofa", 2-Sitzer, Versand, Breite < 120 cm, < 50 € |
 | Failure | Fehlerzustand | "kleines Sofa" |
 
@@ -72,7 +72,7 @@ Mit einem Parameter öffnet der Prototyp sofort einen Zustand, KI bleibt eingesc
 
 | Link | Zustand | Suchanfrage |
 |---|---|---|
-| `?state=low` | Low Confidence | "kleines Sofa" plus Lieferung "Versand" |
+| `?state=low` | Low Confidence | "kleines Sofa" plus Lieferung "Versand" und Breite < 180 cm |
 | `?state=none` | No Result | "kleines Sofa", 2-Sitzer, Versand, Breite < 120 cm, < 50 € |
 
 Ohne Parameter (oder bei unbekanntem Wert) startet der Prototyp wie gewohnt im Cold Start.

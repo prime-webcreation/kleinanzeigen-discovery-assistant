@@ -72,28 +72,28 @@ function curFlt(){
   return {max:S.refine.price&&S.refine.price.o!=='>'?parseInt(S.refine.price.n,10):0,min:S.refine.price&&S.refine.price.o==='>'?parseInt(S.refine.price.n,10):0,mass:S.refine.mass?parseInt(S.refine.mass.n,10):0,radius:S.radius?parseInt(S.radius,10):0,delivery:S.delivery,cond:S.cond==='egal'?'':S.cond,color:S.refine.color?S.refine.color.n:'',chips:S.chips};
 }
 function fltActive(f){return !!(f.max||f.min||f.mass||f.radius||f.delivery||f.cond||f.color||(f.chips&&f.chips.length))}
-function fltLines(x,f,separate){
+function fltLines(x,f,separate,sizeNotice){
   var m=x.m||{},ok=[],nf=[],price=parseFloat(String(x.p).replace(',','.'));
   (f.chips||[]).forEach(function(c){if(c==='< 200 €'){if(price<200)ok.push('< 200 €')}else if(c==='< 180cm'){if(m.w!=null&&m.w<180)ok.push('< 180 cm')}else if((m.tags||[]).indexOf(c)>-1)ok.push(c)});
   if(f.max&&price<f.max)ok.push('< '+f.max+' €');
   if(f.min&&price>f.min)ok.push('> '+f.min+' €');
-  if(f.mass){if(m.w==null)nf.push('Breite nicht angegeben');else if(m.w<=f.mass)ok.push('Breite '+m.w+' cm')}
+  if(f.mass&&!sizeNotice){if(m.w==null)nf.push('Breite nicht angegeben');else if(m.w<=f.mass)ok.push('Breite '+m.w+' cm')}
   if(f.radius){if(m.km==null)nf.push('Entfernung nicht angegeben');else if(m.km<=f.radius)ok.push(m.km+' km entfernt')}
   if(f.delivery){if(!m.ship)nf.push(f.delivery+' nicht angegeben');else if(m.ship.indexOf(f.delivery)>-1)ok.push(f.delivery+' möglich')}
   if(f.cond){if(!m.cond)nf.push('Zustand nicht angegeben');else if(m.cond===f.cond)ok.push(m.cond)}
   if(f.color){if(!m.col)nf.push('Farbe nicht angegeben');else if(m.col===f.color)ok.push('Farbe '+m.col)}
-  return (nf.length?'<span class="facts nf"><span>ⓘ '+nf.map(function(t){return t.replace(/ nicht angegeben$/,'')}).join(', ')+' nicht angegeben</span></span>':'')+(ok.length?'<span class="facts">'+(separate?ok.slice(0,3).map(function(t){return '<span>✓ '+esc(t)+'</span>'}).join(''):'<span>✓ '+ok.slice(0,3).join(', ')+(ok.length>3?' +'+(ok.length-3):'')+'</span>')+'</span>':'');
+  return (nf.length?'<span class="facts nf"><span>ⓘ '+nf.map(function(t){return t.replace(/ nicht angegeben$/,'')}).join(', ')+' nicht angegeben</span></span>':'')+(ok.length?'<span class="facts">'+(separate?ok.slice(0,3).map(function(t){return '<span><span class="fact-check" aria-hidden="true">✓</span> '+esc(t)+'</span>'}).join(''):'<span><span class="fact-check" aria-hidden="true">✓</span> '+ok.slice(0,3).join(', ')+(ok.length>3?' +'+(ok.length-3):'')+'</span>')+'</span>':'');
 }
 function listing(k,o){
   o=o||{};var x=adapt(k);var h='<button class="lst" data-a="open"><span class="im"><i></i><i></i></span><span class="ct"><span class="ort">'+x.ort+' · Heute</span>';
   if(o.kitag)h+='<span class="kitag" role="img" aria-label="KI-Vorschlag">'+SPARK+'</span>';
   h+='<span class="ti">'+esc(x.t)+'</span>';
-  if(o.facts&&x.f&&!(o.flt&&fltActive(o.flt))){h+='<span class="facts">'+x.f.map(function(f){return '<span>✓ '+esc(f)+'</span>'}).join('')+'</span>'}
-  if(o.kib)h+='<span><span class="kib">✓ KI-Vorschlag</span> <small style="color:#aeaeae;font-size:10px">'+esc(x.f[0])+'</small></span>';
-  if(x.miss&&o.miss&&!(o.flt&&o.flt.mass))h+='<span class="miss">ⓘ '+esc(x.miss)+'</span>';
-  if(o.why&&x.m&&x.m.w!=null&&!(o.flt&&o.flt.mass))h+='<span class="miss">ⓘ Breite '+x.m.w+' cm, bitte prüfen</span>';
+  if(o.facts&&x.f&&!(o.flt&&fltActive(o.flt))){h+='<span class="facts">'+x.f.map(function(f){return '<span><span class="fact-check" aria-hidden="true">✓</span> '+esc(f)+'</span>'}).join('')+'</span>'}
+  if(o.kib)h+='<span><span class="kib"><span class="fact-check" aria-hidden="true">✓</span> KI-Vorschlag</span> <small style="color:#aeaeae;font-size:10px">'+esc(x.f[0])+'</small></span>';
+  if(x.miss&&o.miss)h+='<span class="miss">ⓘ '+esc(x.miss)+'</span>';
+  if(o.why&&x.m&&x.m.w!=null)h+='<span class="miss">ⓘ Breite '+x.m.w+' cm, bitte prüfen</span>';
   var act=o.flt&&fltActive(o.flt);
-  if(act)h+=fltLines(x,o.flt,o.facts);
+  if(act)h+=fltLines(x,o.flt,o.facts,o.why);
   if(x.top)h+='<span class="dis">Gesponsert</span>';
   h+='<span class="pr">'+x.p+'</span></span>'+(x.top?'<span class="top">TOP</span>':'')+'</button>';
   return h;
@@ -156,6 +156,7 @@ var RF=[
   {k:'color',label:'Farbe',title:'Farbe des Sofas',quick:['Weiß','Schwarz','Grau','Beige','Braun','Grün','Blau'],choice:1,err:'Bitte wähle eine Farbe.',fmt:function(d){return 'Farbe '+d.n}}
 ];
 function clearSel(){S.chips=[];S.radius='';S.delivery='';S.cond='';resetRefine()}
+function lowExample(){S.q='kleines Sofa';S.delivery='Versand';S.refine.mass={n:'180',o:'',text:'Breite < 180 cm'}}
 function noResultExample(){
   S.q='kleines Sofa';S.chips=['2-Sitzer'];S.delivery='Versand';
   S.refine={mass:{n:'120',o:'',text:'Breite < 120 cm'},price:{n:'50',o:'<',text:'< 50 €'}};
@@ -332,7 +333,7 @@ function jumpState(e){
   }[k];
   S.q=target[1];
   if(k==='high'){S.q='kleines Sofa';S.chips=['2-Sitzer','< 180cm'];S.delivery='Versand'}
-  if(k==='low'){S.q='kleines Sofa';S.delivery='Versand'}
+  if(k==='low')lowExample();
   if(k==='none')noResultExample();
   S.view=target[0];go(target[0]);if(target[0]==='waiting')anchorKI();
 }
@@ -344,5 +345,5 @@ window.addEventListener('hashchange',hash);hash();
 render();
 var DIRECT={low:'kleines Sofa, Versand',none:'kleines Sof für meine Wohnung'};
 var st=new URLSearchParams(location.search).get('state');
-if(st&&DIRECT[st]){S.ki=true;S.q=DIRECT[st];if(st==='low'){S.q='kleines Sofa';S.delivery='Versand'}if(st==='none')noResultExample();go(st)}
+if(st&&DIRECT[st]){S.ki=true;S.q=DIRECT[st];if(st==='low')lowExample();if(st==='none')noResultExample();go(st)}
 })();
