@@ -349,6 +349,7 @@ render();
 var DIRECT={low:'kleines Sofa, Versand',none:'kleines Sof für meine Wohnung'};
 var st=new URLSearchParams(location.search).get('state');
 if(st==='off'){S.ki=false;go('cold')}
+else if(st==='fail'){S.ki=true;S.q='kleines Sofa';go('fail')}
 else if(st==='wait'){S.ki=true;S.q='kleines Sofa';S.view='waiting';go('waiting');anchorKI()}
 else if(st&&DIRECT[st]){S.ki=true;S.q=DIRECT[st];if(st==='low')lowExample();if(st==='none')noResultExample();go(st)}
 })();
