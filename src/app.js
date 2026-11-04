@@ -158,7 +158,7 @@ function clearSel(){S.chips=[];S.radius='';S.delivery='';S.cond='';resetRefine()
 function lowExample(){S.q='kleines Sofa';S.delivery='Versand';S.refine.mass={n:'180',o:'',text:'Breite < 180 cm'}}
 function noResultExample(){
   S.q='kleines Sofa';S.chips=['2-Sitzer'];S.delivery='Versand';
-  S.refine={mass:{n:'120',o:'',text:'Breite < 120 cm'},price:{n:'50',o:'<',text:'< 50 €'}};
+  S.refine={mass:{n:'160',o:'',text:'Breite < 160 cm'},price:{n:'50',o:'<',text:'< 50 €'}};
 }
 function resetRefine(){S.refine={};S.open='';S.draft={};S.selOpen=false;S.edit=''}
 function rfOf(k){return RF.filter(function(r){return r.k===k})[0]}
