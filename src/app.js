@@ -348,5 +348,6 @@ window.addEventListener('hashchange',hash);hash();
 render();
 var DIRECT={low:'kleines Sofa, Versand',none:'kleines Sof für meine Wohnung'};
 var st=new URLSearchParams(location.search).get('state');
-if(st&&DIRECT[st]){S.ki=true;S.q=DIRECT[st];if(st==='low')lowExample();if(st==='none')noResultExample();go(st)}
+if(st==='off'){S.ki=false;go('cold')}
+else if(st&&DIRECT[st]){S.ki=true;S.q=DIRECT[st];if(st==='low')lowExample();if(st==='none')noResultExample();go(st)}
 })();
