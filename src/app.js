@@ -132,22 +132,27 @@ function catShown(){return S.catPick||((S.ki&&wantCat(S.q))?'Möbel & Wohnen':'A
 function qline(){return S.chips.length?S.chips.join(', '):S.q}
 function waiting(){
   return header()+cnt('0 Ergebnisse - “'+esc(S.q)+'”')+sponsored()+kirow()+
-  '<div class="waitbox center" role="status" aria-live="polite">'+KISP+'<span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>KI sucht passende Anzeigen...<br><button class="ulink" data-a="cancel">Abbrechen</button></div>'+
+  '<div class="waitbox center wait-cancel">'+KISP+'<button class="ulink" data-a="cancel">Suche abbrechen</button></div>'+
+  '<div class="waitnote center" role="status" aria-live="polite"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><p>KI sucht passende Anzeigen...</p></div>'+
   '<div class="msg" style="padding:14px 18px 0"><p class="mb">Die normalen Suchergebnisse bleiben sichtbar.</p></div>'+secNormal()+listing('d')+fab();
+}
+function fbBar(){
+  if(S.fbDone)return '<div class="fb done"><b>Danke für dein Feedback.</b>Wir blenden den Hinweis für diese Suche aus. Alle Ergebnisse bleiben sichtbar.</div>';
+  return '<div class="fb"><span>Passt der Hinweis?</span><button class="th" data-a="fb" data-v="ja" aria-label="Daumen hoch: Hinweis passt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 11v9H4v-9zM7 11l4-8a2 2 0 0 1 2 2v4h6a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 17.8 20H7"/></svg></button><button class="th" data-a="fb" data-v="nein" aria-label="Daumen runter: Hinweis passt nicht"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="transform:rotate(180deg)"><path d="M7 11v9H4v-9zM7 11l4-8a2 2 0 0 1 2 2v4h6a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 17.8 20H7"/></svg></button></div>';
 }
 function high(){
   var r,f=curFlt(),hits=POOL.filter(function(k){return passes(adapt(k),f)}).slice(0,fltActive(f)?3:2).map(function(k){return listing(k,{facts:1,kitag:1,flt:f})}).join('');
   var none=!hits;
   var fb;
-  if(S.fbDone){r='';fb='<div class="fb done"><b>Danke für dein Feedback.</b>Wir blenden den Hinweis für diese Suche aus. Alle Ergebnisse bleiben sichtbar.</div>'}
+  if(S.fbDone){r='';fb=fbBar()}
   else{
-    fb='<div class="fb"><span>Passt der Hinweis?</span><button class="th" data-a="fb" data-v="ja" aria-label="Daumen hoch: Hinweis passt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 11v9H4v-9zM7 11l4-8a2 2 0 0 1 2 2v4h6a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 17.8 20H7"/></svg></button><button class="th" data-a="fb" data-v="nein" aria-label="Daumen runter: Hinweis passt nicht"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="transform:rotate(180deg)"><path d="M7 11v9H4v-9zM7 11l4-8a2 2 0 0 1 2 2v4h6a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 17.8 20H7"/></svg></button></div>';
+    fb=fbBar();
     r=none?'':'<div class="aibox hc"><p class="ln">✓ Passt zu <b>'+esc(S.chips.length?S.chips.slice(0,3).join(', '):S.q)+'</b></p>'+(S.delivery||/versand/i.test(S.q)?'<p class="ln">✓ <b>'+(S.delivery||'Versand')+'</b> laut Anzeige möglich</p>':'')+(S.cond&&S.cond!=='egal'?'<p class="ln">✓ Zustand <b>'+S.cond+'</b> laut Anzeige</p>':'')+(S.radius?'<p class="ln">✓ Umkreis <b>+ '+S.radius+' km</b> berücksichtigt</p>':'')+'<div class="tr">Angaben aus dem Anzeigentext – bitte prüfen.</div></div>';
   }
   if(S.highEdit)r='<div class="aibox high-edit"><button type="button" class="editclose" data-a="highclose" aria-label="Suche anpassen schließen"><span aria-hidden="true">×</span></button>'+selBox({editable:true,query:true})+(!hasSel()&&!S.q?'<p>Keine Kriterien ausgewählt.</p>':'')+'</div>';
   var tail=none?'<div class="msg"><h3>Keine Anzeige erfüllt alle deine Kriterien</h3><p>Die normalen Suchergebnisse bleiben sichtbar.</p></div>':'';
   var mid=none?'':secFound('Gefundene Ergebnisse')+hits+fb+'<div class="msg" style="padding:14px 18px 0"><p class="mb">Die normalen Suchergebnisse bleiben sichtbar.</p></div>';
-  return header()+cnt('312 Ergebnisse - “'+esc(qline())+'”')+sponsored()+kirow()+tail+(none&&!S.highEdit?selBox():'')+r+'<div class="hact">'+(S.highEdit?'':'<button data-a="highedit">Suche anpassen</button>')+'<button data-a="newsearch">'+RELOAD+'Neu suchen</button></div>'+mid+secNormal()+listing('e')+(none?fb:'')+foot()+fab();
+  return header()+cnt('312 Ergebnisse - “'+esc(qline())+'”')+sponsored()+kirow()+tail+(none&&!S.highEdit?selBox():'')+r+'<div class="hact">'+(S.highEdit?'':'<button data-a="highedit">Suche anpassen</button>')+'<button data-a="newsearch">'+RELOAD+'Neu suchen</button></div>'+(none?fb:'')+mid+secNormal()+listing('e')+foot()+fab();
 }
 var RF=[
   {k:'mass',label:'Maße',title:'Breite des Sofas',quick:[160,180,200],field:'Eigene Breite',unit:'cm',max:400,fmt:function(d){return 'Breite < '+d.n+' cm'}},
@@ -205,7 +210,7 @@ function low(){
   '<div class="msg"><h3>Keine verlässlich begründete KI-Empfehlung</h3><p>Maße oder Zustand konnten nicht eindeutig überprüft werden. Bitte prüfe die Details in der Anzeige.</p></div>'+
   selBox()+
   '<div class="aibox" style="padding:14px 14px 4px"><p class="h3" style="margin:0 0 6px">Grenze deine Suche weiter ein</p><div class="chips" style="gap:10px">'+RF.map(function(r){var a=S.refine[r.k];return '<button class="chip" aria-pressed="'+!!a+'" aria-expanded="'+(S.open===r.k)+'" aria-controls="rp-'+r.k+'" data-a="refine" data-k="'+r.k+'">'+esc(r.label)+'</button>'}).join('')+'</div>'+(open?rpanel(open):'')+'</div>'+
-  secFound('Mögliche Ergebnisse')+listing('c',{miss:1,why:1,flt:flt})+listing('b',{why:1,flt:flt})+'<div class="msg" style="padding:14px 18px 0"><p class="mb">Die normalen Suchergebnisse bleiben sichtbar.</p></div>'+secNormal()+listing('d')+foot()+fab();
+  secFound('Mögliche Ergebnisse')+listing('c',{miss:1,why:1,kitag:1,flt:flt})+listing('b',{why:1,kitag:1,flt:flt})+fbBar()+'<div class="msg" style="padding:14px 18px 0"><p class="mb">Die normalen Suchergebnisse bleiben sichtbar.</p></div>'+secNormal()+listing('d')+foot()+fab();
 }
 function none(){
   return header()+cnt('Keine KI-Treffer - “'+esc(S.q)+'”')+sponsored()+kirow()+
@@ -213,7 +218,7 @@ function none(){
   selBox()+
   '<div class="cat"><b>Kategorieempfehlung:</b><button data-a="catrec">Sofas &amp; Sitzgarnituren</button><p class="category-note">Startet eine neue Suche in dieser Kategorie ohne die bisherigen Kriterien.</p></div>'+
   '<div class="aibox" style="padding:14px 14px 4px"><p class="h3" style="margin:0 0 8px;font-size:13px;color:#4B5E52">Versuche es mit einem anderen Suchbegriff</p><p style="font-size:12px;margin:0">Wähle einen Vorschlag und tippe auf „Neu suchen“.</p><div class="chips" style="gap:10px;margin-top:14px">'+['sofa klein','Kleines Schlafsofa','2-Sitzer-Sofa','Kompaktsofa'].map(function(c){return '<button class="chip" aria-pressed="'+(S.termPick===c)+'" data-a="term" data-c="'+c+'">'+c+'</button>'}).join('')+'</div></div>'+
-  '<div class="ki-end"><div class="hact two">'+'<span></span>'+'<button data-a="termsearch"'+(S.termPick?'':' disabled')+'>'+RELOAD+'Neu suchen</button></div>'+
+  '<div class="ki-end"><div class="hact two">'+'<span></span>'+'<button data-a="termsearch"'+(S.termPick?'':' disabled')+'>'+RELOAD+'Neu suchen</button></div>'+fbBar()+
   '<p class="normal-results-note">Die normalen Suchergebnisse bleiben sichtbar.</p></div>'+
   secNormal()+listing('e')+foot()+fab();
 }
