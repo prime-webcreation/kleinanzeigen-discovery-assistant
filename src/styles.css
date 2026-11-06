@@ -17,7 +17,7 @@ img{max-width:100%}
   color-scheme:light;
   --page:#E9EBE7; --bg:#F7F7F7; --white:#FFFFFF; --ink:#2A2A2A; --ink2:#616666; --ink3:#757575;
   --green:#339E29; --greenDark:#245914; --greenText:#326916; --price:#38701F; --lime:#B5E941; --limeBtn:#BFE75F; --limeInk:#294A10;
-  --aiBox:#E8F2D4; --aiTag:#0D8759; --aiBadge:#E0F5EB; --line:#D9E0DB; --line2:#9E9E99; --paid:#5A33AE;
+  --aiBox:#E8F2D4; --greenTint:#D5EAC4; --aiTag:var(--greenText); --aiBadge:var(--aiBox); --line:#D9E0DB; --line2:#9E9E99; --paid:#5A33AE;
   --img:#D7D7D7; --imgSofa:#AEAEAE; --imgSofa2:#BCBCBC; --imgCar:#E8E8E3; --focus:#1B6FE0;
   --font:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
 }
@@ -105,7 +105,7 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
   /* Dezente Beschriftung im Schalter: Aus rechts neben dem Knopf, An links davon */
   &::before{content:"Aus";position:absolute;top:0;right:9px;line-height:28px;font-size:12px;font-weight:600;letter-spacing:.2px;color:#5F6561}
   &[aria-checked="true"]{
-    background:#CFE8C3;
+    background:var(--greenTint);
     &::after{transform:translateX(32px);background:var(--green)}
     &::before{content:"An";right:auto;left:10px;color:var(--greenDark)}
   }
@@ -213,7 +213,7 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
   .selchips .sp .cx{min-height:34px;padding:0 15px 0 0;font-size:16px}
   .selchips .sp .cl{padding-right:4px}
   /* Gewählte Kriterien: grün gefüllt, ohne Rand, mit sichtbarem × zum Entfernen */
-  .selchips .chip,.selchips .sp{background:#D5EAC4;border-color:transparent;box-shadow:none;color:var(--greenDark)}
+  .selchips .chip,.selchips .sp{background:var(--greenTint);border-color:transparent;box-shadow:none;color:var(--greenDark)}
   .selchips .sp.act{box-shadow:0 0 0 1.5px var(--green)}
   .selchips .chip .x,.selchips .sp .cx{color:var(--greenDark);opacity:.8}
   .selchips .chip .x{font-size:16px;margin-left:8px}
@@ -406,6 +406,8 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
 .catcard:has(.kibadge:not([hidden])) .ic-sofa{display:none}
 .catcard:has(.kibadge:not([hidden])) .ic-ki{display:block;& svg{width:34px;height:34px;display:block}}
 .cs .selrow{gap:14px;margin-top:22px;grid-template-columns:1fr 1fr;
+  > div{min-width:0}
+  .catf{max-width:150px}
   .catl{display:flex;align-items:center;gap:8px;font-size:16px;margin-bottom:8px;& .sr-ic{display:inline-flex;& svg{width:20px;height:20px}}}
   .catf{border:1px solid var(--line);border-radius:24px;background:var(--white);min-height:46px;padding:0 14px;
     &::after{content:"";position:absolute;right:14px;width:8px;height:8px;border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);transform:translateY(-2px) rotate(45deg);font-size:0}
@@ -431,8 +433,11 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
 /* High State (nach Referenzbild): KI-Box, Vergleichskarte, Vergleich-Auswahl, untere Vergleichsleiste */
 .kibox{background:var(--aiBox);border-radius:12px;margin:14px 12px 0;padding:0 0 14px;
   & .kirow{padding-top:14px}
-  & .kibox-t{margin:8px 0 0;padding:0 16px;font-size:14px;color:var(--ink)}
-  & .kibox-s{margin:4px 0 0;padding:0 16px;font-size:11px;color:#5E6B66}}
+  & .kibox-t{margin:16px 0 0;padding:0 16px;font-size:14px;color:var(--ink)}
+  & .kibox-s{margin:4px 0 0;padding:0 16px;font-size:11px;color:#5E6B66}
+  & .hact{justify-content:flex-start;gap:20px;margin:4px 10px 0}
+  & .cmpcard{margin-top:12px}
+  & .kibox-s{margin-top:2px}}
 .cmpcard{display:flex;align-items:center;gap:14px;width:calc(100% - 24px);margin:12px 12px 0;padding:10px 14px 10px 10px;background:var(--white);border:1px solid var(--line);border-radius:12px;text-align:left}
 .cmp-th{position:relative;display:flex;gap:4px;flex:none;
   & .th1,& .th2{width:44px;height:44px;border-radius:6px;background:var(--img)}
@@ -440,7 +445,7 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
   & b{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:24px;height:24px;border-radius:50%;background:var(--lime);color:var(--limeInk);font-size:10px;display:grid;place-items:center;box-shadow:0 0 0 2px #fff}}
 .cmp-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;
   & b{font-size:15px}
-  & small{font-size:12px;color:var(--ink2);overflow-wrap:anywhere}}
+  & small{font-size:12px;font-weight:600;color:var(--greenText);overflow-wrap:anywhere}}
 .cmp-ch{flex:none;color:var(--ink2);transform:rotate(-90deg);& svg{width:20px;height:20px;display:block}}
 .lst-cmp{
   .ct{padding-top:14px;gap:4px}
@@ -515,7 +520,7 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
 }
 
 /* Animationen */
-.sk{height:12px;border-radius:6px;background:linear-gradient(90deg,#DCEBC4,#EEF6E0,#DCEBC4);background-size:200% 100%;animation:sh 1.2s linear infinite;margin:8px 20px}
+.sk{height:12px;border-radius:6px;background:linear-gradient(90deg,var(--greenTint),var(--aiBox),var(--greenTint));background-size:200% 100%;animation:sh 1.2s linear infinite;margin:8px 20px}
 @keyframes sh{to{background-position:-200% 0}}
 .star{
   transform-box:fill-box;transform-origin:center;animation:twinkle 1.4s ease-in-out infinite;

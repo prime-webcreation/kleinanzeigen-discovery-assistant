@@ -8,9 +8,9 @@ Jedes aktive Kriterium wird pro Karte einzeln geprüft. Das Ergebnis ist ok (Hak
 
 | Kriterium | Haken, wenn |
 |---|---|
-| Typ-Chips (2-Sitzer, Kompakter 3-Sitzer, Ecksofa, Couch, kleines Sofa) | die Karte mindestens einen der gewählten Typen hat (ODER) |
+| Typ-Chips (2-Sitzer, Kompakter 3-Sitzer, Ecksofa, kleine Couch; kleine Couch umfasst die Kartentypen kleines Sofa und Couch) | die Karte mindestens einen der gewählten Typen hat (ODER) |
 | Chip < 200 € | Preis unter 200 € |
-| Chip < 180cm | Breite unter 180 cm |
+| Chip < 160cm | Breite unter 160 cm |
 | Preis < N oder > N | Preis unter N beziehungsweise über N (genau N zählt nicht) |
 | Breite < N | Breite unter N cm (genau N zählt nicht) |
 | Umkreis | Entfernung bis einschließlich N km |

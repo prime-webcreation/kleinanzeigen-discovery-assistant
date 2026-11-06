@@ -4,7 +4,7 @@
 var $=function(s){return document.querySelector(s)};
 var S={view:'cold',ki:true,q:'',cat:'Möbel & Wohnen',catPick:null,prev:null,chips:[],t:[],scenario:'auto',retry:false,sheet:false,toast:'',radius:'',delivery:'',cond:'',refine:{},open:'',draft:{},fbDone:false,selOpen:false,edit:'',highEdit:false,aborted:false,termPick:''};
 var RADII=[5,10,20,50,100];
-var CHIPS=['2-Sitzer','< 180cm','kleines Sofa','Ecksofa','@price','Couch','Kompakter 3-Sitzer','@color'];
+var CHIPS=['2-Sitzer','< 160cm','kleine Couch','Ecksofa','Kompakter 3-Sitzer','@color'];
 var CATS=['Möbel & Wohnen','Haus & Garten','Elektronik','Mode & Beauty'];
 var L={
  d:{t:'Graues Stoffsofa',p:'140 €',top:1,ort:'Ort'},
@@ -32,18 +32,21 @@ function toast(m){S.toast=m;render();setTimeout(function(){S.toast='';render()},
 var LUPE='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>';
 var LUPEKI='<svg viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="14.5" r="6.2"/><path d="M15.2 19.2L21 25"/><path d="M20 2.5v7M16.5 6h7" stroke-width="2.2"/><path d="M10 2v4M8 4h4" stroke-width="1.8"/></svg>';
 var RELOAD='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></svg>';
-var SPARK='<svg viewBox="0 0 26 26" aria-hidden="true"><path d="M10 9l2.3 6.4L19 17.8l-6.7 2.4L10 27l-2.3-6.8L1 17.8l6.7-2.4z" fill="#339E29" transform="translate(0,-3) scale(.95)"/><path d="M20.5 1l1.4 3.8 3.6 1.3-3.6 1.3L20.5 11l-1.4-3.6-3.6-1.3 3.6-1.3z" fill="#9FCB82"/></svg>';
-var KIDUO='<svg viewBox="0 0 44 44" fill="none" aria-hidden="true"><path d="M17 15l3 8.4L28.4 26.4 20 29.4 17 38l-3-8.6L5.6 26.4 14 23.4z" fill="#339E29"/><path d="M33 5l1.9 5.1L40 12l-5.1 1.9L33 19l-1.9-5.1L26 12l5.1-1.9z" fill="#9FCB82"/></svg>';
+var SPARK='<svg viewBox="0 0 26 26" aria-hidden="true"><path d="M10 9l2.3 6.4L19 17.8l-6.7 2.4L10 27l-2.3-6.8L1 17.8l6.7-2.4z" fill="#339E29" transform="translate(0,-3) scale(.95)"/><path d="M20.5 1l1.4 3.8 3.6 1.3-3.6 1.3L20.5 11l-1.4-3.6-3.6-1.3 3.6-1.3z" fill="#B5E941"/></svg>';
+var KIDUO='<svg viewBox="0 0 44 44" fill="none" aria-hidden="true"><path d="M17 15l3 8.4L28.4 26.4 20 29.4 17 38l-3-8.6L5.6 26.4 14 23.4z" fill="#339E29"/><path d="M33 5l1.9 5.1L40 12l-5.1 1.9L33 19l-1.9-5.1L26 12l5.1-1.9z" fill="#B5E941"/></svg>';
 var ICSOFA='<svg viewBox="0 0 24 24" fill="none" stroke="#245914" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 11V8a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v3"/><path d="M4 12a2 2 0 0 1 2 2v2h12v-2a2 2 0 1 1 4 0v4a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M7 20v1.5M17 20v1.5"/></svg>';
 var ICPIN='<svg viewBox="0 0 24 24" fill="none" stroke="#2A2A2A" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>';
+var ICTAG='<svg viewBox="0 0 24 24" fill="none" stroke="#2A2A2A" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.3"/></svg>';
+var ICEUR='<svg viewBox="0 0 24 24" fill="none" stroke="#2A2A2A" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.2 9.2a3.6 3.6 0 1 0 0 5.6M7.8 11h5M7.8 13h5"/></svg>';
+var PRICES=[50,100,200,300,500];
 var ICTRUCK='<svg viewBox="0 0 24 24" fill="none" stroke="#2A2A2A" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 6h11v10H2zM13 9h4.5l3.5 3.5V16h-8"/><circle cx="7" cy="17.5" r="1.9" fill="#fff"/><circle cx="17" cy="17.5" r="1.9" fill="#fff"/></svg>';
 var ICMIC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>';
 var ICSTARS='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 7l1.9 5.1L16 14l-5.1 1.9L9 21l-1.9-5.1L2 14l5.1-1.9z"/><path d="M18 2l1.2 3.3 3.3 1.2-3.3 1.2L18 11l-1.2-3.3-3.3-1.2 3.3-1.2z"/></svg>';
 var ICINFO='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6v.4"/></svg>';
 var ICCHEV='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
-var KISTATIC='<svg viewBox="0 0 44 44" fill="none" aria-hidden="true"><circle cx="18" cy="26" r="9" stroke="#0DAA2B" stroke-width="3.4"/><path d="M25 33l9 9" stroke="#0DAA2B" stroke-width="3.4" stroke-linecap="round"/><path d="M24 12l1.6 4.4L30 18l-4.4 1.6L24 24l-1.6-4.4L18 18l4.4-1.6z" fill="#B7DB9B"/><path d="M35 7l1.9 5.1L42 14l-5.1 1.9L35 21l-1.9-5.1L28 14l5.1-1.9z" fill="#0DAA2B"/></svg>';
+var KISTATIC='<svg viewBox="0 0 44 44" fill="none" aria-hidden="true"><circle cx="18" cy="26" r="9" stroke="#339E29" stroke-width="3.4"/><path d="M25 33l9 9" stroke="#339E29" stroke-width="3.4" stroke-linecap="round"/><path d="M24 12l1.6 4.4L30 18l-4.4 1.6L24 24l-1.6-4.4L18 18l4.4-1.6z" fill="#B5E941"/><path d="M35 7l1.9 5.1L42 14l-5.1 1.9L35 21l-1.9-5.1L28 14l5.1-1.9z" fill="#339E29"/></svg>';
 var KILUPE='<svg viewBox="0 0 26 26" fill="none" stroke="#339E29" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="12" r="5.5"/><path d="M15.5 16.5l5 5"/></svg>';
-var KISP='<svg viewBox="0 0 26 26" fill="none" stroke="#339E29" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="12" r="5.5"/><path d="M15.5 16.5l5 5"/><path class="star s1" d="M20 3v5M17.5 5.5h5" stroke="#8FCB7F"/><path class="star s2" d="M5 19v3M3.5 20.5h3" stroke="#8FCB7F" stroke-width="1.8"/></svg>';
+var KISP='<svg viewBox="0 0 26 26" fill="none" stroke="#339E29" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="12" r="5.5"/><path d="M15.5 16.5l5 5"/><path class="star s1" d="M20 3v5M17.5 5.5h5" stroke="#B5E941"/><path class="star s2" d="M5 19v3M3.5 20.5h3" stroke="#B5E941" stroke-width="1.8"/></svg>';
 var WARN='<svg class="warn" viewBox="0 0 44 44" fill="none" stroke="#339E29" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 6L40 38H4z"/><path d="M22 17v12M22 33v1"/></svg>';
 
 function header(){
@@ -63,7 +66,9 @@ function kirow(){
 }
 function kiHead(){return '<h2 class="kih"><span class="kih-ic" aria-hidden="true">'+KISTATIC+'</span>KI-Suche'+optionalInfo()+'</h2>'}
 function optionalInfo(){return '<button type="button" class="optional-info" id="optional-info" data-a="info" aria-haspopup="dialog" aria-controls="ki-info" aria-label="Optional: Informationen zur KI-Suche und deinen Daten">(optional)</button>'}
-var TYPE_CHIPS=['2-Sitzer','Kompakter 3-Sitzer','Ecksofa','Couch','kleines Sofa'];
+var TYPE_CHIPS=['2-Sitzer','Kompakter 3-Sitzer','Ecksofa','kleine Couch'];
+/* "kleine Couch" umfasst die Kartentypen kleines Sofa und Couch */
+var CHIP_TAGS={'kleine Couch':['kleine Couch','kleines Sofa','Couch']};
 /* Prüft eine Karte gegen alle aktiven Kriterien. Ergebnis je Kriterium: s = 'ok' (erfüllt), 'miss' (Angabe fehlt) oder 'fail' (erfüllt nicht).
    Daraus entstehen Treffer (alles ok), Haken (ok) und Hinweise (miss). */
 function evalCard(x,f){
@@ -71,10 +76,10 @@ function evalCard(x,f){
   function add(k,s,label){r.push({k:k,s:s,label:label})}
   if(sel.length){
     if(x.tags==null)add('type','miss','Typ');
-    else{var hit=sel.filter(function(c){return x.tags.indexOf(c)>-1});hit.length?add('type','ok',hit.join(', ')):add('type','fail','Typ')}
+    else{var hit=sel.filter(function(c){return (CHIP_TAGS[c]||[c]).some(function(t){return x.tags.indexOf(t)>-1})});hit.length?add('type','ok',hit.join(', ')):add('type','fail','Typ')}
   }
   if((f.chips||[]).indexOf('< 200 €')>-1)add('p200',price<200?'ok':'fail','< 200 €');
-  if((f.chips||[]).indexOf('< 180cm')>-1)x.w==null?add('w180','miss','Breite'):add('w180',x.w<180?'ok':'fail','< 180 cm');
+  if((f.chips||[]).indexOf('< 160cm')>-1)x.w==null?add('w160','miss','Breite'):add('w160',x.w<160?'ok':'fail','< 160 cm');
   if(f.max)add('max',price<f.max?'ok':'fail','< '+f.max+' €');
   if(f.min)add('min',price>f.min?'ok':'fail','> '+f.min+' €');
   if(f.mass)x.w==null?add('mass','miss','Breite'):add('mass',x.w<f.mass?'ok':'fail','Breite '+x.w+' cm');
@@ -115,7 +120,7 @@ function listing(k,o){
   if(o.kib)h+='<span><span class="kib"><span class="fact-check" aria-hidden="true">✓</span> KI-Vorschlag</span> <small style="color:#aeaeae;font-size:10px">'+esc(x.f[0])+'</small></span>';
   if(o.miss){var mf=missingFields(x);if(mf.length)h+='<span class="miss">ⓘ '+mf.join(', ')+' nicht angegeben</span>'}
   /* Breite nur aus dem Anzeigentext: Haken, wenn sie zur gewählten Obergrenze passt, sonst Hinweis "bitte prüfen" */
-  var wOk=ev.some(function(c){return (c.k==='mass'||c.k==='w180')&&c.s==='ok'});
+  var wOk=ev.some(function(c){return (c.k==='mass'||c.k==='w160')&&c.s==='ok'});
   if(o.why&&x.wCheck&&x.w!=null&&!wOk)h+='<span class="miss">ⓘ Breite '+x.w+' cm, bitte prüfen</span>';
   if(act)h+=fltLines(ev,o.facts,!o.miss);
   /* Jede KI-Karte nennt mindestens einen Grund: ohne erfüllte Kriterien und ohne feste Kurzinfos steht der Bezug zur Suche da */
@@ -150,19 +155,20 @@ function cold(){
     h+=selBox({editable:true});
     h+='<div class="kioff kion"><div class="kioff-h">'+kiHead()+'<button class="sw-hit" data-a="ki" role="switch" aria-checked="true" aria-label="KI-Suche"><span class="sw" aria-checked="true"></span></button></div><p class="kioff-s" id="promptwrap"'+(wantCat(S.q)?' hidden':'')+'>Sobald du ein Suchwort eingibst, werden dir passende Kategorien und Suchbegriffe vorgeschlagen.</p></div>';
     h+='<div class="kifeat"><div id="catwrap"><div class="catcard"><span class="cc-ic"><span class="ic-sofa">'+ICSOFA+'</span><span class="ic-ki">'+KIDUO+'</span></span><div class="cc-t"><label class="cc-l" for="cat">Kategorie auswählen</label><div class="catf"><select id="cat"'+(showKiTag()?' class="sug"':hintOn()?' class="empty"':'')+' aria-label="Kategorie">'+['Alle Kategorien'].concat(CATS).map(function(c){return '<option'+(c===catShown()?' selected':'')+'>'+esc(c)+'</option>'}).join('')+'</select><span class="ki kibadge"'+(showKiTag()?'':' hidden')+'>Möbel &amp; Wohnen</span><span id="cathint" class="cc-hint"'+(hintOn()?'':' hidden')+'>Wird beim Tippen vorgeschlagen</span></div></div><span class="cc-chev">'+ICCHEV+'</span></div><span id="catlive" class="sr" role="status"></span>';
-    h+='<div class="selrow">'+[['rad','Umkreis',S.radius,RADII.map(function(v){return [v,'+ '+v+' km']}),ICPIN],['del','Lieferung',S.delivery||(S.delEgal?'egal':''),[['Abholung','Abholung'],['Versand','Versand'],['egal','egal']],ICTRUCK]].map(function(f){return '<div><label class="catl" for="'+f[0]+'"><span class="sr-ic">'+f[4]+'</span>'+f[1]+'</label><div class="catf sm"><select id="'+f[0]+'"><option value="">optional</option>'+f[3].map(function(o){return '<option value="'+o[0]+'"'+(String(o[0])===f[2]?' selected':'')+'>'+o[1]+'</option>'}).join('')+'</select></div></div>'}).join('')+'</div></div>';
+    h+='<div class="selrow">'+[['rad','Umkreis',S.radius,RADII.map(function(v){return [v,'+ '+v+' km']}),ICPIN],['del','Lieferung',S.delivery||(S.delEgal?'egal':''),[['Abholung','Abholung'],['Versand','Versand'],['egal','egal']],ICTRUCK],['cnd','Zustand',S.cond,[['Neu','Neu'],['Gebraucht','Gebraucht'],['egal','egal']],ICTAG],['prc','Preis',priceVal(),PRICES.map(function(v){return ['<'+v,'< '+v+' €']}).concat(priceExtra()),ICEUR]].map(function(f){return '<div><label class="catl" for="'+f[0]+'"><span class="sr-ic">'+f[4]+'</span>'+f[1]+'</label><div class="catf sm"><select id="'+f[0]+'"><option value="">optional</option>'+f[3].map(function(o){return '<option value="'+o[0]+'"'+(String(o[0])===f[2]?' selected':'')+'>'+o[1]+'</option>'}).join('')+'</select></div></div>'}).join('')+'</div></div>';
   }
   if(!S.ki){
     h+='<div class="kioff"><div class="kioff-h">'+kiHead()+'<button class="sw-hit" data-a="ki" role="switch" aria-checked="false" aria-label="KI-Suche"><span class="sw" aria-checked="false"></span></button></div><p class="kioff-t">Finde schneller passende Angebote mit smarten Vorschlägen.</p></div>';
   }
   if(S.ki){
-    h+='<div id="chipwrap"'+(wantCat(S.q)?'':' hidden')+'><p class="sg">Wähle aus Vorschlägen</p><div class="chips">'+chipsCold()+'</div>'+(S.open&&S.view==='cold'?rpanel(rfOf(S.open)):'')+'</div>';
-    h+='<div class="zrow"><p class="sg">Zustand</p><div class="chips">'+['egal','Neu','Gebraucht'].map(function(c){return '<button class="chip" aria-pressed="'+(S.cond===c)+'" data-a="cond" data-c="'+c+'">'+(c==='egal'?'Alle':c)+'</button>'}).join('')+'</div></div></div>';
+    h+='<div id="chipwrap"'+(wantCat(S.q)?'':' hidden')+'><p class="sg">Wähle aus Vorschlägen</p><div class="chips">'+chipsCold()+'</div>'+(S.open&&S.view==='cold'?rpanel(rfOf(S.open)):'')+'</div></div>';
   }
   h+='<div class="bottom"><button class="more" data-a="more">Weitere Filter anzeigen'+(S.ki?'<span class="more-chev">'+ICCHEV+'</span>':'')+'</button><button class="btn'+(S.ki?' btn-ki':'')+'" data-a="search">'+(S.ki?'<span class="btn-ic" aria-hidden="true">'+ICSTARS+'</span>':'')+'Suchen</button>'+(S.ki?'<button class="flink" data-a="info"><span class="fl-ic">'+ICINFO+'</span>Mehr über die KI-Suche erfahren</button>':'')+'</div></div>';
   return h;
 }
 function wantCat(q){return /sofa|couch/i.test(q||'')}
+function priceVal(){var a=S.refine.price;return a&&a.o!=='>'?'<'+a.n:''}
+function priceExtra(){var a=S.refine.price;if(!a)return [];if(a.o==='>')return [['>'+a.n,'> '+a.n+' €']];return PRICES.indexOf(parseInt(a.n,10))>-1?[]:[['<'+a.n,'< '+a.n+' €']]}
 function hintOn(){return S.ki&&!S.catPick&&!showKiTag()}
 function showKiTag(){return S.ki&&!S.catPick&&wantCat(S.q)}
 function catShown(){return S.catPick||((S.ki&&wantCat(S.q))?'Möbel & Wohnen':'Alle Kategorien')}
@@ -182,8 +188,9 @@ var CMP_DATES=['Heute, 10:24','Heute, 08:17','Gestern, 18:41'];
 var ICSCALE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v16M7 20h10M4 7h16"/><path d="M4 7l-2.5 6a3.5 3.5 0 0 0 5 0zM20 7l-2.5 6a3.5 3.5 0 0 0 5 0z"/></svg>';
 /* Auswahl für den Vergleich: erst die ersten zwei Treffer, danach nach Klick */
 function cmpSel(ids){var sel=(S.cmp||ids.slice(0,2)).filter(function(i){return ids.indexOf(i)>-1});return sel}
-function cmpCriteria(){var f=curFlt(),a=[];S.chips.slice(0,3).forEach(function(c){a.push(c)});Object.keys(S.refine).forEach(function(k){a.push(S.refine[k].text)});if(f.radius)a.push('bis '+f.radius+' km');if(f.delivery)a.push(f.delivery);if(f.cond)a.push(f.cond);return a.length?a.join(' · '):(S.q||'Deine Suche')}
-function cmpCard(){return '<button class="cmpcard" data-a="cmpgo"><span class="cmp-th" aria-hidden="true"><span class="th1"></span><span class="th2"></span><b>VS</b></span><span class="cmp-tx"><b>Sofas im Vergleich</b><small>'+esc(cmpCriteria())+'</small></span><span class="cmp-ch" aria-hidden="true">'+ICCHEV+'</span></button>'}
+function cmpFmt(t){return String(t).replace(/([<>])\s*(\d+)\s*cm/g,'$1 $2 cm').replace(/([<>])(\d)/g,'$1 $2')}
+function cmpCriteria(){var f=curFlt(),a=[];S.chips.slice(0,3).forEach(function(c){a.push(cmpFmt(c))});Object.keys(S.refine).forEach(function(k){a.push(cmpFmt(S.refine[k].text))});if(f.radius)a.push('bis '+f.radius+' km');if(f.delivery)a.push(f.delivery);if(f.cond)a.push(f.cond);return a.length?a.join(' · '):(S.q||'Deine Suche')}
+function cmpCard(){return '<button class="cmpcard" data-a="cmpgo"><span class="cmp-th" aria-hidden="true"><span class="th1"></span><span class="th2"></span><b>VS</b></span><span class="cmp-tx"><b>Sofas vergleichen</b><small>'+esc(cmpCriteria())+'</small></span><span class="cmp-ch" aria-hidden="true">'+ICCHEV+'</span></button>'}
 function cmpBar(n){return '<div class="cmpbar" role="region" aria-label="Vergleich"><span class="cb-ic" aria-hidden="true">'+ICSCALE+'</span><span class="cb-t">'+n+(n===1?' Angebot':' Angebote')+' zum Vergleich ausgewählt</span><button class="cb-btn" data-a="cmpgo"'+(n<2?' disabled':'')+'>Jetzt vergleichen<span aria-hidden="true">'+ICCHEV+'</span></button></div>'}
 
 /* Vergleichsansicht: ausgewählte Anzeigen nebeneinander, Bestwerte markiert */
@@ -219,11 +226,11 @@ function high(){
   var fb=none?fbBar():'';
   r='';
   if(S.highEdit)r='<div class="aibox high-edit"><button type="button" class="editclose" data-a="highclose" aria-label="Suche anpassen schließen"><span aria-hidden="true">×</span></button>'+selBox({editable:true,query:true})+(!hasSel()&&!S.q?'<p>Keine Kriterien ausgewählt.</p>':'')+'</div>';
-  else if(!none)r=cmpCard();
   var tail=none?'<div class="msg"><h3>Keine Anzeige erfüllt alle deine Kriterien</h3></div>':'';
-  var kibox=none?kirow():'<div class="kibox">'+kirow()+'<p class="kibox-t">Wir haben '+hitsArr.length+(hitsArr.length===1?' passendes Angebot':' passende Angebote')+' gefunden und für dich verglichen.</p><p class="kibox-s">Angaben aus dem Anzeigentext, bitte prüfen.</p></div>';
+  var hact='<div class="hact">'+(S.highEdit?'':'<button data-a="highedit">Suche anpassen</button>')+'<button data-a="newsearch">'+RELOAD+'Neu suchen</button></div>';
+  var kibox=none?kirow():'<div class="kibox">'+kirow()+'<p class="kibox-t">Wir haben '+hitsArr.length+(hitsArr.length===1?' passendes Angebot':' passende Angebote')+' gefunden und für dich verglichen.</p>'+(S.highEdit?'':cmpCard())+hact+'<p class="kibox-s">Angaben aus dem Anzeigentext, bitte prüfen.</p></div>';
   var mid=none?'':secFound('Gefundene Ergebnisse')+hits+fb;
-  return header()+cnt('312 Ergebnisse - “'+esc(qline())+'”')+sponsored()+kibox+tail+(none&&!S.highEdit?selBox():'')+r+'<div class="hact">'+(S.highEdit?'':'<button data-a="highedit">Suche anpassen</button>')+'<button data-a="newsearch">'+RELOAD+'Neu suchen</button></div>'+(none?fb:'')+mid+secNormal()+listing('e')+more()+foot()+fab()+(none?'':cmpBar(sel.length));
+  return header()+cnt('312 Ergebnisse - “'+esc(qline())+'”')+sponsored()+kibox+tail+(none&&!S.highEdit?selBox():'')+r+(none?hact:'')+(none?fb:'')+mid+secNormal()+listing('e')+more()+foot()+fab()+(none?'':cmpBar(sel.length));
 }
 var RF=[
   {k:'mass',label:'Maße',title:'Breite des Sofas',quick:[160,180,200],field:'Eigene Breite',unit:'cm',max:400,fmt:function(d){return 'Breite < '+d.n+' cm'}},
@@ -253,7 +260,7 @@ function hasSel(){return !!(S.chips.length||S.radius||S.delivery||S.cond||Object
 function selBox(o){
   o=o||{};
   var expanded=o.editable||S.selOpen;
-  var shown=S.chips.map(function(c){return {t:c,k:'chip',v:c,ed:c==='< 200 €'?'refine:price':c==='< 180cm'?'refine:mass':''}});
+  var shown=S.chips.map(function(c){return {t:c,k:'chip',v:c,ed:c==='< 200 €'?'refine:price':c==='< 160cm'?'refine:mass':''}});
   if(o.query&&S.q)shown.unshift({t:S.q,k:'q'});
   if(S.radius)shown.push({t:'Umkreis + '+S.radius+' km',k:'radius',ed:'radius'});
   if(S.delivery)shown.push({t:S.delivery,k:'delivery',ed:'delivery'});
@@ -310,12 +317,13 @@ function render(){
   var info=$('#ki-info');if(info){info.showModal();info.addEventListener('cancel',function(e){e.preventDefault();closeInfo()})}
   var q=$('#q');if(q){q.addEventListener('input',function(){S.q=q.value;var has=!!q.value.trim(),chips=wantCat(q.value);if(!has)S.catPick=null;var sw=$('#chipwrap'),pw=$('#promptwrap');if(sw)sw.hidden=!chips;if(pw)pw.hidden=chips;var cs=$('#cat');if(cs){cs.value=catShown();cs.classList.toggle('sug',showKiTag());cs.classList.toggle('empty',hintOn());var ht=$('#cathint');if(ht)ht.hidden=!hintOn()}var kt=$('#catwrap .ki');if(kt)kt.hidden=!showKiTag();var lv=$('#catlive');if(lv)lv.textContent=showKiTag()?'KI schlägt die Kategorie Möbel und Wohnen vor':''})}
   if(q)q.addEventListener('click',function(){if(S.view!=='cold'||!S.ki||q.value.trim())return;q.value='kleines Sofa für meine Wohnung';q.dispatchEvent(new Event('input',{bubbles:true}));q.setSelectionRange(q.value.length,q.value.length)});
-  [['#rad','radius'],['#del','delivery']].forEach(function(f){var e=$(f[0]);if(e)e.addEventListener('change',function(){if(f[1]==='delivery'){S.delEgal=e.value==='egal';S.delivery=S.delEgal?'':e.value}else S[f[1]]=e.value;render();var n=$(f[0]);if(n)n.focus()})});
+  var pe=$('#prc');if(pe)pe.addEventListener('change',function(){var v=pe.value;if(!v)delete S.refine.price;else{var o=v.charAt(0),n=v.slice(1);S.refine.price={n:n,o:o,text:o+' '+n+' €'};dropChip('< 200 €')}render();var np=$('#prc');if(np)np.focus()});
+  [['#rad','radius'],['#del','delivery'],['#cnd','cond']].forEach(function(f){var e=$(f[0]);if(e)e.addEventListener('change',function(){if(f[1]==='delivery'){S.delEgal=e.value==='egal';S.delivery=S.delEgal?'':e.value}else S[f[1]]=e.value;render();var n=$(f[0]);if(n)n.focus()})});
   var c=$('#cat');if(c){c.addEventListener('change',function(){S.cat=c.value;S.catPick=c.value;c.classList.remove('sug');c.classList.remove('empty');var ht2=$('#cathint');if(ht2)ht2.hidden=true;var kt=$('#catwrap .ki');if(kt)kt.hidden=true})}
 }
 
 var CUTOFF=0.7; // Annahme laut docs/PROJECT.md, mit Figma und PRD abgleichen
-function confidence(q){return (S.chips.indexOf('< 180cm')>-1||S.chips.indexOf('2-Sitzer')>-1||/2-sitzer|180/.test(q))?0.82:0.55}
+function confidence(q){return (S.chips.indexOf('< 160cm')>-1||S.chips.indexOf('2-Sitzer')>-1||/2-sitzer|160|180/.test(q))?0.82:0.55}
 function outcome(){
   var sc=S.scenario;
   if(sc==='auto'){
@@ -354,7 +362,7 @@ function applyRefine(k){
   var r=rfOf(k),d=S.draft[k],v=r.choice?d.n:parseInt(d.n,10);
   if(r.choice?!v:!(v>0&&v<=r.max)){d.err=true;render();var f=$('#rp-'+k+'-n')||$('#rp-'+k+' .chip');if(f)f.focus();return}
   d.n=String(v);d.err=false;
-  S.refine[k]={n:d.n,o:d.o||'',text:r.fmt(d)};S.open='';S.edit='';if(k==='price')dropChip('< 200 €');if(k==='mass')dropChip('< 180cm');if(rerun())return;render();
+  S.refine[k]={n:d.n,o:d.o||'',text:r.fmt(d)};S.open='';S.edit='';if(k==='price')dropChip('< 200 €');if(k==='mass')dropChip('< 160cm');if(rerun())return;render();
   var tb=$('[data-a="refine"][data-k="'+k+'"]');if(tb)tb.focus();
 }
 document.addEventListener('input',function(e){
@@ -399,7 +407,7 @@ document.addEventListener('click',function(e){
   else if(a==='unsel'){S.edit='';var uk=el.dataset.k,uv=el.dataset.v;if(uk==='chip'){var ui=S.chips.indexOf(uv);if(ui>-1)S.chips.splice(ui,1)}else if(uk==='refine'){delete S.refine[uv];if(S.open===uv)S.open=''}else S[uk]='';if(!rerun())render()}
   else if(a==='refine'){var rk=el.dataset.k;S.edit='';if(S.open===rk){S.open=''}else{S.open=rk;var ap=S.refine[rk];S.draft[rk]={n:ap?ap.n:'',o:ap?ap.o:''}}render();var tb=$('[data-a="refine"][data-k="'+rk+'"]');if(tb)tb.focus()}
   else if(a==='rq'){var qk=el.dataset.k,qv=el.dataset.v,qo=el.dataset.o||'',qa=S.refine[qk];if(qa&&qa.n===qv&&(qa.o||'')===qo){delete S.refine[qk];S.open='';S.edit='';if(rerun())return}else{S.draft[qk]={n:qv,o:qo};applyRefine(qk);return}render();var qb=$('[data-a="refine"][data-k="'+qk+'"]');if(qb)qb.focus()}
-  else if(a==='selpick'){var se=el.dataset.e;if(S.edit===se){S.edit=''}else{S.edit=se;S.open='';if(se.indexOf('refine:')===0){var sk=se.slice(7),sa=S.refine[sk];S.draft[sk]=sa?{n:sa.n,o:sa.o}:(sk==='price'&&S.chips.indexOf('< 200 €')>-1?{n:'200',o:'<'}:(sk==='mass'&&S.chips.indexOf('< 180cm')>-1?{n:'180',o:''}:{n:'',o:''}))}}render()}
+  else if(a==='selpick'){var se=el.dataset.e;if(S.edit===se){S.edit=''}else{S.edit=se;S.open='';if(se.indexOf('refine:')===0){var sk=se.slice(7),sa=S.refine[sk];S.draft[sk]=sa?{n:sa.n,o:sa.o}:(sk==='price'&&S.chips.indexOf('< 200 €')>-1?{n:'200',o:'<'}:(sk==='mass'&&S.chips.indexOf('< 160cm')>-1?{n:'160',o:''}:{n:'',o:''}))}}render()}
   else if(a==='selmore'){S.selOpen=true;render();var sf=$('[data-a="selless"]');if(sf)sf.focus()}
   else if(a==='selless'){S.selOpen=false;S.edit='';render();var sm=$('[data-a="selmore"]');if(sm)sm.focus()}
   else if(a==='rapply')applyRefine(el.dataset.k)
@@ -418,11 +426,11 @@ function jumpState(e){
   var k=b.dataset.j;clearT();clearSel();S.retry=false;S.fbDone=false;S.sheet=false;S.toast='';S.prev=null;S.cat='Möbel & Wohnen';S.catPick=null;S.scenario='auto';$('#scenario').value='auto';S.ki=k!=='cold-off';
   var target={
     'cold-on':['cold',''], 'cold-off':['cold',''],
-    wait:['waiting','kleines Sofa'], high:['high','kleines Sofa, 2-Sitzer, <180cm, Versand'],
+    wait:['waiting','kleines Sofa'], high:['high','kleines Sofa, 2-Sitzer, <160cm, Versand'],
     low:['low','kleines Sofa, Versand'], none:['none','kleines Sof für meine Wohnung'], fail:['fail','kleines Sofa']
   }[k];
   S.q=target[1];
-  if(k==='high'){S.q='kleines Sofa';S.chips=['2-Sitzer','< 180cm'];S.delivery='Versand'}
+  if(k==='high'){S.q='kleines Sofa';S.chips=['2-Sitzer','< 160cm'];S.delivery='Versand'}
   if(k==='low')lowExample();
   if(k==='none')noResultExample();
   S.view=target[0];go(target[0]);if(target[0]==='waiting')anchorKI();

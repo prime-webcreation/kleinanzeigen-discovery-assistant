@@ -55,7 +55,7 @@ Hänge `#mod` an die URL, zum Beispiel `http://localhost:8000/#mod`. Unter dem T
 | Cold Start (KI an) | Cold Start, alles zurückgesetzt | leer |
 | Cold Start (KI aus) | Cold Start mit ausgeschalteter KI | leer |
 | Waiting | Ladezustand, bleibt bis zum nächsten Wechsel | "kleines Sofa" |
-| High | High Confidence mit ausgewählten Chips und Versand | "kleines Sofa" plus Chips "2-Sitzer", "< 180cm" und Lieferung "Versand" |
+| High | High Confidence mit ausgewählten Chips und Versand | "kleines Sofa" plus Chips "2-Sitzer", "< 160cm" und Lieferung "Versand" |
 | Low | Low Confidence mit vorausgewähltem Versand und Breite | "kleines Sofa" plus Lieferung "Versand" und Breite < 180 cm |
 | No Result | No Result mit nicht erfüllbaren Beispielkriterien | "kleines Sofa", 2-Sitzer, Versand, Breite < 120 cm, < 50 € |
 | Failure | Fehlerzustand | "kleines Sofa" |
@@ -95,7 +95,7 @@ Alle Zahlen sind **Annahmen**, es gibt keine echten Baseline-Werte (siehe [docs/
 | Was | Wert | Wo im Code |
 |---|---|---|
 | Cut-off Confidence | **0,7**, ab 0,7 High, darunter Low | `CUTOFF` in `src/app.js` |
-| Confidence hoch (0,82) | Chip "2-Sitzer" oder "< 180cm" gewählt, oder "2-sitzer" bzw. "180" im Suchtext | `confidence()` |
+| Confidence hoch (0,82) | Chip "2-Sitzer" oder "< 160cm" gewählt, oder "2-sitzer" bzw. "160" oder "180" im Suchtext | `confidence()` |
 | Confidence niedrig (0,55) | alles andere | `confidence()` |
 | Waiting bis Ergebnis | 2,6 s | `startAI()` |
 | Waiting bis Failure | 1,5 s | `startAI()` |
