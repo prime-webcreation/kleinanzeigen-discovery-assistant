@@ -7,26 +7,32 @@ var RADII=[5,10,20,50,100];
 var CHIPS=['2-Sitzer','< 180cm','kleines Sofa','Ecksofa','< 200 €','Couch','Kompakter 3-Sitzer'];
 var CATS=['Möbel & Wohnen','Haus & Garten','Elektronik','Mode & Beauty'];
 var L={
- a:{t:'Kleines grünes Sofa',p:'140 €',f:['140x120cm','2-Sitzer'],ort:'Berlin',m:{w:140,km:8,ship:['Versand','Abholung'],cond:'Gebraucht',col:'Grün',tags:['2-Sitzer','kleines Sofa']}},
- h:{t:'Zweisitzer wie neu',p:'95 €',f:['150x90cm','2-Sitzer'],ort:'Hamburg',m:{w:150,km:30,ship:['Versand'],cond:'Neu',col:'Weiß',tags:[]}},
- i:{t:'Kleines Sofa mit Stauraum',p:'80 €',f:['165x85cm'],ort:'Köln',m:{w:165,km:6,ship:['Versand','Abholung'],cond:'Gebraucht',col:'Grau',tags:[]}},
- b:{t:'Gut erhaltene Couch',p:'140 €',f:['140x120cm'],ort:'Ort',m:{w:140,km:14,ship:['Versand','Abholung'],cond:'Neu',col:'Beige',tags:['Couch']}},
- c:{t:'Sofa aus Stoff (in echt kleiner)',p:'75 € VB',miss:'Größe nicht angegeben',ort:'Ort',m:{w:null,km:12,ship:['Versand'],cond:'Gebraucht'}},
  d:{t:'Graues Stoffsofa',p:'140 €',top:1,ort:'Ort'},
  e:{t:'Kleines Stoffsofa, 2-Sitzer',p:'140 €',top:1,ort:'Ort'},
  f:{t:'Schlafsofa, gut erhalten',p:'110 € VB',ort:'Ort'},
  g:{t:'Sofa aus Stoff',p:'75 € VB',ort:'Ort'}
 };
+/* weitere normale Suchergebnisse (ohne KI-Bezug, ohne Haken) */
+var MORE=[
+ {t:'Zweisitzer Sofa, grau',p:'120 €',ort:'Ort'},
+ {t:'Ecksofa mit Schlaffunktion',p:'350 € VB',ort:'Ort'},
+ {t:'Couch braun, Leder',p:'200 €',ort:'Ort'}
+];
+function more(){return MORE.map(function(x){return listing(x)}).join('')}
+/* Test-Produktkarten (src/produkte.js): sicher = High, unsicher = Low */
+var P=window.PRODUKTE||{sicher:[],unsicher:[]};
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function clearT(){S.t.forEach(clearTimeout);S.t=[]}
 var AIV=['waiting','high','low','none','fail'];
 function anchorY(){var el=$('.kirow'),bar=$('.statebar'),offset=bar?bar.getBoundingClientRect().bottom:0;return el?Math.max(0,el.getBoundingClientRect().top+window.pageYOffset-Math.max(0,offset)-8):0}
-function ensureRoom(){if(!S.ki||AIV.indexOf(S.view)<0)return;var sc=$('.scr');if(!sc)return;var need=anchorY()+window.innerHeight-document.documentElement.scrollHeight;if(need>0)sc.style.paddingBottom=(84+need)+'px'}
+function ensureRoom(){if(!S.ki||AIV.indexOf(S.view)<0)return;var sc=$('.scr');if(!sc)return;var need=anchorY()+window.innerHeight-document.documentElement.scrollHeight;if(need>0)sc.style.paddingBottom=(40+need)+'px'}
 function anchorKI(){ensureRoom();var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;window.scrollTo({top:anchorY(),behavior:rm?'auto':'smooth'})}
 function go(v){clearT();if(v!=='plain')S.aborted=false;S.highEdit=false;S.termPick='';if(v==='cold'){S.prev=(S.view!=='cold'&&S.view!=='waiting')?S.view:null}else{S.prev=null}S.view=v;S.sheet=false;render();if(v==='high'||v==='low'||v==='none'||v==='fail')anchorKI();else window.scrollTo(0,0)}
 function toast(m){S.toast=m;render();setTimeout(function(){S.toast='';render()},2200)}
+var LUPE='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>';
 var RELOAD='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></svg>';
 var SPARK='<svg viewBox="0 0 26 26" fill="none" stroke="#339E29" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l6 6M8.5 11h5M11 8.5v5"/><path d="M20 3v4M18 5h4" stroke="#8FCB7F"/></svg>';
+var KISTATIC='<svg viewBox="0 0 44 44" fill="none" aria-hidden="true"><circle cx="18" cy="26" r="9" stroke="#0DAA2B" stroke-width="3.4"/><path d="M25 33l9 9" stroke="#0DAA2B" stroke-width="3.4" stroke-linecap="round"/><path d="M24 12l1.6 4.4L30 18l-4.4 1.6L24 24l-1.6-4.4L18 18l4.4-1.6z" fill="#B7DB9B"/><path d="M35 7l1.9 5.1L42 14l-5.1 1.9L35 21l-1.9-5.1L28 14l5.1-1.9z" fill="#0DAA2B"/></svg>';
 var KISP='<svg viewBox="0 0 26 26" fill="none" stroke="#339E29" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="12" r="5.5"/><path d="M15.5 16.5l5 5"/><path class="star s1" d="M20 3v5M17.5 5.5h5" stroke="#8FCB7F"/><path class="star s2" d="M5 19v3M3.5 20.5h3" stroke="#8FCB7F" stroke-width="1.8"/></svg>';
 var WARN='<svg class="warn" viewBox="0 0 44 44" fill="none" stroke="#339E29" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 6L40 38H4z"/><path d="M22 17v12M22 33v1"/></svg>';
 
@@ -43,68 +49,73 @@ function sponsored(){
 }
 function kirow(){
   var on=S.ki;
-  return '<div class="kirow"><h2>KI-Suchhilfe'+optionalInfo()+'</h2><button class="sw-hit" data-a="kitoggle" role="switch" aria-checked="'+on+'" aria-label="KI-Suchhilfe"><span class="sw" aria-checked="'+on+'"></span></button></div><div class="kinote">ⓘ Vorschläge und Trefferhinweise sind KI-gestützt.</div>';
+  return '<div class="kirow"><h2>KI-Suche'+optionalInfo()+'</h2><button class="sw-hit" data-a="kitoggle" role="switch" aria-checked="'+on+'" aria-label="KI-Suche"><span class="sw" aria-checked="'+on+'"></span></button></div>'+(S.kiHint&&on&&Date.now()-S.kiHintT0<3900?'<div class="kinote kihint" style="animation-delay:-'+((Date.now()-S.kiHintT0)/1000).toFixed(2)+'s" role="status">Vorschläge und Trefferhinweise sind KI-gestützt.</div>':'');
 }
 function optionalInfo(){return '<button type="button" class="optional-info" id="optional-info" data-a="info" aria-haspopup="dialog" aria-controls="ki-info" aria-label="Optional: Informationen zur KI-Suche und deinen Daten">(optional)</button>'}
-var TYPES={
-  '2-Sitzer':{t:['Kleines grünes Sofa, 2-Sitzer','Gepflegtes 2-Sitzer-Sofa','Zweisitzer wie neu','2-Sitzer mit Stauraum'],w:140},
-  'Kompakter 3-Sitzer':{t:['Kompakter Dreisitzer, grün','3-Sitzer, kompakt und bequem','Dreisitzer, Stoff, hellgrau','Kompakter 3-Sitzer mit Hocker'],w:170},
-  'Ecksofa':{t:['Kleines Ecksofa, hellgrau','Ecksofa mit Hocker','Ecksofa in Anthrazit','Kleines Ecksofa mit Bettfunktion'],w:175},
-  'Couch':{t:['Gut erhaltene Couch','Couch in Beige','Couch, sehr bequem','Couch mit Armlehnen'],w:150},
-  'kleines Sofa':{t:['Kleines grünes Sofa','Kleines Sofa, gut erhalten','Kleines Sofa in Grau','Kleines Sofa, 2-Sitzer'],w:130}
-};
-var POOL=['a','b','h','i'];
-function colorOf(t){return /grün/i.test(t)?'Grün':/grau|anthrazit/i.test(t)?'Grau':/beige/i.test(t)?'Beige':''}
-function adapt(k){
-  var x=L[k],idx=POOL.indexOf(k);if(idx<0)return x;
-  var sel=S.chips.filter(function(c){return TYPES[c]});
-  if(!sel.length)return x;
-  var y={},n,c=sel[idx%sel.length];for(n in x)y[n]=x[n];y.m={};for(n in x.m)y.m[n]=x.m[n];
-  y.t=TYPES[c].t[idx];y.m.tags=[c];var cc=colorOf(y.t);if(cc)y.m.col=cc;y.m.w=TYPES[c].w+idx*5;
-  return y;
+var TYPE_CHIPS=['2-Sitzer','Kompakter 3-Sitzer','Ecksofa','Couch','kleines Sofa'];
+/* Prüft eine Karte gegen alle aktiven Kriterien. Ergebnis je Kriterium: s = 'ok' (erfüllt), 'miss' (Angabe fehlt) oder 'fail' (erfüllt nicht).
+   Daraus entstehen Treffer (alles ok), Haken (ok) und Hinweise (miss). */
+function evalCard(x,f){
+  var r=[],price=x.price,sel=(f.chips||[]).filter(function(c){return TYPE_CHIPS.indexOf(c)>-1});
+  function add(k,s,label){r.push({k:k,s:s,label:label})}
+  if(sel.length){
+    if(x.tags==null)add('type','miss','Typ');
+    else{var hit=sel.filter(function(c){return x.tags.indexOf(c)>-1});hit.length?add('type','ok',hit.join(', ')):add('type','fail','Typ')}
+  }
+  if((f.chips||[]).indexOf('< 200 €')>-1)add('p200',price<200?'ok':'fail','< 200 €');
+  if((f.chips||[]).indexOf('< 180cm')>-1)x.w==null?add('w180','miss','Breite'):add('w180',x.w<180?'ok':'fail','< 180 cm');
+  if(f.max)add('max',price<f.max?'ok':'fail','< '+f.max+' €');
+  if(f.min)add('min',price>f.min?'ok':'fail','> '+f.min+' €');
+  if(f.mass)x.w==null?add('mass','miss','Breite'):add('mass',x.w<f.mass?'ok':'fail','Breite '+x.w+' cm');
+  if(f.radius)x.km==null?add('radius','miss','Entfernung'):add('radius',x.km<=f.radius?'ok':'fail',x.km+' km entfernt');
+  if(f.delivery)x.ship==null?add('delivery','miss',f.delivery):add('delivery',x.ship.indexOf(f.delivery)>-1?'ok':'fail',f.delivery+' möglich');
+  if(f.cond)x.cond==null?add('cond','miss','Zustand'):add('cond',x.cond===f.cond?'ok':'fail',x.cond);
+  if(f.color)x.col==null?add('color','miss','Farbe'):add('color',x.col===f.color?'ok':'fail','Farbe '+x.col);
+  return r;
 }
-function passes(x,f){
-  var m=x.m||{},price=parseFloat(String(x.p).replace(',','.'));
-  var chipsOk=(f.chips||[]).every(function(c){return c==='< 200 €'?price<200:c==='< 180cm'?(m.w!=null&&m.w<180):(TYPES[c]?(m.tags||[]).indexOf(c)>-1:true)});
-  return chipsOk&&(!f.max||price<f.max)&&(!f.min||price>f.min)&&(!f.mass||(m.w!=null&&m.w<=f.mass))&&(!f.radius||(m.km!=null&&m.km<=f.radius))&&(!f.delivery||(m.ship||[]).indexOf(f.delivery)>-1)&&(!f.cond||m.cond===f.cond)&&(!f.color||m.col===f.color);
-}
+function passes(x,f){return evalCard(x,f).every(function(c){return c.s==='ok'})}
 function curFlt(){
-  return {max:S.refine.price&&S.refine.price.o!=='>'?parseInt(S.refine.price.n,10):0,min:S.refine.price&&S.refine.price.o==='>'?parseInt(S.refine.price.n,10):0,mass:S.refine.mass?parseInt(S.refine.mass.n,10):0,radius:S.radius?parseInt(S.radius,10):0,delivery:S.delivery,cond:S.cond==='egal'?'':S.cond,color:S.refine.color?S.refine.color.n:'',chips:S.chips};
+  return {max:S.refine.price&&S.refine.price.o!=='>'?parseInt(S.refine.price.n,10):0,min:S.refine.price&&S.refine.price.o==='>'?parseInt(S.refine.price.n,10):0,mass:S.refine.mass?parseInt(S.refine.mass.n,10):0,radius:S.radius?parseInt(S.radius,10):0,delivery:S.delivery||(/versand/i.test(S.q)?'Versand':''),cond:S.cond==='egal'?'':S.cond,color:S.refine.color?S.refine.color.n:'',chips:S.chips};
 }
 function fltActive(f){return !!(f.max||f.min||f.mass||f.radius||f.delivery||f.cond||f.color||(f.chips&&f.chips.length))}
-function fltLines(x,f,separate,sizeNotice){
-  var m=x.m||{},ok=[],nf=[],price=parseFloat(String(x.p).replace(',','.'));
-  (f.chips||[]).forEach(function(c){if(c==='< 200 €'){if(price<200)ok.push('< 200 €')}else if(c==='< 180cm'){if(m.w!=null&&m.w<180)ok.push('< 180 cm')}else if((m.tags||[]).indexOf(c)>-1)ok.push(c)});
-  if(f.max&&price<f.max)ok.push('< '+f.max+' €');
-  if(f.min&&price>f.min)ok.push('> '+f.min+' €');
-  if(f.mass&&!sizeNotice){if(m.w==null)nf.push('Breite nicht angegeben');else if(m.w<=f.mass)ok.push('Breite '+m.w+' cm')}
-  if(f.radius){if(m.km==null)nf.push('Entfernung nicht angegeben');else if(m.km<=f.radius)ok.push(m.km+' km entfernt')}
-  if(f.delivery){if(!m.ship)nf.push(f.delivery+' nicht angegeben');else if(m.ship.indexOf(f.delivery)>-1)ok.push(f.delivery+' möglich')}
-  if(f.cond){if(!m.cond)nf.push('Zustand nicht angegeben');else if(m.cond===f.cond)ok.push(m.cond)}
-  if(f.color){if(!m.col)nf.push('Farbe nicht angegeben');else if(m.col===f.color)ok.push('Farbe '+m.col)}
-  return (nf.length?'<span class="facts nf"><span>ⓘ '+nf.map(function(t){return t.replace(/ nicht angegeben$/,'')}).join(', ')+' nicht angegeben</span></span>':'')+(ok.length?'<span class="facts">'+(separate?ok.slice(0,3).map(function(t){return '<span><span class="fact-check" aria-hidden="true">✓</span> '+esc(t)+'</span>'}).join(''):'<span><span class="fact-check" aria-hidden="true">✓</span> '+ok.slice(0,3).join(', ')+(ok.length>3?' +'+(ok.length-3):'')+'</span>')+'</span>':'');
+/* Haken (ok) und, wenn gewünscht, Hinweise zu fehlenden Angaben (miss) */
+function fltLines(ev,separate,showMiss){
+  var ok=ev.filter(function(c){return c.s==='ok'}).map(function(c){return c.label}),nf=showMiss?ev.filter(function(c){return c.s==='miss'}).map(function(c){return c.label}):[];
+  return (nf.length?'<span class="facts nf"><span>ⓘ '+nf.join(', ')+' nicht angegeben</span></span>':'')+(ok.length?'<span class="facts">'+(separate?ok.map(function(t){return '<span><span class="fact-check" aria-hidden="true">✓</span> '+esc(t)+'</span>'}).join(''):'<span><span class="fact-check" aria-hidden="true">✓</span> '+esc(ok.slice(0,3).join(', '))+(ok.length>3?' +'+(ok.length-3):'')+'</span>')+'</span>':'');
+}
+function missingFields(x){var m=[];if(x.w==null)m.push('Größe');if(x.col==null)m.push('Farbe');if(x.cond==null)m.push('Zustand');if(x.ship==null)m.push('Lieferart');if(x.km==null)m.push('Entfernung');if(x.tags==null)m.push('Typ');return m}
+/* Low: Karten mit unsicheren Angaben, die keinem gewählten Kriterium widersprechen. Fehlende Angaben zu aktiven Kriterien zuerst. */
+function lowCards(f){
+  return P.unsicher.map(function(x,i){var ev=evalCard(x,f);return {x:x,i:i,fail:ev.some(function(c){return c.s==='fail'}),miss:ev.filter(function(c){return c.s==='miss'}).length}})
+    .filter(function(c){return !c.fail}).sort(function(a,b){return b.miss-a.miss||a.i-b.i}).slice(0,2).map(function(c){return c.x});
 }
 function listing(k,o){
-  o=o||{};var x=adapt(k);var h='<button class="lst" data-a="open"><span class="im"><i></i><i></i></span><span class="ct"><span class="ort">'+x.ort+' · Heute</span>';
+  o=o||{};var x=typeof k==='string'?L[k]:k;var h='<button class="lst" data-a="open"><span class="im"><i></i><i></i></span><span class="ct"><span class="ort">'+x.ort+' · Heute</span>';
   if(o.kitag)h+='<span class="kitag" role="img" aria-label="KI-Vorschlag">'+SPARK+'</span>';
   h+='<span class="ti">'+esc(x.t)+'</span>';
-  if(o.facts&&x.f&&!(o.flt&&fltActive(o.flt))){h+='<span class="facts">'+x.f.map(function(f){return '<span><span class="fact-check" aria-hidden="true">✓</span> '+esc(f)+'</span>'}).join('')+'</span>'}
+  var act=!!(o.flt&&fltActive(o.flt)&&x.price!=null),ev=act?evalCard(x,o.flt):[];
+  if(o.facts&&x.f&&!act){h+='<span class="facts">'+x.f.map(function(f){return '<span><span class="fact-check" aria-hidden="true">✓</span> '+esc(f)+'</span>'}).join('')+'</span>'}
   if(o.kib)h+='<span><span class="kib"><span class="fact-check" aria-hidden="true">✓</span> KI-Vorschlag</span> <small style="color:#aeaeae;font-size:10px">'+esc(x.f[0])+'</small></span>';
-  if(x.miss&&o.miss)h+='<span class="miss">ⓘ '+esc(x.miss)+'</span>';
-  if(o.why&&x.m&&x.m.w!=null)h+='<span class="miss">ⓘ Breite '+x.m.w+' cm, bitte prüfen</span>';
-  var act=o.flt&&fltActive(o.flt);
-  if(act)h+=fltLines(x,o.flt,o.facts,o.why);
+  if(o.miss){var mf=missingFields(x);if(mf.length)h+='<span class="miss">ⓘ '+mf.join(', ')+' nicht angegeben</span>'}
+  /* Breite nur aus dem Anzeigentext: Haken, wenn sie zur gewählten Obergrenze passt, sonst Hinweis "bitte prüfen" */
+  var wOk=ev.some(function(c){return (c.k==='mass'||c.k==='w180')&&c.s==='ok'});
+  if(o.why&&x.wCheck&&x.w!=null&&!wOk)h+='<span class="miss">ⓘ Breite '+x.w+' cm, bitte prüfen</span>';
+  if(act)h+=fltLines(ev,o.facts,!o.miss);
+  /* Jede KI-Karte nennt mindestens einen Grund: ohne erfüllte Kriterien und ohne feste Kurzinfos steht der Bezug zur Suche da */
+  var hasWhy=(o.facts&&x.f&&!act)||ev.some(function(c){return c.s==='ok'});
+  if(o.kitag&&!hasWhy){var q=qline();h+='<span class="facts"><span><span class="fact-check" aria-hidden="true">✓</span> '+(q?'Passt zu '+esc(q):'Passt zu deiner Suche')+'</span></span>'}
   if(x.top)h+='<span class="dis">Gesponsert</span>';
   h+='<span class="pr">'+x.p+'</span></span>'+(x.top?'<span class="top">TOP</span>':'')+'</button>';
   return h;
 }
 function secFound(l){return '<div class="sec sec-ki">'+l+'<span class="pill">KI-gestützt</span></div>'}
-function secNormal(){return '<div class="sec sec-n">Suchergebnisse<span class="sub"></span></div>'}
-function fab(){return '<div class="fabwrap"><button class="fab" data-a="edit">Filter anpassen</button></div>'}
-function foot(){return '<div class="foot">Alle Anzeigen bleiben sichtbar und auswählbar. TOP und Gesponsert sind bezahlt und nicht Teil der KI-Auswahl.</div>'}
+function secNormal(show,noLine){return (show===false?'':'<div class="nrnote">Die normalen Suchergebnisse bleiben sichtbar.</div>')+'<div class="sec sec-n'+(noLine?' sec-nl':'')+'">Suchergebnisse</div>'}
+function fab(){return '<div class="fabwrap"><button class="fab" data-a="edit">Filter anpassen</button>'+'</div>'}
+function endLink(){return S.ki?'<button class="flink endlink" data-a="info">Mehr über die KI-Suche erfahren</button>':''}
+function foot(){return '<div class="foot">Alle Anzeigen bleiben sichtbar und auswählbar. TOP und Gesponsert sind bezahlt und nicht Teil der KI-Auswahl.</div>'+endLink()}
 function sheet(){
   if(!S.sheet)return'';
-  return '<dialog id="ki-info" class="sheet-bg" data-a="closesheet" aria-labelledby="ki-info-title" aria-describedby="ki-info-intro"><div class="sheet" data-stop="1"><h3 id="ki-info-title">Über die KI-Suche</h3><p id="ki-info-intro">Die KI-Suchhilfe ist freiwillig. Du kannst sie jederzeit über den Schalter ausschalten.</p><h4>Was macht die Suchhilfe?</h4><p>Sie schlägt passende Kategorien und Suchbegriffe vor. Trefferhinweise beziehen sich auf Angaben im Anzeigentext und können unvollständig sein. Bitte prüfe die Anzeige selbst.</p><p>Normale Suchergebnisse bleiben verfügbar. Bezahlte Anzeigen (TOP und Gesponsert) sind von den KI-Vorschlägen getrennt.</p><h4>Was passiert mit deinen Daten?</h4><p>In diesem Prototyp werden Suchtext und gewählte Filter nur im Arbeitsspeicher dieser Seite verarbeitet. Es werden keine Suchdaten an einen KI-Dienst gesendet oder dauerhaft gespeichert. Beim Neuladen werden deine Eingaben zurückgesetzt.</p><p>Alle Anzeigen sind erfunden; die KI-Suche wird simuliert. Bitte verwende zum Ausprobieren keine persönlichen oder vertraulichen Angaben.</p><button class="btn" data-a="closesheet" autofocus>Verstanden</button></div></dialog>';
+  return '<dialog id="ki-info" class="sheet-bg" data-a="closesheet" aria-labelledby="ki-info-title" aria-describedby="ki-info-intro"><div class="sheet" data-stop="1"><h3 id="ki-info-title">Über die KI-Suche</h3><p id="ki-info-intro">Die KI-Suche ist freiwillig. Du kannst sie jederzeit über den Schalter ausschalten.</p><h4>Was macht die Suchhilfe?</h4><p>Sie schlägt passende Kategorien und Suchbegriffe vor. Trefferhinweise beziehen sich auf Angaben im Anzeigentext und können unvollständig sein. Bitte prüfe die Anzeige selbst.</p><p>Normale Suchergebnisse bleiben verfügbar. Bezahlte Anzeigen (TOP und Gesponsert) sind von den KI-Vorschlägen getrennt.</p><h4>Was passiert mit deinen Daten?</h4><p>In diesem Prototyp werden Suchtext und gewählte Filter nur im Arbeitsspeicher dieser Seite verarbeitet. Es werden keine Suchdaten an einen KI-Dienst gesendet oder dauerhaft gespeichert. Beim Neuladen werden deine Eingaben zurückgesetzt.</p><p>Alle Anzeigen sind erfunden; die KI-Suche wird simuliert. Bitte verwende zum Ausprobieren keine persönlichen oder vertraulichen Angaben.</p><button class="btn" data-a="closesheet" autofocus>Verstanden</button></div></dialog>';
 }
 var infoReturn='#optional-info';
 function closeInfo(){S.sheet=false;render();var b=$(infoReturn);if(b)b.focus({preventScroll:true})}
@@ -118,12 +129,15 @@ function cold(){
     h+='<div id="catwrap"><p class="catl">Kategorie auswählen</p><div class="catf"><select id="cat"'+(showKiTag()?' class="sug"':'')+' aria-label="Kategorie">'+['Alle Kategorien'].concat(CATS).map(function(c){return '<option'+(c===catShown()?' selected':'')+'>'+esc(c)+'</option>'}).join('')+'</select><span class="ki"'+(showKiTag()?'':' hidden')+'>✦ KI-Vorschlag</span></div><span id="catlive" class="sr" role="status"></span>';
     h+='<div class="selrow">'+[['rad','Umkreis',S.radius,RADII.map(function(v){return [v,'+ '+v+' km']})],['del','Lieferung',S.delivery,[['Abholung','Abholung'],['Versand','Versand']]]].map(function(f){return '<div><label class="catl" for="'+f[0]+'">'+f[1]+'</label><div class="catf sm"><select id="'+f[0]+'"><option value="">optional</option>'+f[3].map(function(o){return '<option value="'+o[0]+'"'+(String(o[0])===f[2]?' selected':'')+'>'+o[1]+'</option>'}).join('')+'</select></div></div>'}).join('')+'</div></div>';
   }
-  h+='<div class="tgl"><h2>KI-Suchvorschläge'+optionalInfo()+'</h2><button class="sw-hit" data-a="ki" role="switch" aria-checked="'+S.ki+'" aria-label="KI-Suchvorschläge"><span class="sw" aria-checked="'+S.ki+'"></span></button></div>';
+  if(!S.ki){
+    h+='<div class="kioff"><div class="kioff-h">'+KISTATIC+'<h2>KI-Suche'+optionalInfo()+'</h2><button class="sw-hit" data-a="ki" role="switch" aria-checked="false" aria-label="KI-Suche"><span class="sw" aria-checked="false"></span></button></div><p class="kioff-t">Finde einfacher, wonach du suchst.</p><p class="kioff-s">Schreibe in ganzen Sätzen oder wähle aus passenden Vorschlägen.</p></div>';
+  }else
+  h+='<div class="tgl"><h2>KI-Suche'+optionalInfo()+'</h2><button class="sw-hit" data-a="ki" role="switch" aria-checked="'+S.ki+'" aria-label="KI-Suche"><span class="sw" aria-checked="'+S.ki+'"></span></button></div>';
   if(S.ki){
     h+='<p class="nt">ⓘ Ergebnisse und Trefferhinweise sind KI-gestützt.</p><div id="promptwrap"'+(wantCat(S.q)?' hidden':'')+'><p class="nt" style="margin-top:18px">Sobald du ein Suchwort eingibst, werden dir passende Kategorien und Suchbegriffe vorgeschlagen.</p></div>'+selBox({editable:true})+'<div id="chipwrap"'+(wantCat(S.q)?'':' hidden')+'><p class="sg">Wähle aus Vorschlägen</p><div class="chips">'+CHIPS.map(chipBtn).join('')+'</div></div>';
     h+='<div class="zrow"><p class="sg">Zustand</p><div class="chips">'+['Neu','Gebraucht','egal'].map(function(c){return '<button class="chip" aria-pressed="'+(S.cond===c)+'" data-a="cond" data-c="'+c+'">'+c+'</button>'}).join('')+'</div></div>';
   }
-  h+='<div class="bottom"><button class="more" data-a="more">Weitere Filter anzeigen</button><button class="btn" data-a="search">Suchen</button><button class="flink" data-a="info">Mehr über die KI-Suche erfahren</button></div></div>';
+  h+='<div class="bottom"><button class="more" data-a="more">Weitere Filter anzeigen</button><button class="btn" data-a="search">Suchen</button>'+(S.ki?'<button class="flink" data-a="info">Mehr über die KI-Suche erfahren</button>':'')+'</div></div>';
   return h;
 }
 function wantCat(q){return /sofa|couch/i.test(q||'')}
@@ -134,14 +148,14 @@ function waiting(){
   return header()+cnt('0 Ergebnisse - “'+esc(S.q)+'”')+sponsored()+kirow()+
   '<div class="waitbox center wait-cancel">'+KISP+'<button class="ulink" data-a="cancel">Suche abbrechen</button></div>'+
   '<div class="waitnote center" role="status" aria-live="polite"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><p>KI sucht passende Anzeigen...</p></div>'+
-  '<div class="msg" style="padding:14px 18px 0"><p class="mb">Die normalen Suchergebnisse bleiben sichtbar.</p></div>'+secNormal()+listing('d')+fab();
+  secNormal()+listing('d')+more()+endLink()+fab();
 }
 function fbBar(){
   if(S.fbDone)return '<div class="fb done"><b>Danke für dein Feedback.</b>Wir blenden den Hinweis für diese Suche aus. Alle Ergebnisse bleiben sichtbar.</div>';
   return '<div class="fb"><span>Passt der Hinweis?</span><button class="th" data-a="fb" data-v="ja" aria-label="Daumen hoch: Hinweis passt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 11v9H4v-9zM7 11l4-8a2 2 0 0 1 2 2v4h6a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 17.8 20H7"/></svg></button><button class="th" data-a="fb" data-v="nein" aria-label="Daumen runter: Hinweis passt nicht"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="transform:rotate(180deg)"><path d="M7 11v9H4v-9zM7 11l4-8a2 2 0 0 1 2 2v4h6a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 17.8 20H7"/></svg></button></div>';
 }
 function high(){
-  var r,f=curFlt(),hits=POOL.filter(function(k){return passes(adapt(k),f)}).slice(0,fltActive(f)?3:2).map(function(k){return listing(k,{facts:1,kitag:1,flt:f})}).join('');
+  var r,f=curFlt(),hits=P.sicher.filter(function(x){return passes(x,f)}).slice(0,fltActive(f)?3:2).map(function(x){return listing(x,{facts:1,kitag:1,flt:f})}).join('');
   var none=!hits;
   var fb;
   if(S.fbDone){r='';fb=fbBar()}
@@ -150,9 +164,9 @@ function high(){
     r=none?'':'<div class="aibox hc"><p class="ln">✓ Passt zu <b>'+esc(S.chips.length?S.chips.slice(0,3).join(', '):S.q)+'</b></p>'+(S.delivery||/versand/i.test(S.q)?'<p class="ln">✓ <b>'+(S.delivery||'Versand')+'</b> laut Anzeige möglich</p>':'')+(S.cond&&S.cond!=='egal'?'<p class="ln">✓ Zustand <b>'+S.cond+'</b> laut Anzeige</p>':'')+(S.radius?'<p class="ln">✓ Umkreis <b>+ '+S.radius+' km</b> berücksichtigt</p>':'')+'<div class="tr">Angaben aus dem Anzeigentext – bitte prüfen.</div></div>';
   }
   if(S.highEdit)r='<div class="aibox high-edit"><button type="button" class="editclose" data-a="highclose" aria-label="Suche anpassen schließen"><span aria-hidden="true">×</span></button>'+selBox({editable:true,query:true})+(!hasSel()&&!S.q?'<p>Keine Kriterien ausgewählt.</p>':'')+'</div>';
-  var tail=none?'<div class="msg"><h3>Keine Anzeige erfüllt alle deine Kriterien</h3><p>Die normalen Suchergebnisse bleiben sichtbar.</p></div>':'';
-  var mid=none?'':secFound('Gefundene Ergebnisse')+hits+fb+'<div class="msg" style="padding:14px 18px 0"><p class="mb">Die normalen Suchergebnisse bleiben sichtbar.</p></div>';
-  return header()+cnt('312 Ergebnisse - “'+esc(qline())+'”')+sponsored()+kirow()+tail+(none&&!S.highEdit?selBox():'')+r+'<div class="hact">'+(S.highEdit?'':'<button data-a="highedit">Suche anpassen</button>')+'<button data-a="newsearch">'+RELOAD+'Neu suchen</button></div>'+(none?fb:'')+mid+secNormal()+listing('e')+foot()+fab();
+  var tail=none?'<div class="msg"><h3>Keine Anzeige erfüllt alle deine Kriterien</h3></div>':'';
+  var mid=none?'':secFound('Gefundene Ergebnisse')+hits+fb;
+  return header()+cnt('312 Ergebnisse - “'+esc(qline())+'”')+sponsored()+kirow()+tail+(none&&!S.highEdit?selBox():'')+r+'<div class="hact">'+(S.highEdit?'':'<button data-a="highedit">Suche anpassen</button>')+'<button data-a="newsearch">'+RELOAD+'Neu suchen</button></div>'+(none?fb:'')+mid+secNormal()+listing('e')+more()+foot()+fab();
 }
 var RF=[
   {k:'mass',label:'Maße',title:'Breite des Sofas',quick:[160,180,200],field:'Eigene Breite',unit:'cm',max:400,fmt:function(d){return 'Breite < '+d.n+' cm'}},
@@ -210,7 +224,7 @@ function low(){
   '<div class="msg"><h3>Keine verlässlich begründete KI-Empfehlung</h3><p>Maße oder Zustand konnten nicht eindeutig überprüft werden. Bitte prüfe die Details in der Anzeige.</p></div>'+
   selBox()+
   '<div class="aibox" style="padding:14px 14px 4px"><p class="h3" style="margin:0 0 6px">Grenze deine Suche weiter ein</p><div class="chips" style="gap:10px">'+RF.map(function(r){var a=S.refine[r.k];return '<button class="chip" aria-pressed="'+!!a+'" aria-expanded="'+(S.open===r.k)+'" aria-controls="rp-'+r.k+'" data-a="refine" data-k="'+r.k+'">'+esc(r.label)+'</button>'}).join('')+'</div>'+(open?rpanel(open):'')+'</div>'+
-  secFound('Mögliche Ergebnisse')+listing('c',{miss:1,why:1,kitag:1,flt:flt})+listing('b',{why:1,kitag:1,flt:flt})+fbBar()+'<div class="msg" style="padding:14px 18px 0"><p class="mb">Die normalen Suchergebnisse bleiben sichtbar.</p></div>'+secNormal()+listing('d')+foot()+fab();
+  secFound('Mögliche Ergebnisse')+(lowCards(flt).map(function(x){return listing(x,{miss:1,why:1,kitag:1,flt:flt})}).join('')||'<div class="msg"><p>Keine weiteren Anzeigen mit unsicheren Angaben zu deinen Kriterien.</p></div>')+fbBar()+secNormal()+listing('d')+more()+foot()+fab();
 }
 function none(){
   return header()+cnt('Keine KI-Treffer - “'+esc(S.q)+'”')+sponsored()+kirow()+
@@ -219,18 +233,18 @@ function none(){
   '<div class="cat"><b>Kategorieempfehlung:</b><button data-a="catrec">Sofas &amp; Sitzgarnituren</button><p class="category-note">Startet eine neue Suche in dieser Kategorie ohne die bisherigen Kriterien.</p></div>'+
   '<div class="aibox" style="padding:14px 14px 4px"><p class="h3" style="margin:0 0 8px;font-size:13px;color:#4B5E52">Versuche es mit einem anderen Suchbegriff</p><p style="font-size:12px;margin:0">Wähle einen Vorschlag und tippe auf „Neu suchen“.</p><div class="chips" style="gap:10px;margin-top:14px">'+['sofa klein','Kleines Schlafsofa','2-Sitzer-Sofa','Kompaktsofa'].map(function(c){return '<button class="chip" aria-pressed="'+(S.termPick===c)+'" data-a="term" data-c="'+c+'">'+c+'</button>'}).join('')+'</div></div>'+
   '<div class="ki-end"><div class="hact two">'+'<span></span>'+'<button data-a="termsearch"'+(S.termPick?'':' disabled')+'>'+RELOAD+'Neu suchen</button></div>'+fbBar()+
-  '<p class="normal-results-note">Die normalen Suchergebnisse bleiben sichtbar.</p></div>'+
-  secNormal()+listing('e')+foot()+fab();
+  '</div>'+
+  secNormal()+listing('e')+more()+foot()+fab();
 }
 function fail(){
   return header()+cnt('312 Ergebnisse - “'+esc(S.q)+'”')+sponsored()+kirow()+
-  '<div role="alert">'+WARN+'<div class="msg"><h3>Deine Suche konnte nicht geladen werden</h3><p>Du kannst die normalen Suchergebnisse weiterhin ansehen.</p><button class="glink retry" data-a="retry" style="margin-top:8px"><span aria-hidden="true">'+RELOAD+'</span>Erneut versuchen</button></div></div>'+
-  secNormal()+listing('e')+foot()+fab();
+  '<div class="fail-box" role="alert">'+WARN+'<div class="msg"><h3>Deine Suche konnte nicht geladen werden</h3><p class="fail-sub">Die normalen Suchergebnisse bleiben sichtbar.</p><button class="btn retry-btn" data-a="retry"><span aria-hidden="true">'+LUPE+'</span>Neue Suche starten</button></div></div>'+
+  secNormal(false,true)+listing('e')+more()+foot()+fab();
 }
 function plain(){
   return header()+cnt('312 Ergebnisse - “'+esc(S.q)+'”')+sponsored()+kirow()+
-  (S.aborted?'<div class="waitbox center" role="status"><h3>Du hast die Suche abgebrochen</h3><button class="glink retry" data-a="again"><span aria-hidden="true">'+RELOAD+'</span>Neue Suche</button></div><div class="msg" style="padding:14px 18px 0"><p class="mb">Die normalen Suchergebnisse bleiben sichtbar.</p></div>':'')+
-  secNormal()+listing('d')+foot()+fab();
+  (S.aborted?'<div class="waitbox center" role="status"><h3>Du hast die Suche abgebrochen</h3><button class="glink retry" data-a="again"><span aria-hidden="true">'+RELOAD+'</span>Neue Suche</button></div>':'')+
+  secNormal(S.aborted)+listing('d')+more()+foot()+fab();
 }
 function render(){
   document.querySelectorAll('[data-j]').forEach(function(b){var k=b.dataset.j,on=k==='cold-on'?S.view==='cold'&&S.ki:k==='cold-off'?S.view==='cold'&&!S.ki:(k==='wait'?'waiting':k)===S.view;b.setAttribute('aria-pressed',String(on))});
@@ -272,7 +286,12 @@ function search(){
   startAI();
 }
 
-function rerun(){if(S.view==='none'){S.retry=false;startAI();return true}return false}
+function rerun(){
+  if(S.view==='none'){S.retry=false;startAI();return true}
+  /* High: Fallen durch das Entfernen von Kriterien die Voraussetzungen weg, startet die KI neu (z. B. nur "kleines Sofa" ergibt Low) */
+  if(S.view==='high'&&S.scenario==='auto'){var r=S.retry;S.retry=false;if(outcome()!=='high'){S.highEdit=false;startAI();return true}S.retry=r}
+  return false
+}
 function dropChip(c){var i=S.chips.indexOf(c);if(i>-1)S.chips.splice(i,1)}
 function applyRefine(k){
   var r=rfOf(k),d=S.draft[k],v=r.choice?d.n:parseInt(d.n,10);
@@ -298,7 +317,7 @@ document.addEventListener('click',function(e){
   if(el.dataset.a==='closesheet'&&e.target.closest('[data-stop]')&&!e.target.closest('button'))return;
   var a=el.dataset.a;
   if(a==='ki'){S.ki=!S.ki;clearSel();render()}
-  else if(a==='kitoggle'){clearSel();if(S.ki){S.ki=false;clearT();S.aborted=false;go('plain')}else{S.ki=true;startAI()}}
+  else if(a==='kitoggle'){clearSel();if(S.ki){S.ki=false;clearT();S.aborted=false;go('plain')}else{S.ki=true;S.kiHint=true;S.kiHintT0=Date.now();startAI()}}
   else if(a==='chip'){var c=el.dataset.c,i=S.chips.indexOf(c);if(i>-1)S.chips.splice(i,1);else S.chips.push(c);render();var n=document.querySelectorAll('.chip');for(var k=0;k<n.length;k++){if(n[k].dataset.c===c){n[k].focus()}}}
   else if(a==='cond'){var cv=el.dataset.c;S.cond=S.cond===cv?'':cv;render();var cb2=$('[data-a="cond"][data-c="'+cv+'"]');if(cb2)cb2.focus()}
   else if(a==='search')search();
@@ -357,4 +376,6 @@ if(st==='off'){S.ki=false;go('cold')}
 else if(st==='fail'){S.ki=true;S.q='kleines Sofa';go('fail')}
 else if(st==='wait'){S.ki=true;S.q='kleines Sofa';S.view='waiting';go('waiting');anchorKI()}
 else if(st&&DIRECT[st]){S.ki=true;S.q=DIRECT[st];if(st==='low')lowExample();if(st==='none')noResultExample();go(st)}
+/* Nur für automatische Prüfungen: mit ?test in der URL kommt man an den Zustand */
+if(/[?&]test(&|$)/.test(location.search))window.__da={S:S,go:go,render:render,evalCard:evalCard};
 })();

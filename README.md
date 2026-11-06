@@ -19,7 +19,7 @@ Käufer:innen beschreiben in eigenen Worten, was sie suchen. Der Assistent schl�
 | High Confidence | Nur Karten, bei denen alle gewählten Kriterien passen, mit Begründung und Daumen-Feedback |
 | Low Confidence | Keine sicher begründete Empfehlung, Eingrenzen mit Maße, Preis, Farbe |
 | No Result | Kategorieempfehlung, alternative Suchbegriffe, Anzeige der gewählten Angaben |
-| Failure (Error) | Fehlermeldung "Deine Suche konnte nicht geladen werden", "Erneut versuchen" |
+| Failure (Error) | Fehlermeldung "Deine Suche konnte nicht geladen werden", "Neue Suche starten" |
 | Normale Suche | Erscheint, wenn die KI ausgeschaltet ist, nur normale Ergebnisse |
 
 ## So kommst du in jeden Zustand
@@ -30,7 +30,7 @@ Der Zustand hängt vom **Suchtext** und den gewählten **Chips** ab. Die Prüfun
 
 | Reihenfolge | Bedingung | Zustand | Beispiel |
 |---|---|---|---|
-| 1 | Es folgt ein "Erneut versuchen" nach einem Fehler | High | Klick auf "Erneut versuchen" |
+| 1 | Es folgt ein "Neue Suche starten" nach einem Fehler | High | Klick auf "Neue Suche starten" |
 | 2 | Suchtext enthält weder "Sofa" noch "Couch", oder das Wort "Sof" (Tippfehler) | **No Result** | "Fahrrad", "kleines Sof" |
 | 3 | Suchtext enthält "Schlaffunktion", "Schlafsofa", "Bettkasten" oder "ausziehbar" | **Failure** | "Schlafsofa für kleine Wohnung" |
 | 4 | Confidence mindestens 0,7 | **High** | "Sofa" plus Chip "2-Sitzer" |
@@ -73,15 +73,20 @@ Mit einem Parameter öffnet der Prototyp sofort einen Zustand, KI bleibt eingesc
 | Link | Zustand | Suchanfrage |
 |---|---|---|
 | `?state=low` | Low Confidence | "kleines Sofa" plus Lieferung "Versand" und Breite < 180 cm |
-| `?state=none` | No Result | "kleines Sofa", 2-Sitzer, Versand, Breite < 120 cm, < 50 € |
+| `?state=none` | No Result | "kleines Sofa", 2-Sitzer, Versand, Breite < 160 cm, < 50 € (jedes Kriterium einzeln entfernen liefert Treffer) |
+| `?state=off` | Cold Start | KI-Suche ausgeschaltet |
+| `?state=wait` | Waiting | "kleines Sofa", Ladezustand |
+| `?state=fail` | Failure | "kleines Sofa", Fehlerzustand |
 
 Ohne Parameter (oder bei unbekanntem Wert) startet der Prototyp wie gewohnt im Cold Start.
+
+Die Test-Produktkarten (Daten, Regeln für die Haken, Grenzfälle) stehen in [docs/TESTDATEN.md](docs/TESTDATEN.md), die Daten in `src/produkte.js`.
 
 ### Beispiel-Szenario "Umzug in eine kleine Wohnung"
 
 1. Cold Start: "Sofa" tippen, Chip "kleines Sofa" wählen, Suchen. Ergebnis ist **Low Confidence**.
 2. In der Suche zu "Schlafsofa für kleine Wohnung" ändern. Ergebnis ist der **Error**.
-3. "Erneut versuchen" führt zu **High Confidence**.
+3. "Neue Suche starten" führt zu **High Confidence**.
 
 ## Schwellenwerte und Regeln
 
@@ -121,7 +126,7 @@ Im No-Result-State wählt ein Klick auf einen alternativen Suchbegriff zunächst
 
 Im Bereich **Suchergebnisse** wird in jedem Ergebniszustand nur eine normale Beispielanzeige gezeigt, damit der Wireframe kompakt bleibt.
 
-**(optional)** neben der KI-Suchhilfe bzw. den KI-Suchvorschlägen öffnet ein Infofenster zur Funktion und zur Datenverarbeitung im Prototyp. Dasselbe Fenster ist über „Mehr über die KI-Suche erfahren“ erreichbar. Es lässt sich mit „Verstanden“, Escape oder einem Klick außerhalb schließen; der Tastaturfokus kehrt zum Auslöser zurück.
+**(optional)** neben der KI-Suche öffnet ein Infofenster zur Funktion und zur Datenverarbeitung im Prototyp. Dasselbe Fenster ist über „Mehr über die KI-Suche erfahren“ erreichbar. Es lässt sich mit „Verstanden“, Escape oder einem Klick außerhalb schließen; der Tastaturfokus kehrt zum Auslöser zurück.
 
 - **Chip antippen** wählt aus, **nochmal antippen** entfernt die Auswahl, in jedem Zustand. Ausgewählte Chips zeigen ein kleines **×**.
 - **High → Suche anpassen** bleibt im High State und zeigt Suchtext und gewählte Kriterien direkt im grünen Hinweisfeld als ausgewählte Chips. Begriffe lassen sich antippen und entfernen; Maße, Preis, Farbe, Umkreis, Lieferung und Zustand lassen sich über den Pfeil bearbeiten oder über × entfernen. Das × oben rechts schließt die Bearbeitung und zeigt wieder den aktualisierten Hinweis. Auch die weißen Bearbeitungsfelder lassen sich über ein × schließen. Änderungen bleiben erhalten. Unter den normalen Suchergebnissen bleibt eine Beispielkarte mit TOP.
