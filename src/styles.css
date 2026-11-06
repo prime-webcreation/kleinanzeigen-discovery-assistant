@@ -368,6 +368,36 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
 .flink{display:block;text-align:center;font-size:11px;color:#5D5D5D;min-height:44px;width:100%;margin-top:14px}
 .flink.endlink{margin-top:76px;min-height:32px;text-decoration:underline}
 
+/* Kaltstart, KI-Suche eingeschaltet (nach Referenzbild): grüne Box, Kategorie-Karte, Pill-Auswahl */
+.kion{margin-top:18px}
+.kion .kioff-h{align-items:center;& svg{width:40px;height:40px;margin:0}}
+.kion .kioff-s{margin-top:10px;font-size:15px;color:#3C4642}
+.kion .kion-n{margin-top:6px;font-size:12px;color:#616666}
+.catcard{display:flex;align-items:center;gap:14px;background:var(--white);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin-top:14px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.cc-ic{width:44px;height:44px;border-radius:50%;background:var(--aiBox);display:grid;place-items:center;flex:none;& svg{width:24px;height:24px}}
+.cc-t{flex:1;min-width:0}
+.cc-l{display:block;font-weight:700;font-size:16px;color:var(--ink)}
+.catcard .catf{border:0;min-height:0;display:block;& select{padding:2px 0 0;min-height:28px;font-size:15px;color:var(--ink);text-overflow:ellipsis;&.sug{color:var(--ink);font-weight:400}}}
+.cc-chev{flex:none;color:var(--ink2);transform:rotate(-90deg);& svg{width:22px;height:22px;display:block}}
+.kistrip{display:flex;align-items:center;gap:8px;margin-top:12px;background:var(--aiBox);border-radius:14px;padding:12px 14px;font-size:14px;color:var(--ink);& b{font-weight:700}& .kistar{color:var(--green);font-size:16px}}
+.kistrip[hidden]{display:none}
+.cs .selrow{gap:14px;margin-top:22px;grid-template-columns:1fr 1fr;
+  .catl{display:flex;align-items:center;gap:8px;font-size:16px;margin-bottom:8px;& .sr-ic{display:inline-flex;& svg{width:20px;height:20px}}}
+  .catf{border:1px solid var(--line);border-radius:24px;background:var(--white);min-height:46px;padding:0 14px;
+    &::after{content:"";position:absolute;right:14px;width:8px;height:8px;border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);transform:translateY(-2px) rotate(45deg);font-size:0}
+    & select{padding:0 22px 0 0;font-size:15px;color:var(--ink)}}}
+.cs .zrow{display:block;margin-top:24px;
+  .sg{margin:0 0 10px;font-size:16px;font-weight:700;color:var(--ink)}
+  .chips{gap:12px}
+  .chip{min-height:44px;padding:0 24px;border-radius:22px;font-size:15px;background:var(--white);border:1px solid var(--line)}
+  .chip[aria-pressed="true"]{background:var(--aiBox);border-color:var(--green)}}
+.btn-ki{display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-ic{display:inline-flex;& svg{width:20px;height:20px}}
+.more{font-weight:700;font-size:15px;color:var(--greenDark);display:flex;align-items:center;gap:8px}
+.more-chev{display:inline-flex;& svg{width:18px;height:18px}}
+.flink{display:flex;align-items:center;justify-content:center;gap:6px;color:var(--ink)}
+.fl-ic{display:inline-flex;& svg{width:16px;height:16px}}
+
 /* Sheet */
 .sheet-bg{position:fixed;inset:0;width:calc(100% - 24px);max-width:390px;max-height:calc(100dvh - 32px);margin:auto;padding:0;border:0;border-radius:16px;background:var(--white);color:var(--ink);overflow:auto}
 .sheet-bg::backdrop{background:rgba(0,0,0,.45)}
