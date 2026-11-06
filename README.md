@@ -16,7 +16,7 @@ Käufer:innen beschreiben in eigenen Worten, was sie suchen. Der Assistent schl�
 |---|---|
 | Cold Start | Sucheingabe, Kategorie, Umkreis, Lieferung, Vorschlags-Chips, Zustand, KI-Schalter |
 | Waiting | Ladezustand "KI sucht passende Anzeigen..." mit Link "Abbrechen". Nach "Abbrechen" erscheint ein grüner Hinweis "Du hast die Suche abgebrochen" mit "Erneut suchen" |
-| High Confidence | Nur Karten, bei denen alle gewählten Kriterien passen, mit Begründung und Daumen-Feedback |
+| High Confidence | Nur Karten, bei denen alle gewählten Kriterien passen, mit Begründung und Daumen-Feedback. Mit KI-Box ("Wir haben N passende Angebote gefunden"), Karte "Sofas im Vergleich", Vergleich-Auswahl auf den Karten und Leiste "Jetzt vergleichen" (ein Tipp auf "Jetzt vergleichen" oder auf die Karte öffnet die Vergleichsansicht mit den gewählten Anzeigen nebeneinander). Jede KI-Karte hat unten rechts Daumen hoch und runter |
 | Low Confidence | Keine sicher begründete Empfehlung, Eingrenzen mit Maße, Preis, Farbe |
 | No Result | Kategorieempfehlung, alternative Suchbegriffe, Anzeige der gewählten Angaben |
 | Failure (Error) | Fehlermeldung "Deine Suche konnte nicht geladen werden", "Neue Suche starten" |
