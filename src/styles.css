@@ -287,7 +287,8 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
 .warn{width:44px;height:44px;margin:14px auto 0;display:block}
 
 /* Sticky Button */
-.fabwrap{position:sticky;bottom:18px;display:flex;justify-content:center;pointer-events:none;height:0;z-index:3}
+/* Immer sichtbar, in allen Frames an derselben Stelle: fest am unteren Bildschirmrand, mittig, ganz vorn */
+.fabwrap{position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);display:flex;justify-content:center;pointer-events:none;height:0;z-index:30}
 .fab{pointer-events:auto;position:absolute;bottom:0;background:var(--lime);color:var(--limeInk);font-weight:700;font-size:14px;min-height:48px;min-width:186px;border-radius:24px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
 
 /* Kaltstart */
