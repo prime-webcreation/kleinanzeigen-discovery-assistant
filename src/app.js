@@ -5,7 +5,7 @@ var $=function(s){return document.querySelector(s)};
 var S={view:'cold',ki:true,q:'',cat:'Möbel & Wohnen',catPick:null,prev:null,chips:[],t:[],scenario:'auto',retry:false,sheet:false,toast:'',radius:'',delivery:'',cond:'',refine:{},open:'',draft:{},fbDone:false,selOpen:false,edit:'',highEdit:false,aborted:false,termPick:''};
 var RADII=[5,10,20,50,100];
 var CHIPS=['2-Sitzer','< 160cm','kleine Couch','Ecksofa','Kompakter 3-Sitzer','@color'];
-var CATS=['Möbel & Wohnen','Haus & Garten','Elektronik','Mode & Beauty'];
+var CATS=['Möbel & Wohnen','Sofas & Sitzgarnituren','Haus & Garten','Elektronik','Mode & Beauty'];
 var L={
  d:{t:'Graues Stoffsofa',p:'140 €',top:1,ort:'Ort'},
  e:{t:'Kleines Stoffsofa, 2-Sitzer',p:'140 €',top:1,ort:'Ort'},
@@ -109,7 +109,7 @@ var THUMB='<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" st
 function cardFb(x){var v=(S.cfb||{})[x.id];return '<span class="cfb">'+['ja','nein'].map(function(k){return '<span class="cth'+(v===k?' on':'')+'" role="button" tabindex="0" aria-pressed="'+(v===k)+'" data-a="cfb" data-id="'+x.id+'" data-v="'+k+'" aria-label="'+(k==='ja'?'Daumen hoch: Hinweis passt':'Daumen runter: Hinweis passt nicht')+'"'+(k==='nein'?' style="--r:180deg"':'')+'>'+THUMB+'</span>'}).join('')+'</span>'}
 function listing(k,o){
   o=o||{};var x=typeof k==='string'?L[k]:k;var cm=o.cmp;
-  var pill=cm?'<span class="cmp-pill'+(cm.on?' on':'')+'" role="checkbox" tabindex="0" aria-checked="'+cm.on+'" data-a="cmp" data-id="'+cm.id+'"><span class="cmp-box" aria-hidden="true">'+(cm.on?'✓':'')+'</span>'+(cm.on?'Vergleich':'Vergleichen')+'</span>':'';
+  var pill=cm&&cm.pill?'<span class="cmp-pill'+(cm.on?' on':'')+'" role="checkbox" tabindex="0" aria-checked="'+cm.on+'" data-a="cmp" data-id="'+cm.id+'"><span class="cmp-box" aria-hidden="true">'+(cm.on?'✓':'')+'</span>'+(cm.on?'Vergleich':'Vergleichen')+'</span>':'';
   var h='<button class="lst'+(cm?' lst-cmp':'')+'" data-a="open"><span class="im"><i></i><i></i>'+pill+'</span><span class="ct">'+(cm?'':'<span class="ort">'+x.ort+' · Heute</span>');
   if(o.kitag)h+='<span class="kitag" role="img" aria-label="KI-Vorschlag">'+SPARK+'</span>';
   h+='<span class="ti">'+esc(x.t)+'</span>';
@@ -149,7 +149,7 @@ function rfChip(k){var r=RF.filter(function(x){return x.k===k})[0],a=S.refine[k]
 function chipsCold(){return CHIPS.map(function(c){return c.charAt(0)==='@'?rfChip(c.slice(1)):chipBtn(c)}).join('')}
 function chipBtn(c){return '<button class="chip" aria-pressed="'+(S.chips.indexOf(c)>-1)+'" data-a="chip" data-c="'+esc(c)+'">'+esc(c)+'</button>'}
 function cold(){
-  var h='<div class="cs">'+(S.prev?'<button class="backrow" data-a="back" aria-label="Zurück zu den Ergebnissen"><svg width="20" height="20" viewBox="0 0 22 22" fill="none" stroke="#2A2A2A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3L6 11l8 8"/></svg>Zurück</button>':'')+'<div class="fld"><svg class="lupe" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#5D5D5D" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.8"/><path d="M13 13l5 5"/></svg><input id="q" value="'+esc(S.q)+'" placeholder="'+(S.ki?'Schreibe oder sprich ganze Sätze':'Wonach suchst du?')+'" aria-label="Suchbegriff">'+(S.ki?'<button class="mic" data-a="mic" aria-label="Spracheingabe">'+ICMIC+'</button>':'')+'</div>';
+  var h='<div class="cs">'+(S.prev?'<button class="backrow" data-a="back" aria-label="Zurück zu den Ergebnissen"><svg width="20" height="20" viewBox="0 0 22 22" fill="none" stroke="#2A2A2A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3L6 11l8 8"/></svg>Zurück</button>':'')+'<div class="fld"><svg class="lupe" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#5D5D5D" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.8"/><path d="M13 13l5 5"/></svg><input id="q" value="'+esc(S.q)+'" placeholder="'+(S.ki?'Schreibe oder sprich in ganzen Sätzen':'Wonach suchst du?')+'" aria-label="Suchbegriff">'+(S.ki?'<span class="mic" aria-hidden="true">'+ICMIC+'</span>':'')+'</div>'+(S.ki&&!S.q.trim()?'<button class="exq" data-a="example">Beispiel: „kleines Sofa für meine Wohnung“</button>':'');
   h+='<div class="fld"><span class="ico-p"></span><input value="Deutschland" disabled aria-label="Ort"></div>';
   if(S.ki){
     h+=selBox({editable:true});
@@ -174,7 +174,7 @@ function showKiTag(){return S.ki&&!S.catPick&&wantCat(S.q)}
 function catShown(){return S.catPick||((S.ki&&wantCat(S.q))?'Möbel & Wohnen':'Alle Kategorien')}
 function qline(){return S.chips.length?S.chips.join(', '):S.q}
 function waiting(){
-  return header()+cnt('0 Ergebnisse - “'+esc(S.q)+'”')+sponsored()+kirow()+
+  return header()+cnt('312 Ergebnisse - “'+esc(S.q)+'”')+sponsored()+kirow()+
   '<div class="waitbox center wait-cancel">'+KILUPE+'<p class="wait-sub">Die normalen Suchergebnisse bleiben sichtbar.</p></div>'+
   '<div class="waitnote center" role="status" aria-live="polite"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="sr">KI sucht passende Anzeigen</span><button class="ulink" data-a="cancel">Suche abbrechen</button></div>'+
   secNormal(false)+listing('d')+more()+endLink()+fab();
@@ -187,7 +187,8 @@ function hitsNow(){var f=curFlt();return P.sicher.filter(function(x){return pass
 var CMP_DATES=['Heute, 10:24','Heute, 08:17','Gestern, 18:41'];
 var ICSCALE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v16M7 20h10M4 7h16"/><path d="M4 7l-2.5 6a3.5 3.5 0 0 0 5 0zM20 7l-2.5 6a3.5 3.5 0 0 0 5 0z"/></svg>';
 /* Auswahl für den Vergleich: erst die ersten zwei Treffer, danach nach Klick */
-function cmpSel(ids){var sel=(S.cmp||ids.slice(0,2)).filter(function(i){return ids.indexOf(i)>-1});return sel}
+var CMP_MAX=4;
+function cmpSel(ids){var sel=(S.cmp||ids.slice(0,2)).filter(function(i){return ids.indexOf(i)>-1});return sel.slice(0,CMP_MAX)}
 function cmpFmt(t){return String(t).replace(/([<>])\s*(\d+)\s*cm/g,'$1 $2 cm').replace(/([<>])(\d)/g,'$1 $2')}
 function cmpCriteria(){var f=curFlt(),a=[];S.chips.slice(0,3).forEach(function(c){a.push(cmpFmt(c))});Object.keys(S.refine).forEach(function(k){a.push(cmpFmt(S.refine[k].text))});if(f.radius)a.push('bis '+f.radius+' km');if(f.delivery)a.push(f.delivery);if(f.cond)a.push(f.cond);return a.length?a.join(' · '):(S.q||'Deine Suche')}
 function cmpCard(){return '<button class="cmpcard" data-a="cmpgo"><span class="cmp-th" aria-hidden="true"><span class="th1"></span><span class="th2"></span><b>VS</b></span><span class="cmp-tx"><b>Sofas vergleichen</b><small>'+esc(cmpCriteria())+'</small></span><span class="cmp-ch" aria-hidden="true">'+ICCHEV+'</span></button>'}
@@ -196,41 +197,37 @@ function cmpBar(n){return '<div class="cmpbar" role="region" aria-label="Verglei
 /* Vergleichsansicht: ausgewählte Anzeigen nebeneinander, Bestwerte markiert */
 function compare(){
   var f=curFlt(),all=hitsNow(),ids=all.map(function(x){return x.id}),sel=cmpSel(ids),it=all.filter(function(x){return sel.indexOf(x.id)>-1}),n=it.length;
-  function bestMin(fn){var v=it.map(fn).filter(function(x){return x!=null});return v.length>1?Math.min.apply(null,v):null}
-  var bp=bestMin(function(x){return x.price}),bk=bestMin(function(x){return x.km});
-  var shipN=function(x){return x.ship?x.ship.length:0},bs=Math.max.apply(null,it.map(shipN)),shipDiff=it.some(function(x){return shipN(x)!==bs});
-  var neuDiff=it.some(function(x){return x.cond==='Neu'})&&it.some(function(x){return x.cond!=='Neu'});
   /* Zelle: best=true färbt den Bestwert grün und setzt einen Haken */
   function cell(txt,best,cls){return '<div class="tb-c'+(best?' best':'')+(cls?' '+cls:'')+'">'+(best?'<b aria-hidden="true">✓</b>':'')+'<span>'+esc(txt)+'</span></div>'}
   function row(label,fn){return '<div class="tb-l">'+label+'</div>'+it.map(fn).join('')}
   var h='<div class="cmpv"><div class="cv-h"><button class="hbtn" data-a="cmpback" aria-label="Zurück zu den Ergebnissen"><svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#2A2A2A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3L6 11l8 8"/></svg></button><h1>Vergleich</h1></div>';
-  h+='<div class="cv-intro"><span class="cv-ic" aria-hidden="true">'+SPARK+'</span><p>'+n+' Angebote im Vergleich <span class="cv-leg"><b aria-hidden="true">✓</b> Bester Wert</span></p></div>';
+  h+='<div class="cv-intro"><span class="cv-ic" aria-hidden="true">'+SPARK+'</span><p>'+n+' Angebote im Vergleich <span class="cv-leg">Ohne Rangfolge</span></p></div>';
   h+='<div class="tb" style="--n:'+n+'">';
   h+='<div class="tb-l tb-h0"></div>'+it.map(function(x){return '<div class="tb-c tb-hd"><span class="cv-im" aria-hidden="true"></span><b>'+esc(x.t)+'</b><span class="cv-pr">'+x.p+'</span></div>'}).join('');
-  h+=row('Preis',function(x){return cell(x.p,bp!=null&&x.price===bp)});
-  h+=row('Nähe',function(x){return cell(x.km!=null?x.km+' km':'k. A.',bk!=null&&x.km===bk)});
+  h+=row('Preis',function(x){return cell(x.p)});
+  h+=row('Nähe',function(x){return cell(x.km!=null?x.km+' km':'k. A.')});
   h+=row('Breite',function(x){return cell(x.w!=null?x.w+' cm':'k. A.')});
-  h+=row('Lieferung',function(x){return cell(x.ship?x.ship.join(' + '):'k. A.',shipDiff&&shipN(x)===bs)});
-  h+=row('Zustand',function(x){return cell(x.cond||'k. A.',neuDiff&&x.cond==='Neu')});
+  h+=row('Lieferung',function(x){return cell(x.ship?x.ship.join(' + '):'k. A.')});
+  h+=row('Zustand',function(x){return cell(x.cond||'k. A.')});
   h+=row('Farbe',function(x){return cell(x.col||'k. A.')});
   h+=row('Typ',function(x){return cell(x.tags&&x.tags.length?x.tags.join(', '):'k. A.')});
   h+=row('Passt',function(x){var ok=evalCard(x,f).filter(function(c){return c.s==='ok'}).map(function(c){return c.label});return '<div class="tb-c tb-ok">'+(ok.length?ok.map(function(t){return '<span><b aria-hidden="true">✓</b> '+esc(t)+'</span>'}).join(''):'<span>'+esc(qline()||'deine Suche')+'</span>')+'</div>'});
-  h+='</div><p class="cv-note">k. A. = nicht angegeben. Angaben aus dem Anzeigentext, bitte prüfe sie in der Anzeige.</p><div class="cv-act"><button class="btn" data-a="cmpback">Zurück zu den Ergebnissen</button></div></div>';
+  h+='</div><p class="cv-note">k. A. = nicht angegeben. Die KI nennt keinen Sieger und bewertet die Angebote nicht. Angaben aus dem Anzeigentext, bitte prüfe sie in der Anzeige.</p><div class="cv-act"><button class="btn" data-a="cmpback">Zurück zu den Ergebnissen</button></div></div>';
   return h;
 }
 function high(){
   var r,f=curFlt(),hitsArr=hitsNow();
-  var ids=hitsArr.map(function(x){return x.id}),sel=cmpSel(ids);
-  var hits=hitsArr.map(function(x,i){return listing(x,{facts:1,kitag:1,flt:f,cmp:{id:x.id,on:sel.indexOf(x.id)>-1,date:CMP_DATES[i%CMP_DATES.length]}})}).join('');
+  var ids=hitsArr.map(function(x){return x.id}),canCmp=hitsArr.length>=2,sel=canCmp?cmpSel(ids):[];
+  var hits=hitsArr.map(function(x,i){return listing(x,{facts:1,kitag:1,flt:f,cmp:{id:x.id,on:sel.indexOf(x.id)>-1,date:CMP_DATES[i%CMP_DATES.length],pill:canCmp}})}).join('');
   var none=!hits;
   var fb=none?fbBar():'';
   r='';
   if(S.highEdit)r='<div class="aibox high-edit"><button type="button" class="editclose" data-a="highclose" aria-label="Suche anpassen schließen"><span aria-hidden="true">×</span></button>'+selBox({editable:true,query:true})+(!hasSel()&&!S.q?'<p>Keine Kriterien ausgewählt.</p>':'')+'</div>';
   var tail=none?'<div class="msg"><h3>Keine Anzeige erfüllt alle deine Kriterien</h3></div>':'';
   var hact='<div class="hact">'+(S.highEdit?'':'<button data-a="highedit">Suche anpassen</button>')+'<button data-a="newsearch">'+RELOAD+'Neu suchen</button></div>';
-  var kibox=none?kirow():'<div class="kibox">'+kirow()+'<p class="kibox-t">Wir haben '+hitsArr.length+(hitsArr.length===1?' passendes Angebot':' passende Angebote')+' gefunden und für dich verglichen.</p>'+(S.highEdit?'':cmpCard())+hact+'<p class="kibox-s">Angaben aus dem Anzeigentext, bitte prüfen.</p></div>';
+  var kibox=none?kirow():'<div class="kibox">'+kirow()+'<p class="kibox-t">Wir haben '+hitsArr.length+(hitsArr.length===1?' passendes Angebot':' passende Angebote')+' gefunden und für dich verglichen.</p>'+(S.highEdit||!canCmp?'':cmpCard())+hact+'<p class="kibox-s">Angaben aus dem Anzeigentext, bitte prüfen.</p></div>';
   var mid=none?'':secFound('Gefundene Ergebnisse')+hits+fb;
-  return header()+cnt('312 Ergebnisse - “'+esc(qline())+'”')+sponsored()+kibox+tail+(none&&!S.highEdit?selBox():'')+r+(none?hact:'')+(none?fb:'')+mid+secNormal()+listing('e')+more()+foot()+fab()+(none?'':cmpBar(sel.length));
+  return header()+cnt('312 Ergebnisse - “'+esc(qline())+'”')+sponsored()+kibox+tail+(none&&!S.highEdit?selBox():'')+r+(none?hact:'')+(none?fb:'')+mid+secNormal()+listing('e')+more()+foot()+fab()+(none||!canCmp?'':cmpBar(sel.length));
 }
 var RF=[
   {k:'mass',label:'Maße',title:'Breite des Sofas',quick:[160,180,200],field:'Eigene Breite',unit:'cm',max:400,fmt:function(d){return 'Breite < '+d.n+' cm'}},
@@ -294,8 +291,8 @@ function none(){
   return header()+cnt('Keine KI-Treffer - “'+esc(S.q)+'”')+sponsored()+kirow()+
   '<div class="msg"><h3>Keine passenden Ergebnisse gefunden</h3><p>Es wurden keine passenden Anzeigen für deine gewählten Kriterien gefunden. Entferne Kriterien oder versuche eine andere Suche.</p></div>'+
   selBox()+
-  '<div class="cat"><b>Kategorieempfehlung:</b><button data-a="catrec">Sofas &amp; Sitzgarnituren</button><p class="category-note">Startet eine neue Suche in dieser Kategorie ohne die bisherigen Kriterien.</p></div>'+
-  '<div class="aibox" style="padding:14px 14px 4px"><p class="h3" style="margin:0 0 8px;font-size:13px;color:#4B5E52">Versuche es mit einem anderen Suchbegriff</p><p style="font-size:12px;margin:0">Wähle einen Vorschlag und tippe auf „Neu suchen“.</p><div class="chips" style="gap:10px;margin-top:14px">'+['sofa klein','Kleines Schlafsofa','2-Sitzer-Sofa','Kompaktsofa'].map(function(c){return '<button class="chip" aria-pressed="'+(S.termPick===c)+'" data-a="term" data-c="'+c+'">'+c+'</button>'}).join('')+'</div></div>'+
+  '<div class="cat"><b>Kategorieempfehlung:</b><button data-a="catrec">Sofas &amp; Sitzgarnituren</button><p class="category-note">Startet eine neue Suche in dieser Kategorie ohne deine bisherigen Kriterien'+(cmpCriteria()&&hasSel()?' ('+esc(cmpCriteria())+')':'')+'. Das passiert erst, wenn du tippst.</p></div>'+
+  '<div class="aibox" style="padding:14px 14px 4px"><p class="h3" style="margin:0 0 8px;font-size:13px;color:#4B5E52">Versuche es mit einem anderen Suchbegriff</p><p style="font-size:12px;margin:0">Wähle einen Vorschlag und tippe auf „Neu suchen“. Deine Kriterien bleiben dabei erhalten.</p><div class="chips" style="gap:10px;margin-top:14px">'+['sofa klein','Kleines Schlafsofa','2-Sitzer-Sofa','Kompaktsofa'].map(function(c){return '<button class="chip" aria-pressed="'+(S.termPick===c)+'" data-a="term" data-c="'+c+'">'+c+'</button>'}).join('')+'</div></div>'+
   '<div class="ki-end"><div class="hact two">'+'<span></span>'+'<button data-a="termsearch"'+(S.termPick?'':' disabled')+'>'+RELOAD+'Neu suchen</button></div>'+fbBar()+
   '</div>'+
   secNormal()+listing('e')+more()+foot()+fab();
@@ -316,22 +313,26 @@ function render(){
   $('#phone').innerHTML='<div class="scr">'+v+'</div>'+sheet()+(S.toast?'<div class="toast" role="status">'+esc(S.toast)+'</div>':'');ensureRoom();
   var info=$('#ki-info');if(info){info.showModal();info.addEventListener('cancel',function(e){e.preventDefault();closeInfo()})}
   var q=$('#q');if(q){q.addEventListener('input',function(){S.q=q.value;var has=!!q.value.trim(),chips=wantCat(q.value);if(!has)S.catPick=null;var sw=$('#chipwrap'),pw=$('#promptwrap');if(sw)sw.hidden=!chips;if(pw)pw.hidden=chips;var cs=$('#cat');if(cs){cs.value=catShown();cs.classList.toggle('sug',showKiTag());cs.classList.toggle('empty',hintOn());var ht=$('#cathint');if(ht)ht.hidden=!hintOn()}var kt=$('#catwrap .ki');if(kt)kt.hidden=!showKiTag();var lv=$('#catlive');if(lv)lv.textContent=showKiTag()?'KI schlägt die Kategorie Möbel und Wohnen vor':''})}
-  if(q)q.addEventListener('click',function(){if(S.view!=='cold'||!S.ki||q.value.trim())return;q.value='kleines Sofa für meine Wohnung';q.dispatchEvent(new Event('input',{bubbles:true}));q.setSelectionRange(q.value.length,q.value.length)});
   var pe=$('#prc');if(pe)pe.addEventListener('change',function(){var v=pe.value;if(!v)delete S.refine.price;else{var o=v.charAt(0),n=v.slice(1);S.refine.price={n:n,o:o,text:o+' '+n+' €'};dropChip('< 200 €')}render();var np=$('#prc');if(np)np.focus()});
   [['#rad','radius'],['#del','delivery'],['#cnd','cond']].forEach(function(f){var e=$(f[0]);if(e)e.addEventListener('change',function(){if(f[1]==='delivery'){S.delEgal=e.value==='egal';S.delivery=S.delEgal?'':e.value}else S[f[1]]=e.value;render();var n=$(f[0]);if(n)n.focus()})});
   var c=$('#cat');if(c){c.addEventListener('change',function(){S.cat=c.value;S.catPick=c.value;c.classList.remove('sug');c.classList.remove('empty');var ht2=$('#cathint');if(ht2)ht2.hidden=true;var kt=$('#catwrap .ki');if(kt)kt.hidden=true})}
 }
 
-var CUTOFF=0.7; // Annahme laut docs/PROJECT.md, mit Figma und PRD abgleichen
-function confidence(q){return (S.chips.indexOf('< 160cm')>-1||S.chips.indexOf('2-Sitzer')>-1||/2-sitzer|160|180/.test(q))?0.82:0.55}
+/* Schwellen laut System Logic Map und PRD: High >= 0,80, Low >= 0,50 und < 0,80, darunter keine verlässliche KI-Empfehlung (No Result) */
+var CUT_HIGH=0.80,CUT_LOW=0.50;
+function stateFor(c){return c>=CUT_HIGH?'high':(c>=CUT_LOW?'low':'none')}
+/* Simulierte Confidence aus Suchtext und Chips, kein echtes KI-Modell */
+function confidence(q){
+  if(!/sofa|couch/.test(q)||/\bsof\b/.test(q))return 0.35;
+  return (S.chips.indexOf('< 160cm')>-1||S.chips.indexOf('2-Sitzer')>-1||/2-sitzer|160|180/.test(q))?0.82:0.55;
+}
 function outcome(){
   var sc=S.scenario;
   if(sc==='auto'){
     var q=S.q.toLowerCase();
     if(S.retry)return 'high';
-    if(!/sofa|couch/.test(q)||/\bsof\b/.test(q))return 'none';
-    if(/schlaffunktion|schlafsofa|bettkasten|ausziehbar/.test(q))return 'fail';
-    return confidence(q)>=CUTOFF?'high':'low';
+    if(/schlaffunktion|schlafsofa|bettkasten|ausziehbar/.test(q)&&/sofa|couch/.test(q))return 'fail';
+    return stateFor(confidence(q));
   }
   return sc;
 }
@@ -346,7 +347,7 @@ function startAI(forcedOutcome){
   S.t.push(setTimeout(function(){S.retry=false;go(o)},2600));
 }
 function search(){
-  if(!S.q.trim()){S.q='kleines Sofa für meine Wohnung'}
+  if(!S.q.trim()){toast('Bitte gib einen Suchbegriff ein.');var qi=$('#q');if(qi)qi.focus();return}
   if(!S.ki){go('plain');return}
   startAI();
 }
@@ -382,11 +383,11 @@ document.addEventListener('click',function(e){
   if(!el)return;
   if(el.dataset.a==='closesheet'&&e.target.closest('[data-stop]')&&!e.target.closest('button'))return;
   var a=el.dataset.a;
-  if(a==='cmp'){var cid=el.dataset.id,cur=S.cmp||hitsNow().map(function(x){return x.id}).slice(0,2),ci=cur.indexOf(cid);S.cmp=cur.slice();if(ci>-1)S.cmp.splice(ci,1);else S.cmp.push(cid);var y0=window.pageYOffset;render();window.scrollTo(0,y0)}
-  else if(a==='cmpgo'){var cs0=cmpSel(hitsNow().map(function(x){return x.id}));if(cs0.length<2)toast('Wähle mindestens zwei Angebote aus.');else go('compare')}
+  if(a==='example'){S.q='kleines Sofa für meine Wohnung';render();var q2=$('#q');if(q2){q2.focus();q2.setSelectionRange(q2.value.length,q2.value.length)}}
+  else if(a==='cmp'){var cid=el.dataset.id,cur=S.cmp||hitsNow().map(function(x){return x.id}).slice(0,2),ci=cur.indexOf(cid);S.cmp=cur.slice();if(ci>-1)S.cmp.splice(ci,1);else if(S.cmp.length>=CMP_MAX){toast('Du kannst höchstens '+CMP_MAX+' Angebote vergleichen.');return}else S.cmp.push(cid);var y0=window.pageYOffset;render();window.scrollTo(0,y0)}
+  else if(a==='cmpgo'){var hn=hitsNow(),cs0=cmpSel(hn.map(function(x){return x.id}));if(S.view!=='high'||hn.length<2)return;if(cs0.length<2)toast('Wähle mindestens zwei Angebote aus.');else go('compare')}
   else if(a==='cmpback'){go('high')}
   else if(a==='cfb'){var fid=el.dataset.id,fv=el.dataset.v;S.cfb=S.cfb||{};if(S.cfb[fid]===fv)delete S.cfb[fid];else S.cfb[fid]=fv;var y1=window.pageYOffset;render();window.scrollTo(0,y1);if(fv==='ja'&&S.cfb[fid]==='ja')toast('Danke. Das Feedback wurde gezählt.')}
-  else if(a==='mic'){toast('Spracheingabe gibt es in diesem Prototyp noch nicht.')}
   else if(a==='ki'){S.ki=!S.ki;clearSel();render()}
   else if(a==='kitoggle'){clearSel();if(S.ki){S.ki=false;clearT();S.aborted=false;go('plain')}else{S.ki=true;S.kiHint=true;S.kiHintT0=Date.now();startAI()}}
   else if(a==='chip'){var c=el.dataset.c,i=S.chips.indexOf(c);if(i>-1)S.chips.splice(i,1);else S.chips.push(c);render();var n=document.querySelectorAll('.chip');for(var k=0;k<n.length;k++){if(n[k].dataset.c===c){n[k].focus()}}}
@@ -413,7 +414,7 @@ document.addEventListener('click',function(e){
   else if(a==='rapply')applyRefine(el.dataset.k)
   else if(a==='rclose'){var ck=el.dataset.k,ce=S.edit;S.open='';S.edit='';delete S.draft[ck];render();var cb=ce?$('[data-a="selpick"][data-e="'+ce+'"]'):$('[data-a="refine"][data-k="'+ck+'"]');if(cb)cb.focus()}
   else if(a==='term'){var term=el.dataset.c;S.termPick=S.termPick===term?'':term;render();var tc=$('[data-a="term"][data-c="'+term+'"]');if(tc)tc.focus({preventScroll:true})}
-  else if(a==='termsearch'){if(!S.termPick)return;S.q=S.termPick;S.termPick='';S.chips=[];S.retry=false;S.scenario='auto';$('#scenario').value='auto';startAI()}
+  else if(a==='termsearch'){if(!S.termPick)return;S.q=S.termPick;S.termPick='';S.retry=false;S.scenario='auto';$('#scenario').value='auto';startAI()}
   else if(a==='catrec'){clearSel();S.termPick='';S.retry=false;S.q='Sofa';S.cat=S.catPick='Sofas & Sitzgarnituren';S.ki=true;S.scenario='auto';$('#scenario').value='auto';startAI('high')}
   else if(a==='fb'){if(el.dataset.v==='nein'){S.fbDone=true;render()}else toast('Danke. Das Feedback wurde gezählt.')}
   else if(a==='open')toast('Anzeige öffnen: nicht Teil des Prototyps')
@@ -448,5 +449,5 @@ else if(st==='fail'){S.ki=true;S.q='kleines Sofa';go('fail')}
 else if(st==='wait'){S.ki=true;S.q='kleines Sofa';S.view='waiting';go('waiting');anchorKI()}
 else if(st&&DIRECT[st]){S.ki=true;S.q=DIRECT[st];if(st==='low')lowExample();if(st==='none')noResultExample();go(st)}
 /* Nur für automatische Prüfungen: mit ?test in der URL kommt man an den Zustand */
-if(/[?&]test(&|$)/.test(location.search))window.__da={S:S,go:go,render:render,evalCard:evalCard};
+if(/[?&]test(&|$)/.test(location.search))window.__da={S:S,go:go,render:render,evalCard:evalCard,stateFor:stateFor,confidence:confidence,outcome:outcome,hitsNow:hitsNow,cmpSel:cmpSel,CMP_MAX:CMP_MAX};
 })();
