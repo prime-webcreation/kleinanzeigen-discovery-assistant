@@ -120,6 +120,8 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
 .sec-n.sec-nl{border-top:0;margin-top:0;padding-top:34px}
 .nrnote{margin-top:18px;padding:0 16px;font-size:12px;color:#666B6B}
 .nrnote + .sec-n{margin-top:24px}
+.nrnote.nr-wide{margin-top:30px}
+.nrnote.nr-wide + .sec-n{margin-top:28px}
 .ki-end + .nrnote{margin-top:14px}
 .pad{padding:0 16px}
 .h3{font-weight:700;font-size:15px;color:var(--ink);margin:0}
@@ -392,6 +394,8 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
 .kion{margin-top:18px;background:none;padding:0 2px}
 .kifeat{background:var(--aiBox);border-radius:20px;padding:2px 16px 18px;margin-top:16px}
 .kifeat .catcard{margin-top:16px}
+.kifeat[hidden],#kifilt[hidden],.kifeat-t[hidden],#morebtn[hidden]{display:none}
+.kifeat-t{margin:14px 0 0;padding:0 2px 14px;font-size:14px;color:var(--ink)}
 .kion .kioff-s{margin-top:10px;font-size:15px;color:#3C4642}
 .kion .kion-n{margin-top:6px;font-size:12px;color:#616666}
 .catcard{display:flex;align-items:center;gap:14px;background:var(--white);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-top:14px;box-shadow:0 1px 3px rgba(0,0,0,.06)}

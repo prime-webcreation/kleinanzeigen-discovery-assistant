@@ -135,7 +135,7 @@ function listing(k,o){
   return h;
 }
 function secFound(l){return '<div class="sec sec-ki">'+l+'<span class="pill">KI-gestützt</span></div>'}
-function secNormal(show,noLine){return (show===false?'':'<div class="nrnote">Die normalen Suchergebnisse bleiben sichtbar.</div>')+'<div class="sec sec-n'+(noLine?' sec-nl':'')+'">Suchergebnisse</div>'}
+function secNormal(show,noLine,wide){return (show===false?'':'<div class="nrnote'+(wide?' nr-wide':'')+'">Die normalen Suchergebnisse bleiben sichtbar.</div>')+'<div class="sec sec-n'+(noLine?' sec-nl':'')+'">Suchergebnisse</div>'}
 function fab(){return '<div class="fabwrap"><button class="fab" data-a="edit">Filter anpassen</button>'+'</div>'}
 function endLink(){return S.ki?'<button class="flink endlink" data-a="info">Mehr über die KI-Suche erfahren</button>':''}
 function foot(){return '<div class="foot">Alle Anzeigen bleiben sichtbar und auswählbar. TOP und Gesponsert sind bezahlt und nicht Teil der KI-Auswahl.</div>'+endLink()}
@@ -155,17 +155,17 @@ function cold(){
   h+='<div class="fld"><span class="ico-p"></span><input value="Deutschland" disabled aria-label="Ort"></div>';
   if(S.ki){
     h+=selBox({editable:true});
-    h+='<div class="kioff kion"><div class="kioff-h">'+kiHead()+'<button class="sw-hit" data-a="ki" role="switch" aria-checked="true" aria-label="KI-Suche"><span class="sw" aria-checked="true"></span></button></div><p class="kioff-s" id="promptwrap"'+(wantCat(S.q)?' hidden':'')+'>Sobald du ein Suchwort eingibst, werden dir passende Kategorien und Suchbegriffe vorgeschlagen.</p></div>';
-    h+='<div class="kifeat"><div id="catwrap"><div class="catcard"><span class="cc-ic"><span class="ic-sofa">'+ICSOFA+'</span><span class="ic-ki">'+KIDUO+'</span></span><div class="cc-t"><label class="cc-l" for="cat">Kategorie auswählen</label><div class="catf"><select id="cat"'+(showKiTag()?' class="sug"':hintOn()?' class="empty"':'')+' aria-label="Kategorie">'+['Alle Kategorien'].concat(CATS).map(function(c){return '<option'+(c===catShown()?' selected':'')+'>'+esc(c)+'</option>'}).join('')+'</select><span class="ki kibadge"'+(showKiTag()?'':' hidden')+'>Möbel &amp; Wohnen</span><span id="cathint" class="cc-hint"'+(hintOn()?'':' hidden')+'>Wird beim Tippen vorgeschlagen</span></div></div><span class="cc-chev">'+ICCHEV+'</span></div><span id="catlive" class="sr" role="status"></span>';
+    h+='<div class="kioff kion"><div class="kioff-h">'+kiHead()+'<button class="sw-hit" data-a="ki" role="switch" aria-checked="true" aria-label="KI-Suche"><span class="sw" aria-checked="true"></span></button></div></div>';
+    h+='<div class="kifeat" id="kifeat"><p class="kifeat-t" id="promptwrap"'+(S.q.trim()?' hidden':'')+'>Sobald du ein Suchwort eingibst, werden dir passende Kategorien und Suchbegriffe vorgeschlagen.</p><div id="kifilt"'+(S.q.trim()?'':' hidden')+'><div id="catwrap"><div class="catcard"><span class="cc-ic"><span class="ic-sofa">'+ICSOFA+'</span><span class="ic-ki">'+KIDUO+'</span></span><div class="cc-t"><label class="cc-l" for="cat">Kategorie auswählen</label><div class="catf"><select id="cat"'+(showKiTag()?' class="sug"':hintOn()?' class="empty"':'')+' aria-label="Kategorie">'+['Alle Kategorien'].concat(CATS).map(function(c){return '<option'+(c===catShown()?' selected':'')+'>'+esc(c)+'</option>'}).join('')+'</select><span class="ki kibadge"'+(showKiTag()?'':' hidden')+'>Möbel &amp; Wohnen</span><span id="cathint" class="cc-hint"'+(hintOn()?'':' hidden')+'>Wird beim Tippen vorgeschlagen</span></div></div><span class="cc-chev">'+ICCHEV+'</span></div><span id="catlive" class="sr" role="status"></span>';
     h+='<div class="selrow">'+[['rad','Umkreis',S.radius,RADII.map(function(v){return [v,'+ '+v+' km']}),ICPIN],['del','Lieferung',S.delivery||(S.delEgal?'egal':''),[['Abholung','Abholung'],['Versand','Versand'],['egal','egal']],ICTRUCK],['cnd','Zustand',S.cond,[['Neu','Neu'],['Gebraucht','Gebraucht'],['egal','egal']],ICTAG],['prc','Preis',priceVal(),PRICES.map(function(v){return ['<'+v,'< '+v+' €']}).concat(priceExtra()),ICEUR]].map(function(f){return '<div><label class="catl" for="'+f[0]+'"><span class="sr-ic">'+f[4]+'</span>'+f[1]+'</label><div class="catf sm"><select id="'+f[0]+'"><option value="">optional</option>'+f[3].map(function(o){return '<option value="'+o[0]+'"'+(String(o[0])===f[2]?' selected':'')+'>'+o[1]+'</option>'}).join('')+'</select></div></div>'}).join('')+'</div></div>';
   }
   if(!S.ki){
     h+='<div class="kioff"><div class="kioff-h">'+kiHead()+'<button class="sw-hit" data-a="ki" role="switch" aria-checked="false" aria-label="KI-Suche"><span class="sw" aria-checked="false"></span></button></div><p class="kioff-t">Finde schneller passende Angebote mit smarten Vorschlägen.</p></div>';
   }
   if(S.ki){
-    h+='<div id="chipwrap"'+(wantCat(S.q)?'':' hidden')+'><p class="sg">Wähle aus Vorschlägen</p><div class="chips">'+chipsCold()+'</div>'+(S.open&&S.view==='cold'?rpanel(rfOf(S.open)):'')+'</div></div>';
+    h+='<div id="chipwrap"'+(wantCat(S.q)?'':' hidden')+'><p class="sg">Wähle aus Vorschlägen</p><div class="chips">'+chipsCold()+'</div>'+(S.open&&S.view==='cold'?rpanel(rfOf(S.open)):'')+'</div></div></div>';
   }
-  h+='<div class="bottom"><button class="more" data-a="more">Weitere Filter anzeigen'+(S.ki?'<span class="more-chev">'+ICCHEV+'</span>':'')+'</button><button class="btn'+(S.ki?' btn-ki':'')+'" data-a="search">'+(S.ki?'<span class="btn-ic" aria-hidden="true">'+ICSTARS+'</span>':'')+'Suchen</button>'+(S.ki?'<button class="flink" data-a="info"><span class="fl-ic">'+ICINFO+'</span>Mehr über die KI-Suche erfahren</button>':'')+'</div></div>';
+  h+='<div class="bottom"><button class="more" id="morebtn" data-a="more"'+(S.ki&&!S.q.trim()?' hidden':'')+'>Weitere Filter anzeigen'+(S.ki?'<span class="more-chev">'+ICCHEV+'</span>':'')+'</button><button class="btn'+(S.ki?' btn-ki':'')+'" data-a="search">'+(S.ki?'<span class="btn-ic" aria-hidden="true">'+ICSTARS+'</span>':'')+'Suchen</button>'+(S.ki?'<button class="flink" data-a="info"><span class="fl-ic">'+ICINFO+'</span>Mehr über die KI-Suche erfahren</button>':'')+'</div></div>';
   return h;
 }
 function wantCat(q){return /sofa|couch/i.test(q||'')}
@@ -299,9 +299,9 @@ function none(){
   secNormal()+listing('e')+more()+foot()+fab();
 }
 function fail(){
-  return header()+cnt('312 Ergebnisse - “'+esc(S.q)+'”')+sponsored()+kirow()+
-  '<div class="fail-box" role="alert">'+WARN+'<div class="msg"><h3>Deine Suche konnte nicht geladen werden</h3><p class="fail-sub">Die normalen Suchergebnisse bleiben sichtbar.</p><button class="btn retry-btn" data-a="retry"><span aria-hidden="true">'+LUPEKI+'</span>Neue Suche starten</button></div></div>'+
-  secNormal(false,true)+listing('e')+more()+foot()+fab();
+  return header()+cnt('312 Ergebnisse - “'+esc(S.q)+'”')+sponsored()+kirow('kirow-wait')+
+  '<div class="fail-box" role="alert">'+WARN+'<div class="msg"><h3>Deine Suche konnte nicht geladen werden</h3><button class="btn retry-btn" data-a="retry"><span aria-hidden="true">'+LUPEKI+'</span>Neue Suche starten</button></div></div>'+
+  secNormal(true,false,true)+listing('e')+more()+foot()+fab();
 }
 function plain(){
   return header()+cnt('312 Ergebnisse - “'+esc(S.q)+'”')+sponsored()+kirow()+
@@ -338,7 +338,7 @@ function render(){
       });
     });
   }
-  var q=$('#q');if(q){q.addEventListener('input',function(){S.q=q.value;var has=!!q.value.trim(),chips=wantCat(q.value);if(!has)S.catPick=null;var sw=$('#chipwrap'),pw=$('#promptwrap');if(sw)sw.hidden=!chips;if(pw)pw.hidden=chips;var cs=$('#cat');if(cs){cs.value=catShown();cs.classList.toggle('sug',showKiTag());cs.classList.toggle('empty',hintOn());var ht=$('#cathint');if(ht)ht.hidden=!hintOn()}var kt=$('#catwrap .ki');if(kt)kt.hidden=!showKiTag();var lv=$('#catlive');if(lv)lv.textContent=showKiTag()?'KI schlägt die Kategorie Möbel und Wohnen vor':''})}
+  var q=$('#q');if(q){q.addEventListener('input',function(){S.q=q.value;var has=!!q.value.trim(),chips=wantCat(q.value);var kf=$('#kifilt');if(kf)kf.hidden=!has;var mb=$('#morebtn');if(mb)mb.hidden=!has&&S.ki;if(!has)S.catPick=null;var sw=$('#chipwrap'),pw=$('#promptwrap');if(sw)sw.hidden=!chips;if(pw)pw.hidden=has;var cs=$('#cat');if(cs){cs.value=catShown();cs.classList.toggle('sug',showKiTag());cs.classList.toggle('empty',hintOn());var ht=$('#cathint');if(ht)ht.hidden=!hintOn()}var kt=$('#catwrap .ki');if(kt)kt.hidden=!showKiTag();var lv=$('#catlive');if(lv)lv.textContent=showKiTag()?'KI schlägt die Kategorie Möbel und Wohnen vor':''})}
   var pe=$('#prc');if(pe)pe.addEventListener('change',function(){var v=pe.value;if(!v)delete S.refine.price;else{var o=v.charAt(0),n=v.slice(1);S.refine.price={n:n,o:o,text:o+' '+n+' €'};dropChip('< 200 €')}render();var np=$('#prc');if(np)np.focus()});
   [['#rad','radius'],['#del','delivery'],['#cnd','cond']].forEach(function(f){var e=$(f[0]);if(e)e.addEventListener('change',function(){if(f[1]==='delivery'){S.delEgal=e.value==='egal';S.delivery=S.delEgal?'':e.value}else S[f[1]]=e.value;render();var n=$(f[0]);if(n)n.focus()})});
   var c=$('#cat');if(c){c.addEventListener('change',function(){S.cat=c.value;S.catPick=c.value;c.classList.remove('sug');c.classList.remove('empty');var ht2=$('#cathint');if(ht2)ht2.hidden=true;var kt=$('#catwrap .ki');if(kt)kt.hidden=true})}
