@@ -92,6 +92,8 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
     margin:0;font-size:16px;font-weight:700;color:#212E2B;
   }
 }
+/* Waiting: oben so viel Platz zur Trennlinie wie unten */
+.kirow.kirow-wait{padding-top:30px}
 /* Überschrift KI-Suche (optional): Text exakt auf der Mittellinie des Schalters, Lupe mit Sternchen davor.
    Die Lupe sitzt in einem Rahmen ohne Höhe, damit ihre Unterkante auf der Schriftlinie liegt und den Text nicht verschiebt. */
 .kih{display:flex;align-items:baseline;flex-wrap:nowrap;white-space:nowrap;line-height:1.2}
@@ -255,7 +257,7 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
   .pr{font-weight:700;font-size:17px;color:var(--greenText);margin-top:auto}
 }
 .kitag{
-  position:absolute;right:12px;top:8px;display:flex;align-items:center;gap:3px;color:var(--aiTag);font-weight:700;font-size:12px;
+  display:flex;align-items:center;gap:3px;color:var(--aiTag);font-weight:700;font-size:12px;margin:2px 0 -2px;
   & svg{width:20px;height:20px}
 }
 .facts{
@@ -352,8 +354,13 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
     &::placeholder{color:#707070;opacity:1}
   }
 }
-.mic{flex:none;width:36px;height:36px;margin:0 -6px 0 0;display:grid;place-items:center;border-radius:50%;color:#6B706D;& svg{width:20px;height:20px}&:active{background:rgba(0,0,0,.06)}}
-.fld input::placeholder{font-size:15px}
+.mic{flex:none;width:28px;height:36px;margin:0 -2px 0 0;display:grid;place-items:center;color:#9AA09D;opacity:.7;pointer-events:none;& svg{width:19px;height:19px}}
+.cs .fld{gap:14px}
+.fld input::placeholder{font-size:13.5px}
+.fldwrap{position:relative}
+.sugg{position:absolute;left:0;right:0;top:calc(100% - 2px);z-index:20;list-style:none;margin:0;padding:6px;background:var(--white);border:1px solid var(--line);border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.14)}
+.sugg[hidden]{display:none}
+.sugg-i{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:0 10px;border-radius:8px;text-align:left;font-size:15px;color:var(--ink);& svg{flex:none}& b{font-weight:700}&:hover,&:focus-visible{background:var(--aiBox)}}
 .lupe{flex:none;margin:0 3px 0 0}
 .ico-l{width:15px;height:15px;border:2px solid var(--line2);border-radius:50%;flex:none;margin-left:2px;margin-right:6px}
 .ico-p{width:12px;height:12px;border:2px solid var(--line2);border-radius:50%;flex:none;margin:0 8px 0 3px}
@@ -465,10 +472,10 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
 /* Daumen pro KI-Karte unten rechts */
 .lst .ct:has(.cfb){padding-bottom:42px}
 .cfb{position:absolute;right:6px;bottom:4px;display:flex;gap:0;z-index:2}
-.cth{width:36px;height:36px;display:grid;place-items:center;color:#7A807D;border-radius:50%;cursor:pointer;
+.cth{width:36px;height:36px;display:grid;place-items:center;color:var(--green);border-radius:50%;cursor:pointer;
   & svg{width:18px;height:18px;transform:rotate(var(--r,0deg));fill:none}
-  &:hover{color:var(--limeInk)}
-  &.on{color:var(--greenDark);& svg{fill:currentColor}}}
+  &:hover{color:var(--greenDark)}
+  &.on{color:var(--green);& svg{fill:currentColor}}}
 /* Vergleichsansicht: eine kompakte Tabelle aus Boxen, Bestwerte in Grün */
 .cmpv{background:var(--bg);flex:1;padding-bottom:24px;
   & .cv-h{display:flex;align-items:center;background:var(--white);min-height:60px;padding:0 4px 0 6px;border-bottom:1px solid var(--line);
@@ -492,6 +499,9 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
   & .cv-note{margin:10px 16px 0;font-size:11px;color:var(--ink3)}
   & .cv-act{margin:14px 12px 0}}
 
+.low-box .lb-t{margin:0 0 6px;font-size:15px;font-weight:700;color:var(--ink)}
+.low-box .lb-p{margin:0 0 16px;font-size:13px;color:var(--ink2)}
+.low-check{margin:2px 18px 10px;font-size:13px;color:var(--ink2)}
 /* Sheet */
 .sheet-bg{position:fixed;inset:0;width:calc(100% - 24px);max-width:390px;max-height:calc(100dvh - 32px);margin:auto;padding:0;border:0;border-radius:16px;background:var(--white);color:var(--ink);overflow:auto}
 .sheet-bg::backdrop{background:rgba(0,0,0,.45)}

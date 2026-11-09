@@ -4,6 +4,8 @@
 var $=function(s){return document.querySelector(s)};
 var S={view:'cold',ki:true,q:'',cat:'Möbel & Wohnen',catPick:null,prev:null,chips:[],t:[],scenario:'auto',retry:false,sheet:false,toast:'',radius:'',delivery:'',cond:'',refine:{},open:'',draft:{},fbDone:false,selOpen:false,edit:'',highEdit:false,aborted:false,termPick:''};
 var RADII=[5,10,20,50,100];
+/* Suchvorschläge im Dropdown des Suchfelds. Jeder Vorschlag führt über confidence() in den passenden Zustand: der ganze Satz mit Kontext in High, die kurzen Begriffe in Low */
+var SUGGS=['kleines Sofa für meine Wohnung','kleines Sofa','kleine Couch'];
 var CHIPS=['2-Sitzer','< 160cm','kleine Couch','Ecksofa','Kompakter 3-Sitzer','@color'];
 var CATS=['Möbel & Wohnen','Sofas & Sitzgarnituren','Haus & Garten','Elektronik','Mode & Beauty'];
 var L={
@@ -60,9 +62,9 @@ function sponsored(){
   '<div class="scard"><div class="pi"></div><div class="tx"><div>Sofa 2-Sitzer</div><div><span class="pr">79,00 €</span></div></div><span class="top">TOP</span></div>'+
   '<div class="scard"><div class="pi"></div><div class="tx"><div>Kompaktes Sofa</div><div><span class="pr">129,00 €</span></div></div></div></div><div class="hr"></div>';
 }
-function kirow(){
+function kirow(cls){
   var on=S.ki;
-  return '<div class="kirow">'+kiHead()+'<button class="sw-hit" data-a="kitoggle" role="switch" aria-checked="'+on+'" aria-label="KI-Suche"><span class="sw" aria-checked="'+on+'"></span></button></div>'+(S.kiHint&&on&&Date.now()-S.kiHintT0<3900?'<div class="kinote kihint" style="animation-delay:-'+((Date.now()-S.kiHintT0)/1000).toFixed(2)+'s" role="status">Vorschläge und Trefferhinweise sind KI-gestützt.</div>':'');
+  return '<div class="kirow'+(cls?' '+cls:'')+'">'+kiHead()+'<button class="sw-hit" data-a="kitoggle" role="switch" aria-checked="'+on+'" aria-label="KI-Suche"><span class="sw" aria-checked="'+on+'"></span></button></div>'+(S.kiHint&&on&&Date.now()-S.kiHintT0<3900?'<div class="kinote kihint" style="animation-delay:-'+((Date.now()-S.kiHintT0)/1000).toFixed(2)+'s" role="status">Vorschläge und Trefferhinweise sind KI-gestützt.</div>':'');
 }
 function kiHead(){return '<h2 class="kih"><span class="kih-ic" aria-hidden="true">'+KISTATIC+'</span>KI-Suche'+optionalInfo()+'</h2>'}
 function optionalInfo(){return '<button type="button" class="optional-info" id="optional-info" data-a="info" aria-haspopup="dialog" aria-controls="ki-info" aria-label="Optional: Informationen zur KI-Suche und deinen Daten">(optional)</button>'}
@@ -110,10 +112,10 @@ function cardFb(x){var v=(S.cfb||{})[x.id];return '<span class="cfb">'+['ja','ne
 function listing(k,o){
   o=o||{};var x=typeof k==='string'?L[k]:k;var cm=o.cmp;
   var pill=cm&&cm.pill?'<span class="cmp-pill'+(cm.on?' on':'')+'" role="checkbox" tabindex="0" aria-checked="'+cm.on+'" data-a="cmp" data-id="'+cm.id+'"><span class="cmp-box" aria-hidden="true">'+(cm.on?'✓':'')+'</span>'+(cm.on?'Vergleich':'Vergleichen')+'</span>':'';
-  var h='<button class="lst'+(cm?' lst-cmp':'')+'" data-a="open"><span class="im"><i></i><i></i>'+pill+'</span><span class="ct">'+(cm?'':'<span class="ort">'+x.ort+' · Heute</span>');
-  if(o.kitag)h+='<span class="kitag" role="img" aria-label="KI-Vorschlag">'+SPARK+'</span>';
+  var h='<button class="lst'+(cm?' lst-cmp':'')+'" data-a="open"><span class="im"><i></i><i></i>'+pill+'</span><span class="ct">'+(cm?'':'<span class="ort">'+x.ort+(x.km!=null?' ('+x.km+' km)':'')+'</span>');
   h+='<span class="ti">'+esc(x.t)+'</span>';
-  if(cm)h+='<span class="pr pr-top">'+x.p+'</span><span class="ort">'+x.ort+(x.km!=null?' ('+x.km+' km)':'')+'</span><span class="ort">'+cm.date+'</span>';
+  if(cm)h+='<span class="pr pr-top">'+x.p+'</span><span class="ort">'+x.ort+(x.km!=null?' ('+x.km+' km)':'')+'</span>';
+  if(o.kitag)h+='<span class="kitag" role="img" aria-label="KI-Vorschlag">'+SPARK+'</span>';
   var rStart=h.length;
   var act=!!(o.flt&&fltActive(o.flt)&&x.price!=null),ev=act?evalCard(x,o.flt):[];
   if(o.facts&&x.f&&!act){h+='<span class="facts">'+x.f.map(function(f){return '<span><span class="fact-check" aria-hidden="true">✓</span> '+esc(f)+'</span>'}).join('')+'</span>'}
@@ -149,7 +151,7 @@ function rfChip(k){var r=RF.filter(function(x){return x.k===k})[0],a=S.refine[k]
 function chipsCold(){return CHIPS.map(function(c){return c.charAt(0)==='@'?rfChip(c.slice(1)):chipBtn(c)}).join('')}
 function chipBtn(c){return '<button class="chip" aria-pressed="'+(S.chips.indexOf(c)>-1)+'" data-a="chip" data-c="'+esc(c)+'">'+esc(c)+'</button>'}
 function cold(){
-  var h='<div class="cs">'+(S.prev?'<button class="backrow" data-a="back" aria-label="Zurück zu den Ergebnissen"><svg width="20" height="20" viewBox="0 0 22 22" fill="none" stroke="#2A2A2A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3L6 11l8 8"/></svg>Zurück</button>':'')+'<div class="fld"><svg class="lupe" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#5D5D5D" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.8"/><path d="M13 13l5 5"/></svg><input id="q" value="'+esc(S.q)+'" placeholder="'+(S.ki?'Schreibe oder sprich in ganzen Sätzen':'Wonach suchst du?')+'" aria-label="Suchbegriff">'+(S.ki?'<span class="mic" aria-hidden="true">'+ICMIC+'</span>':'')+'</div>'+(S.ki&&!S.q.trim()?'<button class="exq" data-a="example">Beispiel: „kleines Sofa für meine Wohnung“</button>':'');
+  var h='<div class="cs">'+(S.prev?'<button class="backrow" data-a="back" aria-label="Zurück zu den Ergebnissen"><svg width="20" height="20" viewBox="0 0 22 22" fill="none" stroke="#2A2A2A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3L6 11l8 8"/></svg>Zurück</button>':'')+'<div class="fldwrap"><div class="fld"><svg class="lupe" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#5D5D5D" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.8"/><path d="M13 13l5 5"/></svg><input id="q" value="'+esc(S.q)+'"'+(S.ki?' role="combobox" aria-autocomplete="list" aria-controls="sugg" aria-expanded="false" autocomplete="off"':'')+' placeholder="'+(S.ki?'Schreibe oder sprich in ganzen Sätzen':'Wonach suchst du?')+'" aria-label="Suchbegriff">'+(S.ki?'<span class="mic" aria-hidden="true">'+ICMIC+'</span>':'')+'</div>'+(S.ki?'<ul class="sugg" id="sugg" role="listbox" aria-label="Suchvorschläge" hidden>'+SUGGS.map(function(t){return '<li role="presentation"><button type="button" role="option" class="sugg-i" data-s="'+esc(t)+'"><svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#5D5D5D" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.8"/><path d="M13 13l5 5"/></svg><span class="sugg-t">'+esc(t)+'</span></button></li>'}).join('')+'</ul>':'')+'</div>';
   h+='<div class="fld"><span class="ico-p"></span><input value="Deutschland" disabled aria-label="Ort"></div>';
   if(S.ki){
     h+=selBox({editable:true});
@@ -174,7 +176,7 @@ function showKiTag(){return S.ki&&!S.catPick&&wantCat(S.q)}
 function catShown(){return S.catPick||((S.ki&&wantCat(S.q))?'Möbel & Wohnen':'Alle Kategorien')}
 function qline(){return S.chips.length?S.chips.join(', '):S.q}
 function waiting(){
-  return header()+cnt('312 Ergebnisse - “'+esc(S.q)+'”')+sponsored()+kirow()+
+  return header()+cnt('312 Ergebnisse - “'+esc(S.q)+'”')+sponsored()+kirow('kirow-wait')+
   '<div class="waitbox center wait-cancel">'+KILUPE+'<p class="wait-sub">Die normalen Suchergebnisse bleiben sichtbar.</p></div>'+
   '<div class="waitnote center" role="status" aria-live="polite"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="sr">KI sucht passende Anzeigen</span><button class="ulink" data-a="cancel">Suche abbrechen</button></div>'+
   secNormal(false)+listing('d')+more()+endLink()+fab();
@@ -282,10 +284,9 @@ function low(){
   var keys=Object.keys(S.refine),n=[312,148,61,22][Math.min(keys.length+[S.radius,S.delivery,S.cond==='egal'?'':S.cond].filter(Boolean).length,3)];
   var open=S.open?rfOf(S.open):null,flt=curFlt();
   return header()+cnt(n+' Ergebnisse - “'+esc(qline())+'”')+sponsored()+kirow()+
-  '<div class="msg"><h3>Keine verlässlich begründete KI-Empfehlung</h3><p>Maße oder Zustand konnten nicht eindeutig überprüft werden. Bitte prüfe die Details in der Anzeige.</p></div>'+
   selBox()+
-  '<div class="aibox" style="padding:14px 14px 4px"><p class="h3" style="margin:0 0 6px">Grenze deine Suche weiter ein</p><div class="chips" style="gap:10px">'+RF.map(function(r){var a=S.refine[r.k];return '<button class="chip" aria-pressed="'+!!a+'" aria-expanded="'+(S.open===r.k)+'" aria-controls="rp-'+r.k+'" data-a="refine" data-k="'+r.k+'">'+esc(r.label)+'</button>'}).join('')+'</div>'+(open?rpanel(open):'')+'</div>'+
-  secFound('Mögliche Ergebnisse')+(lowCards(flt).map(function(x){return listing(x,{miss:1,why:1,kitag:1,flt:flt})}).join('')||'<div class="msg"><p>Keine weiteren Anzeigen mit unsicheren Angaben zu deinen Kriterien.</p></div>')+secNormal()+listing('d')+more()+foot()+fab();
+  '<div class="aibox low-box" style="padding:14px 14px 4px"><h3 class="lb-t">Keine verlässlich begründete KI-Empfehlung</h3><p class="lb-p">Maße oder Zustand konnten nicht eindeutig überprüft werden.</p><p class="h3" style="margin:0 0 6px">Grenze deine Suche weiter ein</p><div class="chips" style="gap:10px">'+RF.map(function(r){var a=S.refine[r.k];return '<button class="chip" aria-pressed="'+!!a+'" aria-expanded="'+(S.open===r.k)+'" aria-controls="rp-'+r.k+'" data-a="refine" data-k="'+r.k+'">'+esc(r.label)+'</button>'}).join('')+'</div>'+(open?rpanel(open):'')+'</div>'+
+  secFound('Mögliche Ergebnisse')+'<p class="low-check">Bitte prüfe die Details in der Anzeige.</p>'+(lowCards(flt).map(function(x){return listing(x,{miss:1,why:1,kitag:1,flt:flt})}).join('')||'<div class="msg"><p>Keine weiteren Anzeigen mit unsicheren Angaben zu deinen Kriterien.</p></div>')+secNormal()+listing('d')+more()+foot()+fab();
 }
 function none(){
   return header()+cnt('Keine KI-Treffer - “'+esc(S.q)+'”')+sponsored()+kirow()+
@@ -312,6 +313,31 @@ function render(){
   var v={cold:cold,waiting:waiting,high:high,low:low,none:none,fail:fail,plain:plain,compare:compare}[S.view]();
   $('#phone').innerHTML='<div class="scr">'+v+'</div>'+sheet()+(S.toast?'<div class="toast" role="status">'+esc(S.toast)+'</div>':'');ensureRoom();
   var info=$('#ki-info');if(info){info.showModal();info.addEventListener('cancel',function(e){e.preventDefault();closeInfo()})}
+  var sg=$('#sugg'),qs=$('#q');
+  if(sg&&qs){
+    var sgItems=[].slice.call(sg.querySelectorAll('.sugg-i'));
+    var sgHide=function(){sg.hidden=true;qs.setAttribute('aria-expanded','false')};
+    var sgShow=function(){
+      var raw=qs.value.trim(),v=raw.toLowerCase(),n=0;
+      sgItems.forEach(function(b){var t=b.dataset.s,tl=t.toLowerCase(),ok=document.activeElement===qs||sg.contains(document.activeElement);ok=ok&&tl!==v&&(!v||tl.indexOf(v)>-1);b.parentNode.hidden=!ok;if(ok){n++;var i=tl.indexOf(v);b.querySelector('.sugg-t').innerHTML=v&&i===0?'<b>'+esc(t.slice(0,raw.length))+'</b>'+esc(t.slice(raw.length)):esc(t)}});
+      sg.hidden=!n;qs.setAttribute('aria-expanded',String(!!n));
+    };
+    var sgPick=function(t){qs.value=t;qs.dispatchEvent(new Event('input',{bubbles:true}));sgHide();qs.focus();qs.setSelectionRange(qs.value.length,qs.value.length)};
+    qs.addEventListener('focus',sgShow);qs.addEventListener('input',sgShow);
+    qs.addEventListener('blur',function(e){if(!sg.contains(e.relatedTarget))sgHide()});
+    qs.addEventListener('keydown',function(e){if(e.key==='ArrowDown'&&!sg.hidden){e.preventDefault();var f=sgItems.filter(function(b){return !b.parentNode.hidden})[0];if(f)f.focus()}else if(e.key==='Escape')sgHide()});
+    sgItems.forEach(function(b,i){
+      b.addEventListener('pointerdown',function(e){e.preventDefault()});
+      b.addEventListener('click',function(){sgPick(b.dataset.s)});
+      b.addEventListener('blur',function(e){if(e.relatedTarget!==qs&&!sg.contains(e.relatedTarget))sgHide()});
+      b.addEventListener('keydown',function(e){
+        var vis=sgItems.filter(function(x){return !x.parentNode.hidden}),k=vis.indexOf(b);
+        if(e.key==='ArrowDown'){e.preventDefault();if(vis[k+1])vis[k+1].focus()}
+        else if(e.key==='ArrowUp'){e.preventDefault();if(k>0)vis[k-1].focus();else qs.focus()}
+        else if(e.key==='Escape'){qs.focus();sgHide()}
+      });
+    });
+  }
   var q=$('#q');if(q){q.addEventListener('input',function(){S.q=q.value;var has=!!q.value.trim(),chips=wantCat(q.value);if(!has)S.catPick=null;var sw=$('#chipwrap'),pw=$('#promptwrap');if(sw)sw.hidden=!chips;if(pw)pw.hidden=chips;var cs=$('#cat');if(cs){cs.value=catShown();cs.classList.toggle('sug',showKiTag());cs.classList.toggle('empty',hintOn());var ht=$('#cathint');if(ht)ht.hidden=!hintOn()}var kt=$('#catwrap .ki');if(kt)kt.hidden=!showKiTag();var lv=$('#catlive');if(lv)lv.textContent=showKiTag()?'KI schlägt die Kategorie Möbel und Wohnen vor':''})}
   var pe=$('#prc');if(pe)pe.addEventListener('change',function(){var v=pe.value;if(!v)delete S.refine.price;else{var o=v.charAt(0),n=v.slice(1);S.refine.price={n:n,o:o,text:o+' '+n+' €'};dropChip('< 200 €')}render();var np=$('#prc');if(np)np.focus()});
   [['#rad','radius'],['#del','delivery'],['#cnd','cond']].forEach(function(f){var e=$(f[0]);if(e)e.addEventListener('change',function(){if(f[1]==='delivery'){S.delEgal=e.value==='egal';S.delivery=S.delEgal?'':e.value}else S[f[1]]=e.value;render();var n=$(f[0]);if(n)n.focus()})});
@@ -324,7 +350,8 @@ function stateFor(c){return c>=CUT_HIGH?'high':(c>=CUT_LOW?'low':'none')}
 /* Simulierte Confidence aus Suchtext und Chips, kein echtes KI-Modell */
 function confidence(q){
   if(!/sofa|couch/.test(q)||/\bsof\b/.test(q))return 0.35;
-  return (S.chips.indexOf('< 160cm')>-1||S.chips.indexOf('2-Sitzer')>-1||/2-sitzer|160|180/.test(q))?0.82:0.55;
+  /* Hohe Sicherheit: konkrete Angabe (Chip, 2-Sitzer, Breite) oder ein Satz mit Wohnkontext wie "für meine Wohnung" */
+  return (S.chips.indexOf('< 160cm')>-1||S.chips.indexOf('2-Sitzer')>-1||/2-sitzer|160|180|für (meine|die|eine) wohnung/.test(q))?0.82:0.55;
 }
 function outcome(){
   var sc=S.scenario;
@@ -383,8 +410,7 @@ document.addEventListener('click',function(e){
   if(!el)return;
   if(el.dataset.a==='closesheet'&&e.target.closest('[data-stop]')&&!e.target.closest('button'))return;
   var a=el.dataset.a;
-  if(a==='example'){S.q='kleines Sofa für meine Wohnung';render();var q2=$('#q');if(q2){q2.focus();q2.setSelectionRange(q2.value.length,q2.value.length)}}
-  else if(a==='cmp'){var cid=el.dataset.id,cur=S.cmp||hitsNow().map(function(x){return x.id}).slice(0,2),ci=cur.indexOf(cid);S.cmp=cur.slice();if(ci>-1)S.cmp.splice(ci,1);else if(S.cmp.length>=CMP_MAX){toast('Du kannst höchstens '+CMP_MAX+' Angebote vergleichen.');return}else S.cmp.push(cid);var y0=window.pageYOffset;render();window.scrollTo(0,y0)}
+  if(a==='cmp'){var cid=el.dataset.id,cur=S.cmp||hitsNow().map(function(x){return x.id}).slice(0,2),ci=cur.indexOf(cid);S.cmp=cur.slice();if(ci>-1)S.cmp.splice(ci,1);else if(S.cmp.length>=CMP_MAX){toast('Du kannst höchstens '+CMP_MAX+' Angebote vergleichen.');return}else S.cmp.push(cid);var y0=window.pageYOffset;render();window.scrollTo(0,y0)}
   else if(a==='cmpgo'){var hn=hitsNow(),cs0=cmpSel(hn.map(function(x){return x.id}));if(S.view!=='high'||hn.length<2)return;if(cs0.length<2)toast('Wähle mindestens zwei Angebote aus.');else go('compare')}
   else if(a==='cmpback'){go('high')}
   else if(a==='cfb'){var fid=el.dataset.id,fv=el.dataset.v;S.cfb=S.cfb||{};if(S.cfb[fid]===fv)delete S.cfb[fid];else S.cfb[fid]=fv;var y1=window.pageYOffset;render();window.scrollTo(0,y1);if(fv==='ja'&&S.cfb[fid]==='ja')toast('Danke. Das Feedback wurde gezählt.')}
